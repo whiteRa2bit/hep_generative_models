@@ -3,6 +3,7 @@ source_data/
 examples/
 checkpoints/
 setup.cfg
+.idea/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

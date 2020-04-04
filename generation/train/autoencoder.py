@@ -1,15 +1,11 @@
 import numpy as np
-import argparse
 import torch
 from torch import nn
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from generation.data.data_simulation import Nakagami
 from generation.data.dataset_pytorch import SignalsDataset
-import os
-from generation.config import (
-    CHECKPOINTS_DIR
-)
+from generation.train.utils import save_checkpoint, parse_args
 
 
 class AutoEncoder(nn.Module):
@@ -35,19 +31,6 @@ class AutoEncoder(nn.Module):
 
 
 def run_train(model, dataloader, device='cpu', **kwargs):
-    def save_checkpoint():
-        if not kwargs['no_save'] and epoch % kwargs['save_interval'] == 0:
-            if kwargs['save_dir']:
-                save_dir = os.path.join(kwargs['save_dir'], kwargs['model_name'])
-            else:
-                save_dir = os.path.join(CHECKPOINTS_DIR, kwargs['model_name'])
-
-            if not os.path.exists(save_dir):
-                os.makedirs(save_dir)
-
-            checkpoint_name = os.path.join(save_dir, 'checkpoint_{}.pth'.format(epoch // kwargs['save_interval']))
-            torch.save(model.state_dict(), checkpoint_name)
-
     model.to(device)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(
@@ -66,7 +49,7 @@ def run_train(model, dataloader, device='cpu', **kwargs):
             print('epoch [{}/{}], loss:{:.4f}'
                   .format(epoch + 1, kwargs['num_epochs'], loss.data.item()))
 
-        save_checkpoint()
+        save_checkpoint(model, epoch, **kwargs)
 
 
 def generate_new_signal(model, dataset, device='cpu', samples_num=10):
@@ -77,21 +60,6 @@ def generate_new_signal(model, dataset, device='cpu', samples_num=10):
     result = model.decoder(torch.mean(output, 0)).cpu().data.numpy()
 
     return result
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--num_epochs', type=int, required=True)
-    parser.add_argument('--batch_size', type=int, required=True)
-    parser.add_argument('--learning_rate', type=float, required=True)
-    parser.add_argument('--print_each', type=int, default=20, help='number of epochs between print messages')
-    parser.add_argument('--verbose', action="store_false", help='increase output verbosity')
-    parser.add_argument('--cpu', action='store_true', help='use CPU instead of CUDA')
-    parser.add_argument('--save_dir', type=str, help='dir to save model checkpoints', default='')
-    parser.add_argument('--save_interval', type=int, default=10, help='save a checkpoint every N epochs')
-    parser.add_argument('--no_save', action='store_true', help='don’t save models or checkpoints')
-    parser.add_argument('--model_name', type=str, default='autoencoder', help='model name while saving')
-    return parser.parse_args()
 
 
 def main():
