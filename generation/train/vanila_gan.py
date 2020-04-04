@@ -108,14 +108,14 @@ def run_train(dataloader, device='cpu', **kwargs):
             print(
                 'epoch-{}; D_loss: {}; G_loss: {}'.format(epoch, D_loss.cpu().data.numpy(), G_loss.cpu().data.numpy()))
 
-            samples = generator(z).cpu().data.numpy()[:16]
+            samples = generator(z).cpu().data.numpy()[:9]
 
             f, ax = plt.subplots(3, 3, figsize=(9, 9))
             gs = gridspec.GridSpec(4, 4)
             gs.update(wspace=0.05, hspace=0.05)
 
             for i, sample in enumerate(samples):
-               ax[i//3][i % 3].plot(sample)
+                ax[i//3][i % 3].plot(sample)
             plt.show()
 
         kwargs['model_name'] = 'discriminator'
