@@ -30,7 +30,8 @@ class AutoEncoder(nn.Module):
         return x
 
 
-def run_train(model, dataloader, device='cpu', **kwargs):
+def run_train(dataloader, device='cpu', **kwargs):
+    model = AutoEncoder(kwargs['sample_size'])
     model.to(device)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(
@@ -50,6 +51,8 @@ def run_train(model, dataloader, device='cpu', **kwargs):
                   .format(epoch + 1, kwargs['num_epochs'], loss.data.item()))
 
         save_checkpoint(model, epoch, **kwargs)
+
+    return model
 
 
 def generate_new_signal(model, dataset, device='cpu', samples_num=10):
@@ -79,9 +82,9 @@ def main():
     dataset = SignalsDataset(data)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
-    model = AutoEncoder(SAMPLE_SIZE)
     device = torch.device("cuda" if (torch.cuda.is_available() and not args.cpu) else "cpu")
-    run_train(model, dataloader, device,
+    run_train(dataloader, device,
+              sample_size=args.sample_size,
               learning_rate=args.learning_rate,
               num_epochs=args.num_epochs,
               batch_size=args.batch_size,

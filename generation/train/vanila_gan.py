@@ -111,6 +111,13 @@ def run_train(dataloader, device='cpu', **kwargs):
         kwargs['model_name'] = 'generator'
         save_checkpoint(generator, epoch, **kwargs)
 
+    return generator
+
+
+def generate_new_signal(generator, device='cpu'):
+    z = Variable(torch.randn(2, generator.latent_dim)).to(device)
+    return generator(z)[0].cpu().detach().numpy()
+
 
 def main():
     args = parse_args()
