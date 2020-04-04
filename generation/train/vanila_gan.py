@@ -59,11 +59,9 @@ class Discriminator(nn.Module):
 def run_train(dataloader, device='cpu', **kwargs):
     generator = Generator(kwargs['sample_size'])
     discriminator = Discriminator(kwargs['sample_size'])
-    adversarial_loss = torch.nn.BCELoss()
 
     generator.to(device)
     discriminator.to(device)
-    adversarial_loss.to(device)
 
     G_optimizer = torch.optim.Adam(generator.parameters(), lr=kwargs['learning_rate'])
     D_optimizer = torch.optim.Adam(discriminator.parameters(), lr=kwargs['learning_rate'])
