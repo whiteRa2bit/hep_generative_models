@@ -7,6 +7,8 @@ from torch.utils.data import DataLoader
 from generation.data.data_simulation import Nakagami
 from generation.data.dataset_pytorch import SignalsDataset
 from generation.train.utils import save_checkpoint, parse_args
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 
 
 class Generator(nn.Module):
@@ -105,6 +107,16 @@ def run_train(dataloader, device='cpu', **kwargs):
         if epoch % kwargs['print_each'] == 0:
             print(
                 'epoch-{}; D_loss: {}; G_loss: {}'.format(epoch, D_loss.cpu().data.numpy(), G_loss.cpu().data.numpy()))
+
+            samples = generator(z).cpu().data.numpy()[:16]
+
+            f, ax = plt.subplots(3, 3, figsize=(9, 9))
+            gs = gridspec.GridSpec(4, 4)
+            gs.update(wspace=0.05, hspace=0.05)
+
+            for i, sample in enumerate(samples):
+               ax[i//3][i % 3].plot(sample)
+            plt.show()
 
         kwargs['model_name'] = 'discriminator'
         save_checkpoint(discriminator, epoch, **kwargs)
