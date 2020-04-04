@@ -6,7 +6,7 @@ with open("README.md", 'r') as f:
 requirements = [
     "torch==1.4.0",
     "scipy==1.4.1",
-    "numpy==1.18.2",
+    "numpy==1.16.2",
     "matplotlib==3.2.1",
 ]
 

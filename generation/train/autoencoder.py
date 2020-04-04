@@ -3,26 +3,13 @@ import argparse
 import torch
 from torch import nn
 from torch.autograd import Variable
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 from generation.data.data_simulation import Nakagami
+from generation.data.dataset_pytorch import SignalsDataset
 import os
 from generation.config import (
     CHECKPOINTS_DIR
 )
-
-
-class SignalsDataset(Dataset):
-    def __init__(self, signals_data):
-        self.signals_data = signals_data
-
-    def __len__(self):
-        return len(self.signals_data)
-
-    def __getitem__(self, idx):
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
-
-        return self.signals_data[idx].astype("float32")
 
 
 class AutoEncoder(nn.Module):
@@ -59,7 +46,6 @@ def run_train(model, dataloader, device='cpu', **kwargs):
                 os.makedirs(save_dir)
 
             checkpoint_name = os.path.join(save_dir, 'checkpoint_{}.pth'.format(epoch // kwargs['save_interval']))
-            print(checkpoint_name)
             torch.save(model.state_dict(), checkpoint_name)
 
     model.to(device)
