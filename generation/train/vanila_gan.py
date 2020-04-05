@@ -61,7 +61,7 @@ class Discriminator(nn.Module):
 
 def run_train(dataset, device='cpu', **kwargs):
     dataloader = DataLoader(dataset, batch_size=kwargs['batch_size'], shuffle=True)
-    generator = Generator(kwargs['sample_size'])
+    generator = Generator(x_dim=kwargs['sample_size'], latent_dim=kwargs['latent_dim'])
     discriminator = Discriminator(kwargs['sample_size'])
 
     generator.to(device)
