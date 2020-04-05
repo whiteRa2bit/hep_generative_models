@@ -58,7 +58,7 @@ def run_train(dataset, device='cpu', **kwargs):
             gs = gridspec.GridSpec(rows_num, rows_num)
             gs.update(wspace=0.05, hspace=0.05)
 
-            for i, sample in enumerate(rows_num**2):
+            for i in range(rows_num**2):
                 ax[i // rows_num][i % rows_num].plot(generate_new_signal(model, dataset, device))
             plt.show()
 
