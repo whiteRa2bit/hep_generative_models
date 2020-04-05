@@ -1,14 +1,15 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import numpy as np
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from generation.data.data_simulation import Nakagami
 from generation.data.dataset_pytorch import SignalsDataset
 from generation.train.utils import save_checkpoint, parse_args
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
+
 
 
 class Generator(nn.Module):
@@ -58,7 +59,8 @@ class Discriminator(nn.Module):
         return validity
 
 
-def run_train(dataloader, device='cpu', **kwargs):
+def run_train(dataset, device='cpu', **kwargs):
+    dataloader = DataLoader(dataset, batch_size=kwargs['batch_size'], shuffle=True)
     generator = Generator(kwargs['sample_size'])
     discriminator = Discriminator(kwargs['sample_size'])
 
@@ -127,6 +129,7 @@ def run_train(dataloader, device='cpu', **kwargs):
 
 
 def generate_new_signal(generator, device='cpu'):
+    generator.to(device)
     z = Variable(torch.randn(2, generator.latent_dim)).to(device)
     return generator(z)[0].cpu().detach().numpy()
 
@@ -145,10 +148,9 @@ def main():
     nu_values = np.arange(NU_MIN, NU_MAX, NU_STEP)
     data = nakagami.get_nakagami_data(nu_values)
     dataset = SignalsDataset(data)
-    dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
     device = torch.device("cuda" if (torch.cuda.is_available() and not args.cpu) else "cpu")
 
-    run_train(dataloader, device,
+    run_train(dataset, device,
               latent_dim=args.latent_dim,
               sample_size=args.sample_size,
               learning_rate=args.learning_rate,

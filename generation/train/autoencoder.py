@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import torch
 from torch import nn
 from torch.autograd import Variable
@@ -30,7 +32,8 @@ class AutoEncoder(nn.Module):
         return x
 
 
-def run_train(dataloader, device='cpu', **kwargs):
+def run_train(dataset, device='cpu', **kwargs):
+    dataloader = DataLoader(dataset, batch_size=kwargs['batch_size'], shuffle=True)
     model = AutoEncoder(kwargs['sample_size'])
     model.to(device)
     criterion = nn.MSELoss()
@@ -49,6 +52,15 @@ def run_train(dataloader, device='cpu', **kwargs):
         if kwargs['verbose'] and epoch % kwargs['print_each'] == 0:
             print('epoch [{}/{}], loss:{:.4f}'
                   .format(epoch + 1, kwargs['num_epochs'], loss.data.item()))
+
+            rows_num = 3
+            f, ax = plt.subplots(rows_num, rows_num, figsize=(rows_num**2, rows_num**2))
+            gs = gridspec.GridSpec(rows_num, rows_num)
+            gs.update(wspace=0.05, hspace=0.05)
+
+            for i, sample in enumerate(rows_num**2):
+                ax[i // rows_num][i % rows_num].plot(generate_new_signal(model, dataset, device))
+            plt.show()
 
         save_checkpoint(model, epoch, **kwargs)
 
@@ -80,10 +92,9 @@ def main():
     nu_values = np.arange(NU_MIN, NU_MAX, NU_STEP)
     data = nakagami.get_nakagami_data(nu_values)
     dataset = SignalsDataset(data)
-    dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
     device = torch.device("cuda" if (torch.cuda.is_available() and not args.cpu) else "cpu")
-    run_train(dataloader, device,
+    run_train(dataset, device,
               sample_size=args.sample_size,
               learning_rate=args.learning_rate,
               num_epochs=args.num_epochs,
