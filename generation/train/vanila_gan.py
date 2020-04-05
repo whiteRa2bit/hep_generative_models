@@ -110,14 +110,15 @@ def run_train(dataset, device='cpu', **kwargs):
             print(
                 'epoch-{}; D_loss: {}; G_loss: {}'.format(epoch, D_loss.cpu().data.numpy(), G_loss.cpu().data.numpy()))
 
-            samples = generator(z).cpu().data.numpy()[:9]
+            rows_num = 3
+            samples = generator(z).cpu().data.numpy()[:rows_num**2]
 
-            f, ax = plt.subplots(3, 3, figsize=(9, 9))
-            gs = gridspec.GridSpec(4, 4)
+            f, ax = plt.subplots(rows_num, rows_num, figsize=(rows_num**2, rows_num**2))
+            gs = gridspec.GridSpec(rows_num, rows_num)
             gs.update(wspace=0.05, hspace=0.05)
 
             for i, sample in enumerate(samples):
-                ax[i//3][i % 3].plot(sample)
+                ax[i//rows_num][i % rows_num].plot(sample)
             plt.show()
 
         kwargs['model_name'] = 'discriminator'
