@@ -129,10 +129,10 @@ def run_train(dataset, device='cpu', **kwargs):
     return generator
 
 
-def generate_new_signal(generator, device='cpu'):
+def generate_new_signal(generator, device='cpu', signals_num=1):
     generator.to(device)
-    z = Variable(torch.randn(2, generator.latent_dim)).to(device)
-    return generator(z)[0].cpu().detach().numpy()
+    z = Variable(torch.randn(signals_num + 1, generator.latent_dim)).to(device)
+    return generator(z)[:signals_num].cpu().detach().numpy()
 
 
 def main():
