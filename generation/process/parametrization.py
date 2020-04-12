@@ -42,7 +42,7 @@ class GaussianParametrizer:
             ax[2].legend(['Gaussians sum', 'Origin signal'])
             plt.show()
 
-        reg = self.model.copy()  # Make sure that fit_intercept is set to false
+        reg = self.model  # Make sure that fit_intercept is set to false
         gaussians = self.get_gaussians(signal)
         cur_X = np.array(gaussians).T
         cur_y = signal.copy()
