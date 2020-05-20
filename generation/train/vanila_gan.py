@@ -1,12 +1,15 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import numpy as np
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from generation.data.data_simulation import Nakagami
 from generation.data.dataset_pytorch import SignalsDataset
 from generation.train.utils import save_checkpoint, parse_args
+
 
 
 class Generator(nn.Module):
@@ -23,11 +26,10 @@ class Generator(nn.Module):
             return layers
 
         self.model = nn.Sequential(
-            *block(self.latent_dim, 128, normalize=False),
-            *block(128, 256),
-            *block(256, 512),
-            *block(512, 1024),
-            nn.Linear(1024, int(self.x_dim)),
+            *block(self.latent_dim, 16, normalize=False),
+            *block(16, 32),
+            *block(32, 64),
+            nn.Linear(64, int(self.x_dim)),
             nn.Tanh()
         )
 
@@ -42,11 +44,11 @@ class Discriminator(nn.Module):
         self.x_dim = x_dim
 
         self.model = nn.Sequential(
-            nn.Linear(self.x_dim, 512),
+            nn.Linear(self.x_dim, 64),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Linear(512, 256),
+            nn.Linear(64, 32),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Linear(256, 1),
+            nn.Linear(32, 1),
             nn.Sigmoid(),
         )
 
@@ -56,8 +58,9 @@ class Discriminator(nn.Module):
         return validity
 
 
-def run_train(dataloader, device='cpu', **kwargs):
-    generator = Generator(kwargs['sample_size'])
+def run_train(dataset, device='cpu', **kwargs):
+    dataloader = DataLoader(dataset, batch_size=kwargs['batch_size'], shuffle=True)
+    generator = Generator(x_dim=kwargs['sample_size'], latent_dim=kwargs['latent_dim'])
     discriminator = Discriminator(kwargs['sample_size'])
 
     generator.to(device)
@@ -106,6 +109,17 @@ def run_train(dataloader, device='cpu', **kwargs):
             print(
                 'epoch-{}; D_loss: {}; G_loss: {}'.format(epoch, D_loss.cpu().data.numpy(), G_loss.cpu().data.numpy()))
 
+            rows_num = 3
+            samples = generator(z).cpu().data.numpy()[:rows_num**2]
+
+            f, ax = plt.subplots(rows_num, rows_num, figsize=(rows_num**2, rows_num**2))
+            gs = gridspec.GridSpec(rows_num, rows_num)
+            gs.update(wspace=0.05, hspace=0.05)
+
+            for i, sample in enumerate(samples):
+                ax[i//rows_num][i % rows_num].plot(sample)
+            plt.show()
+
         kwargs['model_name'] = 'discriminator'
         save_checkpoint(discriminator, epoch, **kwargs)
         kwargs['model_name'] = 'generator'
@@ -114,9 +128,10 @@ def run_train(dataloader, device='cpu', **kwargs):
     return generator
 
 
-def generate_new_signal(generator, device='cpu'):
-    z = Variable(torch.randn(2, generator.latent_dim)).to(device)
-    return generator(z)[0].cpu().detach().numpy()
+def generate_new_signal(generator, device='cpu', signals_num=1):
+    generator.to(device)
+    z = Variable(torch.randn(signals_num + 1, generator.latent_dim)).to(device)
+    return generator(z)[:signals_num].cpu().detach().numpy()
 
 
 def main():
@@ -133,10 +148,9 @@ def main():
     nu_values = np.arange(NU_MIN, NU_MAX, NU_STEP)
     data = nakagami.get_nakagami_data(nu_values)
     dataset = SignalsDataset(data)
-    dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
     device = torch.device("cuda" if (torch.cuda.is_available() and not args.cpu) else "cpu")
 
-    run_train(dataloader, device,
+    run_train(dataset, device,
               latent_dim=args.latent_dim,
               sample_size=args.sample_size,
               learning_rate=args.learning_rate,
