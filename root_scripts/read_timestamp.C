@@ -1,16 +1,15 @@
-#include <set>
 #include <fstream>
 
-void read_detector() {
+void read_timestamp() {
     ofstream myfile;
-    myfile.open("../source_data/detector.txt");
+    myfile.open("../source_data/timestamp.txt");
 
     TFile file("../source_data/hybrid0.root");
     TTreeReader reader("hybrid;41", &file);
-    TTreeReaderValue<float> detectors(reader, "detector");
+    TTreeReaderValue<float> timestamp(reader, "timestamp");
 
     while (reader.Next()) {
-        myfile << *detectors << endl;
+        myfile << *timestamp << endl;
     }
     myfile.close();
 }
