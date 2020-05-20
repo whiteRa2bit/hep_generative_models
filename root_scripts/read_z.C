@@ -1,6 +1,6 @@
 #include <fstream>
 
-void read_detector() {
+void read_z() {
     ofstream myfile;
     myfile.open("../source_data/z.txt");
 
