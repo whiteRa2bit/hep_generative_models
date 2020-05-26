@@ -72,7 +72,17 @@ def generate_single_detector_output(df, steps_num: int = 1024, sample_coef: floa
     return np.array(step_energies)
 
 
-def generate_detector_output(df_full, data_size: int,  use_postprocessing: bool, detector: int = 0,
+def get_detector_df(df_full, detector: int, event: int = -1):
+    if event == -1:
+        df = df_full[df_full['detector'] == detector].sort_values(by=['timestamp'])
+    else:
+        df = df_full[(df_full['detector'] == detector) & (df_full['event'] == event)]
+    df.sort_values(by=['timestamp'], inplace=True)
+
+    return df
+
+
+def generate_detector_output(df_full, data_size: int,  use_postprocessing: bool, detector: int,
                              event: int = -1, steps_num: int = 1024, sample_coef: float = 0.5):
     """
     Generates data for given detector
@@ -85,12 +95,7 @@ def generate_detector_output(df_full, data_size: int,  use_postprocessing: bool,
     :param sample_coef: percent of data to take for each step
     :return: np.array with generated events
     """
-    if event == -1:
-        df = df_full[df_full['detector'] == detector].sort_values(by=['timestamp'])
-    else:
-        df = df_full[(df_full['detector'] == detector) & (df_full['event'] == event)]
-
-    df.sort_values(by=['timestamp'], inplace=True)
+    df = get_detector_df(df_full, detector, event)
 
     outputs = []
     for _ in range(data_size):
