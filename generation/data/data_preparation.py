@@ -49,24 +49,24 @@ def get_events_df(data_folder):
     return df
 
 
-def get_detector_event_data(df_full, detector: int, event: int):
+def get_detector_data(df_full, detector: int):
     df = df_full[df_full['detector'] == detector]
-    df = df[df['event'] == event]
     df.sort_values(by='timestamp', inplace=True)
 
     return df
 
 
-def generate_detector_event_output(df_full, detector: int, event: int, steps_num: int = 1024):
+def generate_detector_event_output(df_full, detector: int, steps_num: int = 1024, sample_coef=0.5):
     """
     Generates one output for given detector and event
     :param df_full: df with info of given detector and event
     :param detector: detector number
     :param event: event number
     :param steps_num: number of timestamps by which time will be splitted
+    :param sample_coef: percent of data to take for each step_energy
     :return: np.array [steps_num] with energies
     """
-    df = get_detector_event_data(df_full, detector, event)
+    df = get_detector_data(df_full, detector)
     min_timestamp = min(df['timestamp'])
     max_timestamp = max(df['timestamp'])
     step = (max_timestamp - min_timestamp) / steps_num
@@ -75,7 +75,7 @@ def generate_detector_event_output(df_full, detector: int, event: int, steps_num
     for i in range(steps_num):
         step_df = df[df['timestamp'] > i * step]
         step_df = step_df[step_df['timestamp'] < (i + 1) * step]
-        step_df = step_df.sample(len(step_df) // 2)  # randomly sample half of data
+        step_df = step_df.sample(int(len(step_df) * sample_coef))  # randomly sample half of data
         step_energy = sum(step_df['energy'])
         step_energies.append(step_energy)
 
