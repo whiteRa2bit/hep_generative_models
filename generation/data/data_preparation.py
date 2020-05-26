@@ -57,7 +57,7 @@ def get_detector_event_data(df_full, detector: int, event: int):
     return df
 
 
-def generate_detector_event_output(df_full, detector: int, event: int, steps_num: int = 500):
+def generate_detector_event_output(df_full, detector: int, event: int, steps_num: int = 1024):
     """
     Generates one output for given detector and event
     :param df_full: df with info of given detector and event
@@ -73,7 +73,7 @@ def generate_detector_event_output(df_full, detector: int, event: int, steps_num
 
     step_energies = []
     for i in range(steps_num):
-        step_df = df[ df['timestamp'] > i * step]
+        step_df = df[df['timestamp'] > i * step]
         step_df = step_df[step_df['timestamp'] < (i + 1) * step]
         step_df = step_df.sample(len(step_df) // 2)  # randomly sample half of data
         step_energy = sum(step_df['energy'])
@@ -85,8 +85,8 @@ def generate_detector_event_output(df_full, detector: int, event: int, steps_num
 def postprocess_output(step_energies):
     """
     Getting result signal after photodetector
-    :param step_energies:
-    :return:
+    :param step_energies: Output from generate_detector_event_output
+    :return: processed signal
     """
     def build_kernel(x_cur, energy, x_min, x_max):
         kernel = lambda x: ((x - x_cur) ** 2) / np.exp((x - x_cur) / PROCESSING_TIME_NORM_COEF)
