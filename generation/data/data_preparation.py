@@ -24,8 +24,9 @@ def process_file(data, attr_name: str, data_folder: str) -> None:
             data[attr_name].append(float(line.strip()))
 
 
-def get_events_df():
+def get_events_df(data_folder):
     """
+    :param data_folder:
     :return: events df, where each column is an attribute
     """
     attributes = ['x', 'y', 'z', 'energy', 'detector', 'timestamp', 'event']
@@ -34,7 +35,7 @@ def get_events_df():
     for attr_name in attributes:
         print("Attribute: {}".format(attr_name))
         time.sleep(1)
-        process_file(data, attr_name)
+        process_file(data, attr_name, data_folder)
         time.sleep(1)
 
     # Check that all attributes have
@@ -81,7 +82,8 @@ def generate_detector_event_output(df_full, detector: int, event: int, steps_num
 
 
 def main():
-    df = get_events_df()
+    args = parse_args()
+    df = get_events_df(args.data_folder)
     print(df.head())
 
 
