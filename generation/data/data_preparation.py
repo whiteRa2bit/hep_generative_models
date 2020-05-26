@@ -49,7 +49,7 @@ def get_events_df(data_folder):
     return df
 
 
-def generate_detector_event_output(df_full, detector: int, event_num = -1, steps_num: int = 1024, sample_coef=0.5):
+def generate_detector_event_output(df_full, detector: int, event = -1, steps_num: int = 1024, sample_coef=0.5):
     """
     Generates one output for given detector and event
     :param df_full: df with info of given detector and event
@@ -59,10 +59,10 @@ def generate_detector_event_output(df_full, detector: int, event_num = -1, steps
     :param sample_coef: percent of data to take for each step_energy
     :return: np.array [steps_num] with energies
     """
-    if event_num == -1:
+    if event == -1:
         df = df_full[df_full['detector'] == detector].sort_values(by=['timestamp'])
     else:
-        df = df_full[(df_full['detector'] == detector) & (df_full['event'] == event_num)]
+        df = df_full[(df_full['detector'] == detector) & (df_full['event'] == event)]
 
     df.sort_values(by=['timestamp'], inplace=True)
     min_timestamp = min(df['timestamp'])
