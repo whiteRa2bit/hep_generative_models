@@ -11,17 +11,23 @@ def parse_args():
     return parser.parse_args()
 
 
-def process_file(data, attr_name, args):
-    with open("{}/{}.txt".format(args.data_folder, attr_name)) as file_:
+def process_file(data, attr_name: str, data_folder: str) -> None:
+    """
+    Adds values of corresponding attribute to data
+    :param data: Dictionary where keys are attributes' names
+    :param attr_name: attribute name
+    :param data_folder: path where to read data
+    :return:
+    """
+    with open("{}/{}.txt".format(data_folder, attr_name)) as file_:
         for line in file_:
             data[attr_name].append(float(line.strip()))
 
-    attrs_values = data.values()
-    data_size = len(attrs_values[0])
-    assert all(len(item) == data_size for item in attrs_values)
-
 
 def get_events_df():
+    """
+    :return: events df, where each column is an attribute
+    """
     attributes = ['x', 'y', 'z', 'energy', 'detector', 'timestamp', 'event']
     data = {attr_name: [] for attr_name in attributes}
 
@@ -30,6 +36,12 @@ def get_events_df():
         time.sleep(1)
         process_file(data, attr_name)
         time.sleep(1)
+
+    # Check that all attributes have
+    # the same number of values
+    attrs_values = data.values()
+    data_size = len(attrs_values[0])
+    assert all(len(item) == data_size for item in attrs_values)
 
     df = pd.DataFrame(data)
     return df
