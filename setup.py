@@ -4,7 +4,7 @@ with open("README.md", 'r') as f:
     long_description = f.read()
 
 requirements = [
-    "torch==1.4.0",
+#    "torch==1.4.0",
     "scipy==1.4.1",
     "numpy==1.16.2",
     "matplotlib==3.2.1",
