@@ -2,6 +2,7 @@ import time
 import numpy as np
 import pandas as pd
 import argparse
+from generation.config import PROCESSING_TIME_NORM_COEF
 
 
 def parse_args():
@@ -72,13 +73,33 @@ def generate_detector_event_output(df_full, detector: int, event: int, steps_num
 
     step_energies = []
     for i in range(steps_num):
-        step_df = df[df['timestamp'] > i * step]
+        step_df = df[ df['timestamp'] > i * step]
         step_df = step_df[step_df['timestamp'] < (i + 1) * step]
         step_df = step_df.sample(len(step_df) // 2)  # randomly sample half of data
         step_energy = sum(step_df['energy'])
         step_energies.append(step_energy)
 
     return np.array(step_energies)
+
+
+def postprocess_output(step_energies):
+    """
+    Getting result signal after photodetector
+    :param step_energies:
+    :return:
+    """
+    def build_kernel(x_cur, energy, x_min, x_max):
+        kernel = lambda x: ((x - x_cur) ** 2) / np.exp((x - x_cur) / PROCESSING_TIME_NORM_COEF)
+        x_linspace = np.linspace(x_min, x_max, x_max - x_min)
+        y_linspace = energy * np.array(list(map(kernel, x_linspace)))
+        y_linspace[:x_cur] = np.zeros(x_cur)
+        return y_linspace
+
+    result = np.zeros(len(step_energies))
+    for x_cur, energy in enumerate(step_energies):
+        y_cur = build_kernel(x_cur, energy, x_min=0, x_max=len(step_energies))
+        result += y_cur
+    return result
 
 
 def main():
