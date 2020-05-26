@@ -49,22 +49,14 @@ def get_events_df(data_folder):
     return df
 
 
-def generate_detector_event_output(df_full, detector: int, event = -1, steps_num: int = 1024, sample_coef=0.5):
+def generate_single_detector_output(df, steps_num: int = 1024, sample_coef: float = 0.5):
     """
-    Generates one output for given detector and event
-    :param df_full: df with info of given detector and event
-    :param detector: detector number
-    :param event: event number
+    Generates one output for given detector
+    :param df: df with info of given detector and event
     :param steps_num: number of timestamps by which time will be splitted
-    :param sample_coef: percent of data to take for each step_energy
+    :param sample_coef: percent of data to take for each step
     :return: np.array [steps_num] with energies
     """
-    if event == -1:
-        df = df_full[df_full['detector'] == detector].sort_values(by=['timestamp'])
-    else:
-        df = df_full[(df_full['detector'] == detector) & (df_full['event'] == event)]
-
-    df.sort_values(by=['timestamp'], inplace=True)
     min_timestamp = min(df['timestamp'])
     max_timestamp = max(df['timestamp'])
     step = (max_timestamp - min_timestamp) / steps_num
@@ -73,14 +65,44 @@ def generate_detector_event_output(df_full, detector: int, event = -1, steps_num
     for i in range(steps_num):
         step_df = df[df['timestamp'] > i * step]
         step_df = step_df[step_df['timestamp'] < (i + 1) * step]
-        step_df = step_df.sample(int(len(step_df) * sample_coef))  # randomly sample half of data
+        step_df = step_df.sample(int(len(step_df) * sample_coef))  # randomly sample data
         step_energy = sum(step_df['energy'])
         step_energies.append(step_energy)
 
     return np.array(step_energies)
 
 
-def postprocess_output(step_energies):
+def generate_detector_output(df_full, data_size: int,  use_postprocessing: bool, detector: int = 0,
+                             event: int = -1, steps_num: int = 1024, sample_coef: float = 0.5):
+    """
+    Generates data for given detector
+    :param df_full: pandas df, output of get_events_df()
+    :param data_size: number of samples to get
+    :param use_postprocessing: whether to use output before or after photodetector
+    :param detector: detector number
+    :param event: event number
+    :param steps_num: number of timestamps by which time will be splitted
+    :param sample_coef: percent of data to take for each step
+    :return: np.array with generated events
+    """
+    if event == -1:
+        df = df_full[df_full['detector'] == detector].sort_values(by=['timestamp'])
+    else:
+        df = df_full[(df_full['detector'] == detector) & (df_full['event'] == event)]
+
+    df.sort_values(by=['timestamp'], inplace=True)
+
+    outputs = []
+    for _ in range(data_size):
+        step_energies = generate_single_detector_output(df, steps_num, sample_coef)
+        if use_postprocessing:
+            output = postprocess_step_energies(step_energies)
+        outputs.append(output)
+
+    return np.array(outputs)
+
+
+def postprocess_step_energies(step_energies):
     """
     Getting result signal after photodetector
     :param step_energies: Output from generate_detector_event_output
