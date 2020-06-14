@@ -1,10 +1,18 @@
 #include <fstream>
+#include <TString.h>
 
 void read_energy() {
-    ofstream myfile;
-    myfile.open("../source_data/energy.txt");
+    TString DATA_PATH = "../source_data/angle_0_100_GeV/";
+    TString write_file = "energy.txt";
+    TString read_file = "hybrid0.root";
 
-    TFile file("../source_data/hybrid0.root");
+    TString write_path = DATA_PATH + write_file;
+    TString read_path = DATA_PATH + read_file;
+
+    ofstream myfile;
+    myfile.open(write_path);
+
+    TFile file(read_path);
     TTreeReader reader("hybrid;41", &file);
     TTreeReaderValue<float> energy(reader, "PhotonEnergy");
 
