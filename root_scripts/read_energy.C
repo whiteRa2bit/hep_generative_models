@@ -2,7 +2,7 @@
 #include <TString.h>
 
 void read_energy() {
-    TString DATA_PATH = "../source_data/angle_0_100_GeV/";
+    TString DATA_PATH = "../source_data/angle_0_2_GeV/";
     TString write_file = "energy.txt";
     TString read_file = "hybrid0.root";
 
@@ -13,7 +13,7 @@ void read_energy() {
     myfile.open(write_path);
 
     TFile file(read_path);
-    TTreeReader reader("hybrid;41", &file);
+    TTreeReader reader("hybrid;128", &file);
     TTreeReaderValue<float> energy(reader, "PhotonEnergy");
 
     while (reader.Next()) {
