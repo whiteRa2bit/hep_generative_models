@@ -2,7 +2,7 @@
 #include "TString.h"
 
 void read_timestamp() {
-    TString data_folder = "../source_data/angle_0_100_GeV/";
+    TString data_folder = "../source_data/angle_0_2_GeV/";
     TString write_file = "timestamp.txt";
     TString read_file = "hybrid0.root";
 
@@ -13,7 +13,7 @@ void read_timestamp() {
     myfile.open(write_path);
 
     TFile file(read_path);
-    TTreeReader reader("hybrid;41", &file);
+    TTreeReader reader("hybrid;128", &file);
     TTreeReaderValue<float> timestamp(reader, "timestamp");
 
     while (reader.Next()) {
