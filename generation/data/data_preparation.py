@@ -85,7 +85,7 @@ def get_detector_df(df_full, detector: int, event: int = -1):
 def generate_detector_output(df_full, data_size: int,  use_postprocessing: bool, detector: int,
                              event: int = -1, steps_num: int = 1024, sample_coef: float = 0.5):
     """
-    Generates data for given detector
+    Generates data for a given detector
     :param df_full: pandas df, output of get_events_df()
     :param data_size: number of samples to get
     :param use_postprocessing: whether to use output before or after photodetector
