@@ -6,7 +6,7 @@ import matplotlib.gridspec as gridspec
 import numpy as np
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
-from generation.data.data_simulation import Nakagami
+from generation.data.synthetic_data import Nakagami
 from generation.data.dataset_pytorch import SignalsDataset
 from generation.train.utils import save_checkpoint, parse_args
 
