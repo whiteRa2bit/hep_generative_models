@@ -72,9 +72,16 @@ def generate_single_detector_output(df, steps_num: int = 1024, sample_coef: floa
     return np.array(step_energies)
 
 
-def get_detector_df(df_full, detector: int, event: int = -1):
+def get_detector_df(df_full, detector: int, event: int = -1):  # TODO: (@whiteRa2bit, 2020-07-21) Add documentation
+    """
+    Given full df returns df for given detector and event
+    :param df_full:
+    :param detector:
+    :param event:
+    :return: 
+    """
     if event == -1:
-        df = df_full[df_full['detector'] == detector].sort_values(by=['timestamp'])
+        df = df_full[df_full['detector'] == detector]
     else:
         df = df_full[(df_full['detector'] == detector) & (df_full['event'] == event)]
     df.sort_values(by=['timestamp'], inplace=True)
