@@ -1,7 +1,9 @@
-import time
+import argparse
 import numpy as np
 import pandas as pd
-import argparse
+import tqdm
+import time
+
 from generation.config import PROCESSING_TIME_NORM_COEF
 
 
@@ -49,9 +51,9 @@ def get_events_df(data_folder):
     return df
 
 
-def generate_single_detector_output(df, steps_num: int = 1024, sample_coef: float = 0.5):
+def generate_one_signal(df, steps_num: int = 1024, sample_coef: float = 0.5):
     """
-    Generates one output for given detector
+    Generates one output for given df
     :param df: df with info of given detector and event
     :param steps_num: number of timestamps by which time will be splitted
     :param sample_coef: percent of data to take for each step
@@ -72,7 +74,7 @@ def generate_single_detector_output(df, steps_num: int = 1024, sample_coef: floa
     return np.array(step_energies)
 
 
-def get_detector_df(df_full, detector: int, event: int = -1):  # TODO: (@whiteRa2bit, 2020-07-21) Add documentation
+def get_detector_event_df(df_full, detector: int, event: int = -1):  # TODO: (@whiteRa2bit, 2020-07-21) Add documentation
     """
     Given full df returns df for given detector and event
     :param df_full:
@@ -89,35 +91,30 @@ def get_detector_df(df_full, detector: int, event: int = -1):  # TODO: (@whiteRa
     return df
 
 
-def generate_detector_output(df_full, data_size: int,  use_postprocessing: bool, detector: int,
-                             event: int = -1, steps_num: int = 1024, sample_coef: float = 0.5):
+def generate_signals(df, data_size: int,  use_postprocessing: bool, steps_num: int = 1024, sample_coef: float = 0.5):
     """
     Generates data for a given detector
     :param df_full: pandas df, output of get_events_df()
     :param data_size: number of samples to get
     :param use_postprocessing: whether to use output before or after photodetector
-    :param detector: detector number
-    :param event: event number
     :param steps_num: number of timestamps by which time will be splitted
     :param sample_coef: percent of data to take for each step
     :return: np.array with generated events
     """
-    df = get_detector_df(df_full, detector, event)
-
-    outputs = []
-    for _ in range(data_size):
-        step_energies = generate_single_detector_output(df, steps_num, sample_coef)
+    output_signals = []
+    for _ in tqdm.tqdm(range(data_size)):
+        output_signal = generate_one_signal(df, steps_num, sample_coef)
         if use_postprocessing:
-            output = postprocess_step_energies(step_energies)
-        outputs.append(output)
+            output_signal = postprocess_signal(output_signal)
+        output_signals.append(output_signal)
 
-    return np.array(outputs)
+    return np.array(output_signals)
 
 
-def postprocess_step_energies(step_energies):
+def postprocess_signal(signal):
     """
     Getting result signal after photodetector
-    :param step_energies: Output from generate_detector_event_output
+    :param signal: Output from generate_detector_event_output
     :return: processed signal
     """
     def build_kernel(x_cur, energy, x_min, x_max):
@@ -127,9 +124,9 @@ def postprocess_step_energies(step_energies):
         y_linspace[:x_cur] = np.zeros(x_cur)
         return y_linspace
 
-    result = np.zeros(len(step_energies))
-    for x_cur, energy in enumerate(step_energies):
-        y_cur = build_kernel(x_cur, energy, x_min=0, x_max=len(step_energies))
+    result = np.zeros(len(signal))
+    for x_cur, energy in enumerate(signal):
+        y_cur = build_kernel(x_cur, energy, x_min=0, x_max=len(signal))
         result += y_cur
     return result
 
