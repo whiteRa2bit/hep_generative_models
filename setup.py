@@ -12,7 +12,7 @@ requirements = [
 
 setup(
     name='generation',
-    version='0.1',
+    version='0.1.1',
     description='Module of generative models applied to high energy physics problems',
     license="MIT",
     long_description=long_description,
