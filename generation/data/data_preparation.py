@@ -59,6 +59,9 @@ def generate_one_signal(df, steps_num: int = 1024, sample_coef: float = 0.5):
     :param sample_coef: percent of data to take for each step
     :return: np.array [steps_num] with energies
     """
+    if df.empty:
+        return np.zeros(steps_num)
+
     min_timestamp = min(df['timestamp'])
     max_timestamp = max(df['timestamp'])
     step = (max_timestamp - min_timestamp) / steps_num
