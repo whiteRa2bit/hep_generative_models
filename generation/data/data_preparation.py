@@ -74,11 +74,7 @@ def generate_one_signal(df, steps_num: int = 1024, sample_coef: float = 0.5):
     return np.array(step_energies)
 
 
-<<<<<<< HEAD
 def get_detector_event_df(df_full, detector: int = -1, event: int = -1):  # TODO: (@whiteRa2bit, 2020-07-21) Add documentation
-=======
-def get_detector_df(df_full, detector: int, event: int = -1):  # TODO: (@whiteRa2bit, 2020-07-21) Add documentation
->>>>>>> 67e0ddcec9c14cfe11fd99e95aa4c17c2ed08273
     """
     Given full df returns df for given detector and event
     :param df_full:
@@ -86,18 +82,11 @@ def get_detector_df(df_full, detector: int, event: int = -1):  # TODO: (@whiteRa
     :param event:
     :return: 
     """
-<<<<<<< HEAD
     df = df_full.copy()
     if detector != -1:
         df = df[df['detector'] == detector]
     if event != -1:
         df = df[df['event'] == event]
-=======
-    if event == -1:
-        df = df_full[df_full['detector'] == detector]
-    else:
-        df = df_full[(df_full['detector'] == detector) & (df_full['event'] == event)]
->>>>>>> 67e0ddcec9c14cfe11fd99e95aa4c17c2ed08273
     df.sort_values(by=['timestamp'], inplace=True)
 
     return df
