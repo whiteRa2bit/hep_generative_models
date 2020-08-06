@@ -4,7 +4,7 @@ import pandas as pd
 import tqdm
 import time
 
-from generation.config import PROCESSING_TIME_NORM_COEF
+from generation.config import PROCESSING_TIME_NORM_COEF, ATTRIBUTES, ATTRIBUTE_PATHS, SPACAL_DATA_PATH
 
 
 def parse_args():
@@ -14,40 +14,37 @@ def parse_args():
     return parser.parse_args()
 
 
-def process_file(data, attr_name: str, data_folder: str) -> None:
+def prepare_attributes_df(attrs=ATTRIBUTES, attr_paths=ATTRIBUTE_PATHS, res_path=SPACAL_DATA_PATH) -> None:
     """
     Adds values of corresponding attribute to data
     :param data: Dictionary where keys are attributes' names
     :param attr_name: attribute name
-    :param data_folder: path where to read data
+    :param data_path: path to attribute file
     :return:
     """
-    with open("{}/{}.txt".format(data_folder, attr_name)) as file_:
-        for line in file_:
-            data[attr_name].append(float(line.strip()))
+    def process_line(line):
+        return float(line.strip())
 
+    data = {attr: [] for attr in attrs}
+    for attr, attr_path in zip(attrs, attr_paths):
+        print(f'Processing attribute: {attr}')
+        with open(attr_path, 'r') as attr_file:
+            data[attr] = list(map(process_line, attr_file.readlines()))
 
-def get_events_df(data_folder):
-    """
-    :param data_folder:
-    :return: events df, where each column is an attribute
-    """
-    attributes = ['x', 'y', 'z', 'energy', 'detector', 'timestamp', 'event']
-    data = {attr_name: [] for attr_name in attributes}
-
-    for attr_name in attributes:
-        print("Attribute: {}".format(attr_name))
-        time.sleep(1)
-        process_file(data, attr_name, data_folder)
-        time.sleep(1)
-
-    # Check that all attributes have
-    # the same number of values
-    attrs_values = data.values()
-    data_size = len(attrs_values[0])
-    assert all(len(item) == data_size for item in attrs_values)
+    # Check that all attributes have the same number of values
+    attr_values = list(data.values())
+    assert all(len(item) == len(attr_values[0]) for item in attr_values)
 
     df = pd.DataFrame(data)
+    df.to_pickle(res_path)
+
+
+def get_attributes_df(data_path=SPACAL_DATA_PATH):
+    """
+    :param data_path:
+    :return: df, where each column is an attribute
+    """
+    df = pd.read_pickle(data_path)
     return df
 
 
@@ -77,7 +74,7 @@ def generate_one_signal(df, steps_num: int = 1024, sample_coef: float = 0.5):
     return np.array(step_energies)
 
 
-def get_detector_event_df(df_full, detector: int, event: int = -1):  # TODO: (@whiteRa2bit, 2020-07-21) Add documentation
+def get_detector_event_df(df_full, detector: int = -1, event: int = -1):  # TODO: (@whiteRa2bit, 2020-07-21) Add documentation
     """
     Given full df returns df for given detector and event
     :param df_full:
@@ -85,10 +82,11 @@ def get_detector_event_df(df_full, detector: int, event: int = -1):  # TODO: (@w
     :param event:
     :return: 
     """
-    if event == -1:
-        df = df_full[df_full['detector'] == detector]
-    else:
-        df = df_full[(df_full['detector'] == detector) & (df_full['event'] == event)]
+    df = df_full.copy()
+    if detector != -1:
+        df = df[df['detector'] == detector]
+    if event != -1:
+        df = df[df['event'] == event]
     df.sort_values(by=['timestamp'], inplace=True)
 
     return df
