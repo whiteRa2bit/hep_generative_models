@@ -10,4 +10,4 @@ CHECKPOINTS_DIR = os.path.join(PROJECT_DIR, 'checkpoints/')
 ATTRIBUTES = ['x', 'y', 'z', 'energy', 'detector', 'timestamp', 'event']
 ATTRIBUTE_PATHS = [os.path.join(SPACAL_DATA_DIR, f'{attr}.txt') for attr in ATTRIBUTES]
 
-PROCESSING_TIME_NORM_COEF = 5
+PROCESSING_TIME_NORM_COEF = 50
