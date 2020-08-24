@@ -48,7 +48,7 @@ def get_attributes_df(data_path=SPACAL_DATA_PATH):
     return df
 
 
-def generate_one_signal(df, steps_num: int = 1024, sample_coef: float = 0.5):
+def generate_one_signal(df, steps_num: int = 1024, sample_coef: float = 1.0):
     """
     Generates one output for given df
     :param df: df with info of given detector and event
