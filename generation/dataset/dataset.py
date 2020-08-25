@@ -1,8 +1,10 @@
 import argparse
+import time
+import os
+
 import numpy as np
 import pandas as pd
 import tqdm
-import time
 
 from generation.config import DF_DIR, SIGNAL_DIR, \
                 PROCESSING_TIME_NORM_COEF, SPACAL_DATA_PATH
@@ -42,24 +44,6 @@ def get_attributes_df(data_path=SPACAL_DATA_PATH):
     :return: df, where each column is an attribute
     """
     df = pd.read_pickle(data_path)
-    return df
-
-
-def get_detector_event_df(df_full, detector: int = -1, event: int = -1):  # TODO: (@whiteRa2bit, 2020-07-21) Add documentation
-    """
-    Given full df returns df for given detector and event
-    :param df_full:
-    :param detector:
-    :param event:
-    :return: 
-    """
-    df = df_full.copy()
-    if detector != -1:
-        df = df[df['detector'] == detector]
-    if event != -1:
-        df = df[df['event'] == event]
-    df.sort_values(by=['timestamp'], inplace=True)
-
     return df
 
 
