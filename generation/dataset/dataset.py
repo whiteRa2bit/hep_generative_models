@@ -7,7 +7,7 @@ import pandas as pd
 import tqdm
 
 from generation.config import DF_DIR, SIGNAL_DIR, \
-                PROCESSING_TIME_NORM_COEF, SPACAL_DATA_PATH
+                PROCESSING_TIME_NORM_COEF, STEPS_NUM, SPACAL_DATA_PATH
 
 
 def _get_event_dir(base_dir: str, event: int):
@@ -21,8 +21,11 @@ def get_detector_event_df_path(detector: int, event: int, df_dir: str = DF_DIR):
 
 
 def get_detector_event_df(detector: int, event: int):
-    df_path = get_detector_event_df_path(detector, event)
-    df = pd.read_csv(df_path)
+    try:
+        df_path = get_detector_event_df_path(detector, event)
+        df = pd.read_csv(df_path)
+    except FileNotFoundError:
+        df = pd.DataFrame({})
     return df
 
 
@@ -33,8 +36,11 @@ def get_detector_event_signal_path(detector: int, event: int, signal_dir: str = 
 
 
 def get_detector_event_signal(detector: int, event: int):
-    signal_path = get_detector_event_signal_path(detector, event)
-    signal = np.load(signal_path)
+    try:
+        signal_path = get_detector_event_signal_path(detector, event)
+        signal = np.load(signal_path)
+    except FileNotFoundError:
+        signal = np.zeros(STEPS_NUM)
     return signal
 
 

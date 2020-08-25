@@ -74,9 +74,6 @@ def _generate_one_signal(df, steps_num: int = STEPS_NUM):
     :param steps_num: number of timestamps by which time will be splitted
     :return: np.array [steps_num] with energies
     """
-    if df.empty:
-        return np.zeros(steps_num)
-
     min_timestamp = min(df['timestamp'])
     max_timestamp = max(df['timestamp'])
     step = (max_timestamp - min_timestamp) / steps_num
