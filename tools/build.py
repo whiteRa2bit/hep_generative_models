@@ -20,7 +20,7 @@ def _prepare_attributes_df(attrs=ATTRIBUTES, attr_paths=ATTRIBUTE_PATHS, res_pat
     :return:
     """
     def process_line(line):
-        return float(line.strip())
+        return float(line.strip())  # TODO: (@whiteRa2bit, 2020-08-25) Int for detector and event
 
     data = {attr: [] for attr in attrs}
     for attr, attr_path in zip(attrs, attr_paths):
