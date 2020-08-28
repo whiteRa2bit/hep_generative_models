@@ -5,8 +5,8 @@ import torch
 from torch import nn
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
-from generation.data.synthetic_data import Nakagami
-from generation.data.dataset_pytorch import SignalsDataset
+from generation.dataset.synthetic_data import Nakagami
+from generation.dataset.dataset_pytorch import SignalsDataset
 from generation.train.utils import save_checkpoint, parse_args
 
 
@@ -14,17 +14,17 @@ class AutoEncoder(nn.Module):
     def __init__(self, sample_size):
         super(AutoEncoder, self).__init__()
         self.encoder = nn.Sequential(
-            nn.Linear(sample_size, 128),
+            nn.Linear(sample_size, 32),
             nn.ReLU(True),
-            nn.Linear(128, 64),
+            nn.Linear(32, 16),
             nn.ReLU(True),
-            nn.Linear(64, 12)
+            nn.Linear(16, 4)
         )
         self.decoder = nn.Sequential(
-            nn.Linear(12, 64),
+            nn.Linear(4, 16),
             nn.ReLU(True),
-            nn.Linear(64, 128),
-            nn.ReLU(True), nn.Linear(128, sample_size), nn.Sigmoid())
+            nn.Linear(16, 32),
+            nn.ReLU(True), nn.Linear(32, sample_size), nn.Sigmoid())
 
     def forward(self, x):
         x = self.encoder(x)
@@ -53,16 +53,16 @@ def run_train(dataset, device='cpu', **kwargs):
             print('epoch [{}/{}], loss:{:.4f}'
                   .format(epoch + 1, kwargs['num_epochs'], loss.data.item()))
 
-            rows_num = 3
-            f, ax = plt.subplots(rows_num, rows_num, figsize=(rows_num**2, rows_num**2))
-            gs = gridspec.GridSpec(rows_num, rows_num)
-            gs.update(wspace=0.05, hspace=0.05)
+            # rows_num = 3
+            # f, ax = plt.subplots(rows_num, rows_num, figsize=(rows_num**2, rows_num**2))
+            # gs = gridspec.GridSpec(rows_num, rows_num)
+            # gs.update(wspace=0.05, hspace=0.05)
 
-            for i in range(rows_num**2):
-                ax[i // rows_num][i % rows_num].plot(generate_new_signal(model, dataset, device))
-            plt.show()
+            # for i in range(rows_num**2):
+            #     ax[i // rows_num][i % rows_num].plot(generate_new_signal(model, dataset, device))
+            # plt.show()
 
-        save_checkpoint(model, epoch, **kwargs)
+        # save_checkpoint(model, epoch, **kwargs)
 
     return model
 
