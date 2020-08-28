@@ -67,26 +67,6 @@ def _prepare_event_df(df_full, event: int, df_dir: str = DF_DIR):  # TODO: (@whi
     return event_df
 
 
-def _generate_one_signal(df, steps_num: int = STEPS_NUM):
-    """
-    Generates one output for given df
-    :param df: df with info of given detector and event
-    :param steps_num: number of timestamps by which time will be splitted
-    :return: np.array [steps_num] with energies
-    """
-    min_timestamp = min(df['timestamp'])
-    max_timestamp = max(df['timestamp'])
-    step = (max_timestamp - min_timestamp) / steps_num
-
-    step_energies = []
-    for i in range(steps_num):
-        step_df = df[df['timestamp'] > i * step]
-        step_df = step_df[step_df['timestamp'] < (i + 1) * step]
-        step_energy = sum(step_df['energy'])
-        step_energies.append(step_energy)
-
-    return np.array(step_energies)
-
 
 def _prepare_detector_event_signal(detector: int, event: int, signal_dir: str = SIGNAL_DIR):
     df = get_detector_event_df(detector, event)
