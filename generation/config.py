@@ -21,6 +21,7 @@ ROOT_TREE_NAME = 'hybrid'
 
 # TODO: (@whiteRa2bit, 2020-08-25) Replace energy with PhotonEnergy
 ATTRIBUTES = ['x', 'y', 'z', 'energy', 'detector', 'timestamp', 'event']  # TODO: (@whiteRa2bit, 2020-08-25) Add namedtuple
+INT_ATTRIBUTES = ['event', 'detector']
 ATTRIBUTE_PATHS = [os.path.join(RAW_DATA_DIR, f'{attr}.npy') for attr in ATTRIBUTES]
 SPACAL_DATA_PATH = os.path.join(RAW_DATA_DIR, 'particles.pkl')
 
