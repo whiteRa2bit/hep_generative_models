@@ -1,9 +1,12 @@
 import os
 import collections
 
+
 # Data params
+_ENERGY = 1
 PROJECT_DIR = '/home/pavel/MyDocs/work/lambda/generation/'
-DATA_DIR = '/home/pafakanov/data/hep_data/spacal_simulation'
+DATA_DIR = f'/home/pafakanov/data/hep_data/spacal_simulation/{_ENERGY}GeV/'
+
 
 CHECKPOINTS_DIR = os.path.join(PROJECT_DIR, 'checkpoints/')
 
