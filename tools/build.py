@@ -55,8 +55,6 @@ def _create_dirs(df_full, df_dir: str = DF_DIR, signal_dir: str = SIGNAL_DIR):
         create_dir(_get_event_dir(signal_dir, event))
 
 
-
-
 def _prepare_event_df(df_full, event: int, df_dir: str = DF_DIR):  # TODO: (@whiteRa2bit, 2020-07-21) Add documentation
     """
     Given full df returns df for given detector and event
