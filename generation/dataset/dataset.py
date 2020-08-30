@@ -11,36 +11,62 @@ from generation.config import DF_DIR, SIGNAL_DIR, \
 
 
 def _get_event_dir(base_dir: str, event: int):
+    """
+    Given event and base directory return event directory
+    :param base_dir: base directory
+    :param event: event number
+    :return: directory with files associated with given event
+    """
     return os.path.join(base_dir, 'event_{}').format(event)
 
 
-def get_detector_event_df_path(detector: int, event: int, df_dir: str = DF_DIR):
+def _get_detector_event_df_path(detector: int, event: int, df_dir: str = DF_DIR):
+    """
+    Given detector and event returns path to corresponding df
+    :param detector: detector number
+    :param event: event number
+    :param df_dir: directory with dataframe files
+    :return: path to pandas dataframe
+    """
     event_dir = _get_event_dir(df_dir, event)
     df_path = os.path.join(event_dir, 'detector_{}.csv').format(detector)
     return df_path
 
 
 def get_detector_event_df(detector: int, event: int):
-    try:
-        df_path = get_detector_event_df_path(detector, event)
-        df = pd.read_csv(df_path)
-    except FileNotFoundError:
-        df = pd.DataFrame({})
+    """
+    Given detector and event returns corresponding df
+    :param detector: detector number
+    :param event: event number
+    :return: pandas dataframe
+    """
+    df_path = _get_detector_event_df_path(detector, event)
+    df = pd.read_csv(df_path)
     return df
 
 
-def get_detector_event_signal_path(detector: int, event: int, signal_dir: str = SIGNAL_DIR):
+def _get_detector_event_signal_path(detector: int, event: int, signal_dir: str = SIGNAL_DIR):
+    """
+    Given detector and event returns path to signal
+    :param detector: detector number
+    :param event: event number
+    :param signal_dir: directory with signal files
+    :return: path to np array
+    """
     event_dir = _get_event_dir(signal_dir, event)
     signal_path = os.path.join(event_dir, 'detector_{}.npy').format(detector)
     return signal_path
 
 
 def get_detector_event_signal(detector: int, event: int):
-    try:
-        signal_path = get_detector_event_signal_path(detector, event)
-        signal = np.load(signal_path)
-    except FileNotFoundError:
-        signal = np.zeros(STEPS_NUM)
+    """
+    Given detector and event returns corresponding signal
+    :param detector: detector number
+    :param event: event number
+    :return: numpy array with shape STEPS_NUM
+    """
+    signal_path = _get_detector_event_signal_path(detector, event)
+    signal = np.load(signal_path)
     return signal
 
 
@@ -52,6 +78,7 @@ def get_attributes_df(data_path=SPACAL_DATA_PATH):
     df = pd.read_pickle(data_path)
     return df
 
+
 def generate_one_signal(df, steps_num: int = STEPS_NUM, sample_coef: float = 1.0):
     """
     Generates one output for given df
@@ -59,6 +86,9 @@ def generate_one_signal(df, steps_num: int = STEPS_NUM, sample_coef: float = 1.0
     :param steps_num: number of timestamps by which time will be splitted
     :return: np.array [steps_num] with energies
     """
+    if df.empty:
+        return np.zeros(steps_num)
+
     min_timestamp = min(df['timestamp'])
     max_timestamp = max(df['timestamp'])
     step = (max_timestamp - min_timestamp) / steps_num
