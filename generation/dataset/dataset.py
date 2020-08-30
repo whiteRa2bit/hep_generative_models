@@ -127,7 +127,7 @@ def generate_signals(df, data_size: int,  use_postprocessing: bool, steps_num: i
 def postprocess_signal(signal):
     """
     Getting result signal after photodetector
-    :param signal: Output from generate_detector_event_output
+    :param signal: Output from generate_one_signal
     :return: processed signal
     """
     def build_kernel(x_cur, energy, x_min, x_max):
