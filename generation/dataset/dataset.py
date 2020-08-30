@@ -84,6 +84,27 @@ def get_attributes_df(data_path=SPACAL_DATA_PATH):
     df = pd.read_pickle(data_path)
     return df
 
+def generate_one_signal(df, steps_num: int = STEPS_NUM, sample_coef: float = 1.0):
+    """
+    Generates one output for given df
+    :param df: df with info of given detector and event
+    :param steps_num: number of timestamps by which time will be splitted
+    :return: np.array [steps_num] with energies
+    """
+    min_timestamp = min(df['timestamp'])
+    max_timestamp = max(df['timestamp'])
+    step = (max_timestamp - min_timestamp) / steps_num
+
+    step_energies = []
+    for i in range(steps_num):
+        step_df = df[df['timestamp'] > i * step]
+        step_df = step_df[step_df['timestamp'] < (i + 1) * step]
+        step_df = step_df.sample(sample_coef)
+        step_energy = sum(step_df['energy'])
+        step_energies.append(step_energy)
+
+    return np.array(step_energies)
+
 
 def generate_one_signal(df, steps_num: int = STEPS_NUM, sample_coef: float = 1.0):
     """
