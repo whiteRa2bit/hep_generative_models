@@ -7,6 +7,7 @@ with open("README.md", 'r') as f:
 
 # TODO: (@whiteRa2bit, 2020-08-25) Add pandas to requirements
 # TODO: (@whiteRa2bit, 2020-08-25) Add tqdm to requirements
+# TODO: (@whiteRa2bit, 2020-08-30) Add uproot to requirments
 requirements = [
     "torch==1.4.0",
     "scipy==1.4.1",
