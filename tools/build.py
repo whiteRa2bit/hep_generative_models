@@ -30,9 +30,9 @@ def _prepare_attributes_df(attrs=ATTRIBUTES, attr_paths=ATTRIBUTE_PATHS, res_pat
     data = {attr: [] for attr in attrs}
     for attr, attr_path in zip(attrs, attr_paths):
         print(f'Processing attribute: {attr}')
-        with open(attr_path, 'r') as attr_file:
-            process_line = functools.partial(_process_line, line_type=(int if attr in INT_ATTRIBUTES else float))
-            data[attr] = list(map(process_line, attr_file.readlines()))
+        attr_values = np.load(attr_path)
+        attr_type = int if attr in INT_ATTRIBUTES else float
+        data[attr] = attr_values.astype(attr_type)
 
     # Check that all attributes have the same number of values
     attr_values = list(data.values())
