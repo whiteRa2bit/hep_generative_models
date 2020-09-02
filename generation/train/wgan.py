@@ -25,11 +25,11 @@ class Generator(nn.Module):
             return layers
 
         self.model = nn.Sequential(
-            nn.Linear(self.latent_dim, 16),
+            nn.Linear(self.latent_dim, 64),
             nn.LeakyReLU(0.1, inplace=True),
-            nn.Linear(16, 32),
+            nn.Linear(64, 256),
             nn.LeakyReLU(0.1, inplace=True),
-            nn.Linear(32, self.x_dim),
+            nn.Linear(256, self.x_dim),
             nn.Sigmoid()
         )
 
@@ -44,9 +44,11 @@ class Discriminator(nn.Module):
         self.x_dim = x_dim
 
         self.model = nn.Sequential(
-            nn.Linear(self.x_dim, 32),
+            nn.Linear(self.x_dim, 256),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Linear(32, 1),
+            nn.Linear(256, 64),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Linear(64, 1),
         )
 
     def forward(self, signal):
@@ -113,9 +115,20 @@ def run_train(dataset, device='cpu', **kwargs):
         # Housekeeping - reset gradient
         reset_grad()
         
-        if epoch % kwargs['print_each'] == 0:
+        if kwargs['verbose'] and epoch % kwargs['print_each'] == 0:
             print('epoch-{}; D_loss: {}; G_loss: {}'.format(epoch, D_loss.cpu().data.numpy(), \
                                                             G_loss.cpu().data.numpy()))
+            rows_num = 3
+            samples = generator(z).cpu().data.numpy()[:rows_num**2]
+
+            f, ax = plt.subplots(rows_num, rows_num, figsize=(rows_num**2, rows_num**2))
+            gs = gridspec.GridSpec(rows_num, rows_num)
+            gs.update(wspace=0.05, hspace=0.05)
+
+            for i, sample in enumerate(samples):
+                ax[i//rows_num][i % rows_num].plot(sample)
+            plt.show()
+
         kwargs['model_name'] = 'discriminator'
         save_checkpoint(discriminator, epoch, **kwargs)
         kwargs['model_name'] = 'generator'
