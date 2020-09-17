@@ -16,26 +16,28 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
         self.x_dim = x_dim
         self.latent_dim = latent_dim
+        self.in_channels = 16
 
-        def block(in_feat, out_feat, normalize=True):
-            layers = [nn.Linear(in_feat, out_feat)]
-            if normalize:
-                layers.append(nn.BatchNorm1d(out_feat, 0.8))
-            layers.append(nn.LeakyReLU(0.2, inplace=True))
-            return layers
+        self.fc1 = nn.Linear(self.latent_dim, 32)
+        self.fc2 = nn.Linear(32, 64)
+        self.fc3 = nn.Linear(64, self.in_channels * self.x_dim)
+        
+        self.conv1 = nn.Conv1d(self.in_channels, 8, 3, padding=1)
+        self.conv2 = nn.Conv1d(8, 4, 3, padding=1)
+        self.conv3 = nn.Conv1d(4, 1, 3, padding=1)
 
-        self.model = nn.Sequential(
-            nn.Linear(self.latent_dim, 256),
-            nn.LeakyReLU(0.1, inplace=True),
-            # nn.Linear(64, 256),
-            # nn.LeakyReLU(0.1, inplace=True),
-            nn.Linear(256, self.x_dim),
-            nn.Sigmoid()
-        )
 
     def forward(self, z):
-        signal = self.model(z)
-        return signal
+        out = F.relu(self.fc1(z))
+        out = F.relu(self.fc2(out))
+        out = F.relu(self.fc3(out))
+        
+        out = out.view(out.shape[0], self.in_channels, self.x_dim)
+        out = F.relu(self.conv1(out))
+        out = F.relu(self.conv2(out))
+        out = self.conv3(out)
+        
+        return out.squeeze(1)
 
 
 class Discriminator(nn.Module):
@@ -44,11 +46,9 @@ class Discriminator(nn.Module):
         self.x_dim = x_dim
 
         self.model = nn.Sequential(
-            # nn.Linear(self.x_dim, 256),
-            # nn.LeakyReLU(0.2, inplace=True),
-            nn.Linear(self.x_dim, 64),
+            nn.Linear(self.x_dim, 32),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Linear(64, 1),
+            nn.Linear(32, 1)
         )
 
     def forward(self, signal):
