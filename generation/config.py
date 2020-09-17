@@ -27,5 +27,5 @@ SPACAL_DATA_PATH = os.path.join(RAW_DATA_DIR, 'particles.pkl')
 
 
 # Processing constans
-STEPS_NUM = 1024
+STEPS_NUM = 128
 PROCESSING_TIME_NORM_COEF = 50
