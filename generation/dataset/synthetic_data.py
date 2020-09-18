@@ -10,9 +10,7 @@ class Nakagami:
         self.q_upper = q_upper
 
     def _get_nakagami_sample(self, nu):
-        x = np.linspace(nakagami.ppf(self.q_lower, nu),
-                        nakagami.ppf(self.q_upper, nu),
-                        self.sample_size)
+        x = np.linspace(nakagami.ppf(self.q_lower, nu), nakagami.ppf(self.q_upper, nu), self.sample_size)
 
         return nakagami.pdf(x, nu)
 
