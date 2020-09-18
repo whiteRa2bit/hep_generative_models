@@ -6,6 +6,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
+import wandb
+wandb.init(project="hep_generative_models")
+
 
 from generation.dataset.dataset_pytorch import SignalsDataset
 from generation.train.utils import save_checkpoint, parse_args
@@ -37,27 +40,38 @@ class Generator(nn.Module):
         out = F.relu(self.conv2(out))
         out = self.conv3(out)
         
-        return out.squeeze(1)
+        return F.sigmoid(out.squeeze(1))
 
 
 class Discriminator(nn.Module):
     def __init__(self, x_dim):
         super(Discriminator, self).__init__()
         self.x_dim = x_dim
+        self.in_channels = 16
 
-        self.model = nn.Sequential(
-            nn.Linear(self.x_dim, 32),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Linear(32, 1)
-        )
+        self.fc1 = nn.Linear(self.x_dim, self.x_dim * self.in_channels)
+        self.fc_final = nn.Linear(self.x_dim, 1)
+        
+        self.conv1 = nn.Conv1d(self.in_channels, 8, 3, padding=1)
+        self.conv2 = nn.Conv1d(8, 4, 3, padding=1)
+        self.conv3 = nn.Conv1d(4, 1, 3, padding=1)
+
 
     def forward(self, signal):
-        validity = self.model(signal)
+        out = F.relu(self.fc1(signal))
+        
+        out = out.view(out.shape[0], self.in_channels, self.x_dim)
+        out = F.relu(self.conv1(out))
+        out = F.relu(self.conv2(out))
+        out = F.relu(self.conv3(out))
 
-        return validity
+        out = out.squeeze(1)
+        out = self.fc_final(out)
+
+        return out
 
 
-def run_train(dataset, device='cpu', **kwargs):
+def run_train(dataset, generator_class=None, discriminator_class=None, **kwargs):
     def reset_grad():
         generator.zero_grad()
         discriminator.zero_grad()
@@ -67,12 +81,21 @@ def run_train(dataset, device='cpu', **kwargs):
             for signal in dataloader:
                 yield signal
 
+    device = 'cpu' if kwargs['cpu'] else 'cuda'   # TODO: (@whiteRa2bit, 2020-09-18) Add to other models
     dataloader = data_gen(DataLoader(dataset, batch_size=kwargs['batch_size'], shuffle=True))
-    generator = Generator(x_dim=kwargs['sample_size'], latent_dim=kwargs['latent_dim'])
-    discriminator = Discriminator(kwargs['sample_size'])
+    
+    if generator_class is None:
+        generator_class = Generator
+    if discriminator_class is None:
+        discriminator_class = Discriminator
+    generator = generator_class(x_dim=kwargs['sample_size'], latent_dim=kwargs['latent_dim'])
+    discriminator = discriminator_class(kwargs['sample_size'])
     
     generator.to(device)
     discriminator.to(device)
+
+    wandb.watch(generator)
+    wandb.watch(discriminator)
 
     G_optimizer = torch.optim.Adam(generator.parameters(), lr=kwargs['learning_rate'])
     D_optimizer = torch.optim.Adam(discriminator.parameters(), lr=kwargs['learning_rate'])
@@ -93,9 +116,9 @@ def run_train(dataset, device='cpu', **kwargs):
             D_loss.backward()
             D_optimizer.step()
 
-            # Weight clipping
-            for p in discriminator.parameters():
-                p.data.clamp_(-0.01, 0.01)  # TODO: (@whiteRa2bit, 2020-08-30) Replace with kwargs param
+            # # Weight clipping
+            # for p in discriminator.parameters():
+            #     p.data.clamp_(-0.01, 0.01)  # TODO: (@whiteRa2bit, 2020-08-30) Replace with kwargs param
 
             # Housekeeping - reset gradient
             reset_grad()
@@ -116,8 +139,8 @@ def run_train(dataset, device='cpu', **kwargs):
         reset_grad()
         
         if kwargs['verbose'] and epoch % kwargs['print_each'] == 0:
-            print('epoch-{}; D_loss: {}; G_loss: {}'.format(epoch, D_loss.cpu().data.numpy(), \
-                                                            G_loss.cpu().data.numpy()))
+            wandb.log({"D loss": D_loss.cpu().data.numpy(), "G loss": G_loss.cpu().data.numpy()})
+
             rows_num = 3
             samples = generator(z).cpu().data.numpy()[:rows_num**2]
 
@@ -133,6 +156,9 @@ def run_train(dataset, device='cpu', **kwargs):
         save_checkpoint(discriminator, epoch, **kwargs)
         kwargs['model_name'] = 'generator'
         save_checkpoint(generator, epoch, **kwargs)
+
+    torch.save(generator.state_dict(), os.path.join(wandb.run.dir, 'generator.pt'))
+    torch.save(discriminator.state_dict(), os.path.join(wandb.run.dir, 'discriminator.pt'))
 
     return generator
 
