@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import tqdm
 
-from generation.dataset.dataset import get_attributes_df, _get_event_dir, get_detector_event_df, \
+from generation.dataset.data_utils import get_attributes_df, _get_event_dir, get_detector_event_df, \
     get_detector_event_df_path, get_detector_event_signal_path, get_detector_event_signal, generate_one_signal
 from generation.config import DF_DIR, SIGNAL_DIR, PROCESSED_SIGNAL_DIR, ATTRIBUTES, ATTRIBUTE_PATHS, \
     INT_ATTRIBUTES, SPACAL_DATA_PATH, STEPS_NUM
