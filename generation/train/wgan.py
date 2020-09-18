@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
@@ -6,6 +8,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
+import wandb
+wandb.init(project="hep_generative_models")
 
 from generation.dataset.dataset_pytorch import SignalsDataset
 from generation.train.utils import save_checkpoint, parse_args
@@ -16,63 +20,81 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
         self.x_dim = x_dim
         self.latent_dim = latent_dim
+        self.in_channels = 16
 
-        def block(in_feat, out_feat, normalize=True):
-            layers = [nn.Linear(in_feat, out_feat)]
-            if normalize:
-                layers.append(nn.BatchNorm1d(out_feat, 0.8))
-            layers.append(nn.LeakyReLU(0.2, inplace=True))
-            return layers
+        self.fc1 = nn.Linear(self.latent_dim, 32)
+        self.fc2 = nn.Linear(32, 64)
+        self.fc3 = nn.Linear(64, self.in_channels * self.x_dim)
 
-        self.model = nn.Sequential(
-            nn.Linear(self.latent_dim, 64),
-            nn.LeakyReLU(0.1, inplace=True),
-            nn.Linear(64, 256),
-            nn.LeakyReLU(0.1, inplace=True),
-            nn.Linear(256, self.x_dim),
-            nn.Sigmoid()
-        )
+        self.conv1 = nn.Conv1d(self.in_channels, 8, 3, padding=1)
+        self.conv2 = nn.Conv1d(8, 4, 3, padding=1)
+        self.conv3 = nn.Conv1d(4, 1, 3, padding=1)
 
     def forward(self, z):
-        signal = self.model(z)
-        return signal
+        out = F.relu(self.fc1(z))
+        out = F.relu(self.fc2(out))
+        out = F.relu(self.fc3(out))
+
+        out = out.view(out.shape[0], self.in_channels, self.x_dim)
+        out = F.relu(self.conv1(out))
+        out = F.relu(self.conv2(out))
+        out = self.conv3(out)
+
+        return F.sigmoid(out.squeeze(1))
 
 
 class Discriminator(nn.Module):
     def __init__(self, x_dim):
         super(Discriminator, self).__init__()
         self.x_dim = x_dim
+        self.in_channels = 16
 
-        self.model = nn.Sequential(
-            nn.Linear(self.x_dim, 256),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Linear(256, 64),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Linear(64, 1),
-        )
+        self.fc1 = nn.Linear(self.x_dim, self.x_dim * self.in_channels)
+        self.fc_final = nn.Linear(self.x_dim, 1)
+
+        self.conv1 = nn.Conv1d(self.in_channels, 8, 3, padding=1)
+        self.conv2 = nn.Conv1d(8, 4, 3, padding=1)
+        self.conv3 = nn.Conv1d(4, 1, 3, padding=1)
 
     def forward(self, signal):
-        validity = self.model(signal)
+        out = F.relu(self.fc1(signal))
 
-        return validity
+        out = out.view(out.shape[0], self.in_channels, self.x_dim)
+        out = F.relu(self.conv1(out))
+        out = F.relu(self.conv2(out))
+        out = F.relu(self.conv3(out))
+
+        out = out.squeeze(1)
+        out = self.fc_final(out)
+
+        return out
 
 
-def run_train(dataset, device='cpu', **kwargs):
+def run_train(dataset, generator_class=None, discriminator_class=None, **kwargs):
     def reset_grad():
         generator.zero_grad()
         discriminator.zero_grad()
-        
-    def data_gen(dataloader):
+
+    def data_gen(dataloader):  # TODO: (@whiteRa2bit, 2020-09-18) Remove
         while True:
             for signal in dataloader:
                 yield signal
 
+    device = 'cpu' if kwargs['cpu'] else 'cuda'  # TODO: (@whiteRa2bit, 2020-09-18) Add to other models
     dataloader = data_gen(DataLoader(dataset, batch_size=kwargs['batch_size'], shuffle=True))
-    generator = Generator(x_dim=kwargs['sample_size'], latent_dim=kwargs['latent_dim'])
-    discriminator = Discriminator(kwargs['sample_size'])
-    
+
+    if generator_class is None:
+        generator_class = Generator
+    if discriminator_class is None:
+        discriminator_class = Discriminator
+    generator = generator_class(x_dim=kwargs['sample_size'], latent_dim=kwargs['latent_dim'])
+    discriminator = discriminator_class(kwargs['sample_size'])
+
     generator.to(device)
     discriminator.to(device)
+
+    wandb.watch(generator)
+    wandb.watch(discriminator)
 
     G_optimizer = torch.optim.Adam(generator.parameters(), lr=kwargs['learning_rate'])
     D_optimizer = torch.optim.Adam(discriminator.parameters(), lr=kwargs['learning_rate'])
@@ -93,7 +115,7 @@ def run_train(dataset, device='cpu', **kwargs):
             D_loss.backward()
             D_optimizer.step()
 
-            # Weight clipping
+            # # Weight clipping
             for p in discriminator.parameters():
                 p.data.clamp_(-0.01, 0.01)  # TODO: (@whiteRa2bit, 2020-08-30) Replace with kwargs param
 
@@ -114,19 +136,19 @@ def run_train(dataset, device='cpu', **kwargs):
 
         # Housekeeping - reset gradient
         reset_grad()
-        
-        if kwargs['verbose'] and epoch % kwargs['print_each'] == 0:
-            print('epoch-{}; D_loss: {}; G_loss: {}'.format(epoch, D_loss.cpu().data.numpy(), \
-                                                            G_loss.cpu().data.numpy()))
-            rows_num = 3
-            samples = generator(z).cpu().data.numpy()[:rows_num**2]
 
-            f, ax = plt.subplots(rows_num, rows_num, figsize=(rows_num**2, rows_num**2))
+        if kwargs['verbose'] and epoch % kwargs['print_each'] == 0:
+            wandb.log({"D loss": D_loss.cpu().data.numpy(), "G loss": G_loss.cpu().data.numpy()})
+
+            rows_num = 3
+            samples = generator(z).cpu().data.numpy()[:rows_num ** 2]
+
+            f, ax = plt.subplots(rows_num, rows_num, figsize=(rows_num ** 2, rows_num ** 2))
             gs = gridspec.GridSpec(rows_num, rows_num)
             gs.update(wspace=0.05, hspace=0.05)
 
             for i, sample in enumerate(samples):
-                ax[i//rows_num][i % rows_num].plot(sample)
+                ax[i // rows_num][i % rows_num].plot(sample)
             plt.show()
 
         kwargs['model_name'] = 'discriminator'
@@ -134,10 +156,14 @@ def run_train(dataset, device='cpu', **kwargs):
         kwargs['model_name'] = 'generator'
         save_checkpoint(generator, epoch, **kwargs)
 
+    torch.save(generator.state_dict(), os.path.join(wandb.run.dir, 'generator.pt'))
+    torch.save(discriminator.state_dict(), os.path.join(wandb.run.dir, 'discriminator.pt'))
+
     return generator
 
 
-def generate_new_signal(generator, device='cpu', signals_num=1):   # TODO: (@whiteRa2bit, 2020-08-31) Create shared function for gans
+def generate_new_signal(generator, device='cpu',
+                        signals_num=1):  # TODO: (@whiteRa2bit, 2020-08-31) Create shared function for gans
     generator.to(device)
     z = Variable(torch.randn(signals_num + 1, generator.latent_dim)).to(device)
     return generator(z)[:signals_num].cpu().detach().numpy()

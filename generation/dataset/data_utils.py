@@ -104,7 +104,7 @@ def generate_one_signal(df, steps_num: int = STEPS_NUM, frac: float = 1.0):
     return np.array(step_energies)
 
 
-def generate_signals(df, data_size: int,  use_postprocessing: bool, steps_num: int = STEPS_NUM, frac: float = 1.0):
+def generate_signals(df, data_size: int, use_postprocessing: bool, steps_num: int = STEPS_NUM, frac: float = 1.0):
     """
     Generates data for a given detector
     :param df_full: pandas df, output of get_events_df()
@@ -130,6 +130,7 @@ def postprocess_signal(signal):
     :param signal: Output from generate_one_signal
     :return: processed signal
     """
+
     def build_kernel(x_cur, energy, x_min, x_max):
         kernel = lambda x: ((x - x_cur) ** 2) / np.exp((x - x_cur) / PROCESSING_TIME_NORM_COEF)
         x_linspace = np.linspace(x_min, x_max, x_max - x_min)

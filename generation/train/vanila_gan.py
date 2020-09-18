@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
@@ -6,6 +8,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
+import wandb
+wandb.init(project="hep_generative_models")
 
 from generation.dataset.dataset_pytorch import SignalsDataset
 from generation.train.utils import save_checkpoint, parse_args
@@ -24,13 +28,8 @@ class Generator(nn.Module):
             layers.append(nn.LeakyReLU(0.2, inplace=True))
             return layers
 
-        self.model = nn.Sequential(
-            *block(self.latent_dim, 16, normalize=False),
-            *block(16, 32),
-            *block(32, 64),
-            nn.Linear(64, int(self.x_dim)),
-            nn.Sigmoid()
-        )
+        self.model = nn.Sequential(*block(self.latent_dim, 16, normalize=False), *block(16, 32), *block(32, 64),
+                                   nn.Linear(64, int(self.x_dim)), nn.Sigmoid())
 
     def forward(self, z):
         signal = self.model(z)
@@ -57,13 +56,22 @@ class Discriminator(nn.Module):
         return validity
 
 
-def run_train(dataset, device='cpu', **kwargs):
+def run_train(dataset, generator_class=None, discriminator_class=None, **kwargs):
+    device = 'cpu' if kwargs['cpu'] else 'cuda'
     dataloader = DataLoader(dataset, batch_size=kwargs['batch_size'], shuffle=True)
-    generator = Generator(x_dim=kwargs['sample_size'], latent_dim=kwargs['latent_dim'])
-    discriminator = Discriminator(kwargs['sample_size'])
+
+    if generator_class is None:
+        generator_class = Generator
+    if discriminator_class is None:
+        discriminator_class = Discriminator
+    generator = generator_class(x_dim=kwargs['sample_size'], latent_dim=kwargs['latent_dim'])
+    discriminator = discriminator_class(kwargs['sample_size'])
 
     generator.to(device)
     discriminator.to(device)
+
+    wandb.watch(generator)
+    wandb.watch(discriminator)
 
     G_optimizer = torch.optim.Adam(generator.parameters(), lr=kwargs['learning_rate'])
     D_optimizer = torch.optim.Adam(discriminator.parameters(), lr=kwargs['learning_rate'])
@@ -103,26 +111,28 @@ def run_train(dataset, device='cpu', **kwargs):
             D_loss.backward()
             D_optimizer.step()
 
-            # Print and plot every now and then
-        if epoch % kwargs['print_each'] == 0:
-            print(
-                'epoch-{}; D_loss: {}; G_loss: {}'.format(epoch, D_loss.cpu().data.numpy(), G_loss.cpu().data.numpy()))
+        # Log and plot
+        if kwargs['verbose'] and epoch % kwargs['print_each'] == 0:
+            wandb.log({"D loss": D_loss.cpu().data.numpy(), "G loss": G_loss.cpu().data.numpy()})
 
             rows_num = 3
-            samples = generator(z).cpu().data.numpy()[:rows_num**2]
+            samples = generator(z).cpu().data.numpy()[:rows_num ** 2]
 
-            f, ax = plt.subplots(rows_num, rows_num, figsize=(rows_num**2, rows_num**2))
+            f, ax = plt.subplots(rows_num, rows_num, figsize=(rows_num ** 2, rows_num ** 2))
             gs = gridspec.GridSpec(rows_num, rows_num)
             gs.update(wspace=0.05, hspace=0.05)
 
             for i, sample in enumerate(samples):
-                ax[i//rows_num][i % rows_num].plot(sample)
+                ax[i // rows_num][i % rows_num].plot(sample)
             plt.show()
 
         kwargs['model_name'] = 'discriminator'
         save_checkpoint(discriminator, epoch, **kwargs)
         kwargs['model_name'] = 'generator'
         save_checkpoint(generator, epoch, **kwargs)
+
+    torch.save(generator.state_dict(), os.path.join(wandb.run.dir, 'generator.pt'))
+    torch.save(discriminator.state_dict(), os.path.join(wandb.run.dir, 'discriminator.pt'))
 
     return generator
 

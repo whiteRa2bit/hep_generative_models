@@ -1,9 +1,9 @@
-import torch
 import argparse
 import os
-from generation.config import (
-    CHECKPOINTS_DIR
-)
+
+import torch
+
+from generation.config import (CHECKPOINTS_DIR)
 
 
 def save_checkpoint(model, epoch, **kwargs):
