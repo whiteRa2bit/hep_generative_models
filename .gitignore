@@ -3,6 +3,7 @@ source_data/
 examples/
 checkpoints/
 setup.cfg
+wandb
 .idea/
 .coverage
 

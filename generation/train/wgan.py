@@ -34,7 +34,6 @@ class Generator(nn.Module):
         out = F.relu(self.fc1(z))
         out = F.relu(self.fc2(out))
         out = F.relu(self.fc3(out))
-
         out = out.view(out.shape[0], self.in_channels, self.x_dim)
         out = F.relu(self.conv1(out))
         out = F.relu(self.conv2(out))
@@ -100,7 +99,7 @@ def run_train(dataset, generator_class=None, discriminator_class=None, **kwargs)
     D_optimizer = torch.optim.Adam(discriminator.parameters(), lr=kwargs['learning_rate'])
 
     for epoch in range(kwargs['num_epochs']):
-        for _ in range(5):  # TODO: (@whiteRa2bit, 2020-08-30) Replace with kwargs param
+        for _ in range(2):  # TODO: (@whiteRa2bit, 2020-08-30) Replace with kwargs param
             # Sample data
             z = Variable(torch.randn(kwargs['batch_size'], kwargs['latent_dim'])).to(device)
             X = Variable(next(dataloader)).to(device)
