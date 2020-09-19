@@ -21,17 +21,6 @@ class Generator(nn.Module):
         self.x_dim = x_dim
         self.latent_dim = latent_dim
         self.in_channels = 16
-<<<<<<< HEAD
-
-        self.fc1 = nn.Linear(self.latent_dim, 32)
-        self.fc2 = nn.Linear(32, 64)
-        self.fc3 = nn.Linear(64, self.in_channels * self.x_dim)
-        
-        self.conv1 = nn.Conv1d(self.in_channels, 8, 3, padding=1)
-        self.conv2 = nn.Conv1d(8, 4, 3, padding=1)
-        self.conv3 = nn.Conv1d(4, 1, 3, padding=1)
-
-=======
 
         self.fc1 = nn.Linear(self.latent_dim, 32)
         self.fc2 = nn.Linear(32, 64)
@@ -40,28 +29,17 @@ class Generator(nn.Module):
         self.conv1 = nn.Conv1d(self.in_channels, 8, 3, padding=1)
         self.conv2 = nn.Conv1d(8, 4, 3, padding=1)
         self.conv3 = nn.Conv1d(4, 1, 3, padding=1)
->>>>>>> master
 
     def forward(self, z):
         out = F.relu(self.fc1(z))
         out = F.relu(self.fc2(out))
         out = F.relu(self.fc3(out))
-<<<<<<< HEAD
-        
-=======
-
->>>>>>> master
         out = out.view(out.shape[0], self.in_channels, self.x_dim)
         out = F.relu(self.conv1(out))
         out = F.relu(self.conv2(out))
         out = self.conv3(out)
-<<<<<<< HEAD
-        
-        return out.squeeze(1)
-=======
 
         return F.sigmoid(out.squeeze(1))
->>>>>>> master
 
 
 class Discriminator(nn.Module):
@@ -73,17 +51,9 @@ class Discriminator(nn.Module):
         self.fc1 = nn.Linear(self.x_dim, self.x_dim * self.in_channels)
         self.fc_final = nn.Linear(self.x_dim, 1)
 
-<<<<<<< HEAD
-        self.model = nn.Sequential(
-            nn.Linear(self.x_dim, 32),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Linear(32, 1)
-        )
-=======
         self.conv1 = nn.Conv1d(self.in_channels, 8, 3, padding=1)
         self.conv2 = nn.Conv1d(8, 4, 3, padding=1)
         self.conv3 = nn.Conv1d(4, 1, 3, padding=1)
->>>>>>> master
 
     def forward(self, signal):
         out = F.relu(self.fc1(signal))
@@ -129,7 +99,7 @@ def run_train(dataset, generator_class=None, discriminator_class=None, **kwargs)
     D_optimizer = torch.optim.Adam(discriminator.parameters(), lr=kwargs['learning_rate'])
 
     for epoch in range(kwargs['num_epochs']):
-        for _ in range(5):  # TODO: (@whiteRa2bit, 2020-08-30) Replace with kwargs param
+        for _ in range(2):  # TODO: (@whiteRa2bit, 2020-08-30) Replace with kwargs param
             # Sample data
             z = Variable(torch.randn(kwargs['batch_size'], kwargs['latent_dim'])).to(device)
             X = Variable(next(dataloader)).to(device)
@@ -165,16 +135,6 @@ def run_train(dataset, generator_class=None, discriminator_class=None, **kwargs)
 
         # Housekeeping - reset gradient
         reset_grad()
-<<<<<<< HEAD
-        
-        if kwargs['verbose'] and epoch % kwargs['print_each'] == 0:
-            print('epoch-{}; D_loss: {}; G_loss: {}'.format(epoch, D_loss.cpu().data.numpy(), \
-                                                            G_loss.cpu().data.numpy()))
-            rows_num = 3
-            samples = generator(z).cpu().data.numpy()[:rows_num**2]
-
-            f, ax = plt.subplots(rows_num, rows_num, figsize=(rows_num**2, rows_num**2))
-=======
 
         if kwargs['verbose'] and epoch % kwargs['print_each'] == 0:
             wandb.log({"D loss": D_loss.cpu().data.numpy(), "G loss": G_loss.cpu().data.numpy()})
@@ -183,16 +143,11 @@ def run_train(dataset, generator_class=None, discriminator_class=None, **kwargs)
             samples = generator(z).cpu().data.numpy()[:rows_num ** 2]
 
             f, ax = plt.subplots(rows_num, rows_num, figsize=(rows_num ** 2, rows_num ** 2))
->>>>>>> master
             gs = gridspec.GridSpec(rows_num, rows_num)
             gs.update(wspace=0.05, hspace=0.05)
 
             for i, sample in enumerate(samples):
-<<<<<<< HEAD
-                ax[i//rows_num][i % rows_num].plot(sample)
-=======
                 ax[i // rows_num][i % rows_num].plot(sample)
->>>>>>> master
             plt.show()
 
         kwargs['model_name'] = 'discriminator'
