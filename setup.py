@@ -5,14 +5,15 @@ import generation
 with open("README.md", 'r') as f:
     long_description = f.read()
 
-# TODO: (@whiteRa2bit, 2020-08-25) Add pandas to requirements
-# TODO: (@whiteRa2bit, 2020-08-25) Add tqdm to requirements
-# TODO: (@whiteRa2bit, 2020-08-30) Add uproot to requirments
 requirements = [
     "torch==1.4.0",
     "scipy==1.4.1",
     "numpy==1.18.1",
     "matplotlib==3.2.1",
+    "wandb==0.10.1",
+    "uproot==3.12.0",
+    "tqdm==4.48.2",
+    "pandas==1.1.0"
 ]
 
 setup(
