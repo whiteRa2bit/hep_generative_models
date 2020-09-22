@@ -9,6 +9,7 @@ CHECKPOINTS_DIR = os.path.join(DATA_DIR, 'checkpoints/')
 DF_DIR = os.path.join(DATA_DIR, 'dfs')
 SIGNAL_DIR = os.path.join(DATA_DIR, 'signals')
 RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw_data')
+TRAINING_DATA_DIR = os.path.join(DATA_DIR, 'training_data')
 
 # Root params
 ROOT_FILE_PATH = os.path.join(RAW_DATA_DIR, 'hybrid0.root')
