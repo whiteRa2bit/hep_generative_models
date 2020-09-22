@@ -101,14 +101,11 @@ def run_train(dataset, generator_class=None, discriminator_class=None, **kwargs)
     for epoch in range(kwargs['num_epochs']):
         for _ in range(2):  # TODO: (@whiteRa2bit, 2020-08-30) Replace with kwargs param
             # Sample data
-            h_0 = Variable(torch.randn(1, kwargs['batch_size'], kwargs['hidden_dim']))
-            c_0 = Variable(torch.randn(1, kwargs['batch_size'], kwargs['hidden_dim']))
-            h_0 = h_0.to(device)
-            c_0 = c_0.to(device)
+            z = Variable(torch.randn(kwargs['batch_size'], kwargs['latent_dim'])).to(device)
             X = Variable(next(dataloader)).to(device)
 
             # Dicriminator forward-loss-backward-update
-            G_sample = generator(h_0, c_0)
+            G_sample = generator(z)
             D_real = discriminator(X)
             D_fake = discriminator(G_sample)
 
@@ -126,12 +123,9 @@ def run_train(dataset, generator_class=None, discriminator_class=None, **kwargs)
 
         # Generator forward-loss-backward-update
         X = Variable(next(dataloader)).to(device)
-        h_0 = Variable(torch.randn(1, kwargs['batch_size'], kwargs['hidden_dim']))
-        c_0 = Variable(torch.randn(1, kwargs['batch_size'], kwargs['hidden_dim']))
-        h_0 = h_0.to(device)
-        c_0 = c_0.to(device)
+        z = Variable(torch.randn(kwargs['batch_size'], kwargs['latent_dim'])).to(device)
 
-        G_sample = generator(h_0, c_0)
+        G_sample = generator(z)
         D_fake = discriminator(G_sample)
 
         G_loss = -torch.mean(D_fake)
@@ -146,7 +140,7 @@ def run_train(dataset, generator_class=None, discriminator_class=None, **kwargs)
             wandb.log({"D loss": D_loss.cpu().data.numpy(), "G loss": G_loss.cpu().data.numpy()})
 
             rows_num = 3
-            samples = generator(h_0, c_0).cpu().data.numpy()[:rows_num ** 2]
+            samples = generator(z).cpu().data.numpy()[:rows_num ** 2]
 
             f, ax = plt.subplots(rows_num, rows_num, figsize=(rows_num ** 2, rows_num ** 2))
             gs = gridspec.GridSpec(rows_num, rows_num)
