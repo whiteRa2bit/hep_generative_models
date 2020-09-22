@@ -20,11 +20,11 @@ def _get_event_dir(base_dir: str, event: int):
     return os.path.join(base_dir, 'event_{}').format(event)
 
 
-def get_detector_event_df_path(detector: int, event: int, df_dir: str = DF_DIR):
+def get_event_detector_df_path(event: int, detector: int, df_dir: str = DF_DIR):
     """
     Given detector and event returns path to corresponding df
-    :param detector: detector number
     :param event: event number
+    :param detector: detector number
     :param df_dir: directory with dataframe files
     :return: path to pandas dataframe
     """
@@ -33,19 +33,19 @@ def get_detector_event_df_path(detector: int, event: int, df_dir: str = DF_DIR):
     return df_path
 
 
-def get_detector_event_df(detector: int, event: int):
+def get_event_detector_df(event: int, detector: int):
     """
     Given detector and event returns corresponding df
-    :param detector: detector number
     :param event: event number
+    :param detector: detector number
     :return: pandas dataframe
     """
-    df_path = get_detector_event_df_path(detector, event)
+    df_path = get_event_detector_df_path(event, detector)
     df = pd.read_csv(df_path)
     return df
 
 
-def get_detector_event_signal_path(detector: int, event: int, signal_dir: str = SIGNAL_DIR):
+def get_event_detector_signal_path(event: int, detector: int, signal_dir: str = SIGNAL_DIR):
     """
     Given detector and event returns path to signal
     :param detector: detector number
@@ -58,14 +58,14 @@ def get_detector_event_signal_path(detector: int, event: int, signal_dir: str = 
     return signal_path
 
 
-def get_detector_event_signal(detector: int, event: int):
+def get_event_detector_signal(event: int, detector: int):
     """
     Given detector and event returns corresponding signal
-    :param detector: detector number
     :param event: event number
+    :param detector: detector number
     :return: numpy array with shape STEPS_NUM
     """
-    signal_path = get_detector_event_signal_path(detector, event)
+    signal_path = get_event_detector_signal_path(event, detector)
     signal = np.load(signal_path)
     return signal
 
@@ -89,7 +89,7 @@ def generate_one_signal(df, steps_num: int = STEPS_NUM, frac: float = 1.0):
     if df.empty:
         return np.zeros(steps_num)
 
-    min_timestamp = min(df['timestamp'])
+    min_timestamp = min(df['timestamp'])  # TODO: (@whiteRa2bit, 2020-09-22) Replace with config params
     max_timestamp = max(df['timestamp'])
     step = (max_timestamp - min_timestamp) / steps_num
 
@@ -98,7 +98,7 @@ def generate_one_signal(df, steps_num: int = STEPS_NUM, frac: float = 1.0):
         step_df = df[df['timestamp'] > i * step]
         step_df = step_df[step_df['timestamp'] < (i + 1) * step]
         step_df = step_df.sample(frac=frac)
-        step_energy = sum(step_df['energy'])
+        step_energy = sum(step_df['PhotonEnergy'])
         step_energies.append(step_energy)
 
     return np.array(step_energies)
