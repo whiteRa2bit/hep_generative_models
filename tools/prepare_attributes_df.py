@@ -10,7 +10,7 @@ from generation.config import ROOT_FILE_PATH, ROOT_TREE_NAME, ATTRIBUTES, ATTRIB
 def _extract_attribute(root_tree, attr, attr_path):
     if os.path.exists(attr_path):
         print(f"Attribute file at path {attr_path} already exists")
-    
+
     print(f"Extracting attribute {attr}...")
     attr_values = root_tree.array(attr)
     np.save(attr_path, attr_values)
