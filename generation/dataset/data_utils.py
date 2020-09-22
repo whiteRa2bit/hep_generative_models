@@ -142,7 +142,7 @@ def generate_signals(df,
     """
     if df.empty:
         return np.zeros((data_size, steps_num))
-    
+
     step = _calculate_step(df, steps_num)
     steps_energies = []
     for i in range(steps_num):
