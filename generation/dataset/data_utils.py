@@ -89,6 +89,20 @@ def get_attributes_df(data_path=SPACAL_DATA_PATH):
     return df
 
 
+def _calculate_step(df, steps_num):
+    min_timestamp = min(df['timestamp'])  # TODO: (@whiteRa2bit, 2020-09-22) Replace with config params
+    max_timestamp = max(df['timestamp'])
+    step = (max_timestamp - min_timestamp) / steps_num
+    return step
+
+
+def _get_step_energies(df, min_timestamp, max_timestamp):
+    step_df = df[df['timestamp'] > min_timestamp]
+    step_df = step_df[step_df['timestamp'] < max_timestamp]
+    step_energies = step_df['PhotonEnergy'].values
+    return step_energies
+
+
 def generate_one_signal(df, steps_num: int = STEPS_NUM, use_postprocessing: bool = False, frac: float = 1.0):
     """
     Generates one output for given df
@@ -99,17 +113,13 @@ def generate_one_signal(df, steps_num: int = STEPS_NUM, use_postprocessing: bool
     if df.empty:
         return np.zeros(steps_num)
 
-    min_timestamp = min(df['timestamp'])  # TODO: (@whiteRa2bit, 2020-09-22) Replace with config params
-    max_timestamp = max(df['timestamp'])
-    step = (max_timestamp - min_timestamp) / steps_num
-
-    step_energies = []
-    df = df.sample(frac=frac)
+    step = _calculate_step(df, steps_num)
+    steps_energy = []
     for i in range(steps_num):
-        step_df = df[df['timestamp'] > i * step]
-        step_df = step_df[step_df['timestamp'] < (i + 1) * step]
-        step_energy = sum(step_df['PhotonEnergy'])
-        step_energies.append(step_energy)
+        step_energies = _get_step_energies(df, i * step, (i + 1) * step)
+        step_energies = np.random.choice(step_energies, int(len(step_energies) * frac))
+        step_energy = np.sum(step_energies)
+        steps_energy.append(step_energy)
     if use_postprocessing:
         step_energies = postprocess_signal(step_energies)
 
@@ -130,12 +140,24 @@ def generate_signals(df,
     :param sample_coef: percent of data to take for each step
     :return: np.array with generated events
     """
-    output_signals = []
-    for _ in range(data_size):
-        output_signal = generate_one_signal(df, steps_num, use_postprocessing, frac)
-        output_signals.append(output_signal)
+    if df.empty:
+        return np.zeros((data_size, steps_num))
 
-    return np.array(output_signals)
+    step = _calculate_step(df, steps_num)
+    steps_energies = []
+    for i in range(steps_num):
+        step_energies = _get_step_energies(df, i * step, (i + 1) * step)
+        steps_energies.append(step_energies)
+
+    output_signals = np.zeros((data_size, steps_num))
+    for signal_idx in range(data_size):
+        for step_idx, step_energies in enumerate(steps_energies):
+            step_energies = np.random.choice(step_energies, int(len(step_energies) * frac))
+            step_energy = np.sum(step_energies)
+            output_signals[signal_idx][step_idx] = step_energy
+
+    # TODO: (@whiteRa2bit, 2020-09-22) Add postprocessing
+    return output_signals
 
 
 def postprocess_signal(signal):
