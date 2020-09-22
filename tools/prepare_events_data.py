@@ -61,10 +61,8 @@ def main():
 
         for detector in detectors:
             print(f'Preparing event signals for detector {detector}')
-            list(
-                tqdm.tqdm(
-                    pool.imap(functools.partial(_prepare_event_detector_signal, detector=detector), events),
-                    total=len(events)))
+            processing = functools.partial(_prepare_event_detector_signal, detector=detector)
+            list(tqdm.tqdm(pool.imap(processing, events), total=len(events)))
 
 
 if __name__ == '__main__':
