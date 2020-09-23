@@ -7,7 +7,7 @@ import tqdm
 from generation.config import TRAINING_DATA_DIR, REPEAT_COEF, FRAC_COEF
 from generation.dataset.data_utils import get_attributes_df, get_event_detector_df, generate_signals, get_detector_training_data_path
 
-_PROCESSORS_NUM = 10
+_PROCESSORS_NUM = 16
 
 
 def _process_event_detector(event, detector, n_signals=REPEAT_COEF, frac_coef=FRAC_COEF):
