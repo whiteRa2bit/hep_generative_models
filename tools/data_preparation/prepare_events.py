@@ -33,8 +33,7 @@ def _prepare_event_df(event: int, df_dir: str = DF_DIR):  # TODO: (@whiteRa2bit,
     event_df = _df_full[_df_full['event'] == event]
     for detector in detectors:
         df_path = get_event_detector_df_path(event, detector)
-        event_detector_df = event_df[event_df['detector'] ==
-                                     detector]
+        event_detector_df = event_df[event_df['detector'] == detector]
         event_detector_df.to_csv(df_path, index=False)
 
 
