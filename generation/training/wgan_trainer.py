@@ -19,19 +19,12 @@ class WganTrainer:
         wandb.watch(self.generator)
         wandb.watch(self.discriminator)
 
-    @staticmethod
-    def data_gen(dataloader):  # TODO: (@whiteRa2bit, 2020-09-18) Remove
-        while True:
-            for signal in dataloader:
-                yield signal
-
     def reset_grad(self):
         self.generator.zero_grad()
         self.discriminator.zero_grad()
 
     def run_train(self, dataset):
         dataloader = DataLoader(dataset, batch_size=self.config["batch_size"], shuffle=True)
-        dataloader = self.data_gen(dataloader)
         self._initialize_wandb()
         
         for epoch in range(self.config['epochs_num']):
@@ -53,13 +46,12 @@ class WganTrainer:
                     # Housekeeping - reset gradient
                     self.reset_grad()
                 else: 
-                    # Sample data
+                    # Dicriminator forward-loss-backward-update
                     X = Variable(data)
                     X = X.to(self.config['device'])
                     z = Variable(torch.rand(self.config['batch_size'], self.config['z_dim']))
                     z = z.to(self.config['device'])
 
-                    # Dicriminator forward-loss-backward-update
                     g_sample = self.generator(z)
                     d_real = self.discriminator(X)
                     d_fake = self.discriminator(g_sample)
