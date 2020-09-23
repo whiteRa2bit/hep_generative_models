@@ -5,6 +5,7 @@ import generation
 with open("README.md", 'r') as f:
     long_description = f.read()
 
+# TODO: (@whiteRa2bit, 2020-09-23) Add skimage
 requirements = [
     "torch==1.4.0",
     "scipy==1.4.1",
