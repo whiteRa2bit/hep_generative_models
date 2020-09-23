@@ -37,9 +37,9 @@ class WganTrainer:
         
         criterion = F.binary_cross_entropy
         ones_label = Variable(torch.ones(self.config['batch_size'], 1))
-        ones_label = ones_label.to(device)
+        ones_label = ones_label.to(self.config['device'])
         zeros_label = Variable(torch.zeros(self.config['batch_size'], 1))
-        zeros_label = zeros_label.to(device)
+        zeros_label = zeros_label.to(self.config['device'])
 
         for epoch in range(self.config['epochs_num']):
             for it, data in enumerate(dataloader):
