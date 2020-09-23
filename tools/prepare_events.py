@@ -29,18 +29,12 @@ def _create_dirs(df_dir: str = DF_DIR, signal_dir: str = SIGNAL_DIR):
 
 
 def _prepare_event_df(event: int, df_dir: str = DF_DIR):  # TODO: (@whiteRa2bit, 2020-07-21) Add documentation
-    """
-    Given full df returns df for given detector and event
-    :param event:
-    :param detector:
-    :return: 
-    """
-    detectors = _df_full['detector'].unique()  # TODO: (@whiteRa2bit, 2020-08-25) Fix call by attribute name
-    event_df = _df_full[_df_full['event'] == event]  # TODO: (@whiteRa2bit, 2020-08-25) Fix call by attribute name
+    detectors = _df_full['detector'].unique()
+    event_df = _df_full[_df_full['event'] == event]
     for detector in detectors:
         df_path = get_event_detector_df_path(event, detector)
         event_detector_df = event_df[event_df['detector'] ==
-                                     detector]  # TODO: (@whiteRa2bit, 2020-08-25) Fix call by attribute name
+                                     detector]
         event_detector_df.to_csv(df_path, index=False)
 
 
