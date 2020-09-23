@@ -2,6 +2,7 @@ import torch
 from torch.utils.data import Dataset
 import numpy as np
 
+from generation.dataset.data_utils import get_detector_training_data
 
 class Scaler:
     def __init__(self):
@@ -23,12 +24,11 @@ class Scaler:
 
 
 class SignalsDataset(Dataset):
-    def __init__(self, signals):
-        signals = self._unify_shape(signals)
-        signals = signals[~np.isnan(signals).any(axis=1)]
-        noises = signals - np.mean(signals, axis=0)
+    def __init__(self, detector):
+        self.detector = detector
+        self.signals = self._get_signals()
         self.scaler = Scaler()
-        self.signals = signals
+        noises = self.signals - np.mean(self.signals, axis=0)
         self.noises = self.scaler.fit_transform(noises)
 
     def __len__(self):
@@ -37,6 +37,12 @@ class SignalsDataset(Dataset):
     def __getitem__(self, idx):
         noise_tensor = torch.from_numpy(self.noises[idx])
         return noise_tensor
+
+    def _get_signals(self):
+        signals = get_detector_training_data(self.detector)
+        signals = self._unify_shape(signals)
+        signals = signals[~np.isnan(signals).any(axis=1)]
+        return signals
 
     @staticmethod
     def _unify_shape(data):
