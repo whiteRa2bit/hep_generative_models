@@ -31,11 +31,11 @@ FIG_SIZE = 1
 WANDB_PROJECT = "hep_generative_models"
 IMAGES_TRAINING_CONFIG = {
     "detector": 0,
-    "lr": 1e-2,
+    "lr": 1e-3,
     "epochs_num": 15000,
     "batch_size": 64,
     "log_each": 100,
-    "device": "cuda:2",
+    "device": "cuda:3",
     "z_dim": 16,
     "disc_coef": 3
 }

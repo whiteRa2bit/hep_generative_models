@@ -7,9 +7,9 @@ class Generator(nn.Module):
     def __init__(self, config):
         super(Generator, self).__init__()
         self.z_dim = config["z_dim"]
-        
+
         self.fc1 = nn.Linear(self.z_dim, 400)
-        
+
         self.batchnorm1 = nn.BatchNorm2d(16)
         self.batchnorm2 = nn.BatchNorm2d(32)
         self.batchnorm3 = nn.BatchNorm2d(16)
@@ -20,7 +20,7 @@ class Generator(nn.Module):
         self.conv3 = nn.ConvTranspose2d(32, 16, 3, stride=2)
         self.conv4 = nn.ConvTranspose2d(16, 8, 3, stride=2)
         self.conv5 = nn.Conv2d(8, 4, 3)
-        
+
     def forward(self, x, debug=False):
         def _debug():
             if debug:

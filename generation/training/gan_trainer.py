@@ -9,8 +9,8 @@ from generation.config import WANDB_PROJECT
 
 class WganTrainer:
     def __init__(self, generator, discriminator, g_optimizer, d_optimizer, config):
-        self.generator = generator
-        self.discriminator = discriminator
+        self.generator = generator.to(config['device'])
+        self.discriminator = discriminator.to(config['device'])
         self.g_optimizer = g_optimizer
         self.d_optimizer = d_optimizer
         self.config = config
@@ -34,7 +34,7 @@ class WganTrainer:
         dataloader = DataLoader(dataset, batch_size=self.config["batch_size"], shuffle=True)
         dataloader = self.data_gen(dataloader)
         self._initialize_wandb()
-        
+
         criterion = F.binary_cross_entropy
         ones_label = Variable(torch.ones(self.config['batch_size'], 1))
         ones_label = ones_label.to(self.config['device'])
@@ -51,7 +51,7 @@ class WganTrainer:
                 X = X.to(self.config['device'])
                 z = Variable(torch.rand(self.config['batch_size'], self.config['z_dim']))
                 z = z.to(self.config['device'])
-                
+
                 g_sample = self.generator(z)
                 d_fake = self.discriminator(g_sample)
 

@@ -24,5 +24,6 @@ class ImageDataset(Dataset):
 def get_image_path(detector, idx):
     return os.path.join(get_image_dir(detector), str(idx)) + '.png'
 
+
 def get_image_dir(detector):
     return os.path.join(IMAGES_DIR, f"detector_{detector}")

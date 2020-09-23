@@ -4,20 +4,21 @@ import numpy as np
 
 from generation.dataset.data_utils import get_detector_training_data
 
+
 class Scaler:
     def __init__(self):
         pass
-    
+
     def fit(self, data):
-        self.min = np.min(data) 
+        self.min = np.min(data)
         self.max = np.max(data)
 
     def fit_transform(self, data):
-        self.min = np.min(data) 
+        self.min = np.min(data)
         self.max = np.max(data)
         new_data = (data - self.min) / (self.max - self.min)
         return new_data
-        
+
     def inverse_transform(self, data):
         new_data = data * (self.max - self.min) + self.min
         return new_data
@@ -48,5 +49,5 @@ class SignalsDataset(Dataset):
     def _unify_shape(data):
         min_values = np.min(data, axis=1)
         max_values = np.max(data, axis=1)
-        data = (data  - min_values[:, None]) / (max_values - min_values)[:, None]
+        data = (data - min_values[:, None]) / (max_values - min_values)[:, None]
         return data
