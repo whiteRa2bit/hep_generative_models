@@ -1,58 +1,66 @@
+from dataclasses import dataclass
 import os
 import multiprocessing as mp
+import typing as np
 
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import tqdm
 
-from generation.dataset.data_utils import get_event_detector_df, \
-get_event_detector_signal, get_event_detector_df_path, \
-get_detector_training_data
-from generation.dataset.dataset_pytorch import SignalsDataset
+from generation.dataset.data_utils import get_attributes_df
+from generation.dataset.signals_dataset import SignalsDataset, Scaler
+from generation.dataset.images_dataset import get_image_dir, get_image_path
 
-_DATA_DIR = '/home/pafakanov/data/hep_data/spacal_simulation/1GeV/fft_images'
-_DETECTOR = 0
 _PROCESSORS_NUM = 16
-SAMPLE_SIZE = 2048
+
+@dataclass
+class NoiseItem:
+    real_noise: np.array
+    img_noise: np.array
+    path: str
 
 
-def get_image_path(idx):
-    return os.path.join(_DATA_DIR, str(idx)) + '.png'
+def _create_dir(detector):
+    if not os.path.exists(get_image_dir(detector)):
+        os.mkdir(get_image_dir(detector))
 
-def save_image(idx):
+
+def _save_image(noise_item):
     plt.xlim(-0.1, 1.1)
     plt.ylim(-0.1, 1.1)
     plt.axis('off')
-    plt.scatter(real_noises[idx], img_noises[idx])
-    plt.savefig(get_image_path(idx), bbox_inches='tight', transparent=True, pad_inches=0)
+    plt.scatter(noise_item.real_noise, noise_item.img_noise)
+    plt.savefig(noise_item.path, bbox_inches='tight', transparent=True, pad_inches=0)
     plt.clf()
 
 
-def prepare_detector_images(detector):
-    
-
-def main():
-    origin_data = signals.copy()[:, :SAMPLE_SIZE]
-    data = unify_shape(origin_data)
-    data = data[~np.isnan(data).any(axis=1)]
-    origin_noises = data - np.mean(data, axis=0)
-    noises_dataset, noises_scaler, noises = get_dataset(origin_noises)
-
+def _prepare_detector_images(detector):
+    signals_dataset = SignalsDataset(detector)
+    noises = signals_dataset.noises
 
     fft_noises = np.fft.rfft(noises)
-    real_noises = np.real(fft_noises)
-    img_noises = np.imag(fft_noises)
-
-    real_noises = real_noises[:, 1:]
-    img_noises = img_noises[:, 1:]
-
-    img_scaler = Scaler()
-    img_noises = img_scaler.fit_transform(img_noises)
+    real_noises = np.real(fft_noises)[:, 1:]  # Explained at fft_shapes notebook
+    img_noises = np.imag(fft_noises)[:, 1:]
 
     real_scaler = Scaler()
+    img_scaler = Scaler()
     real_noises = real_scaler.fit_transform(real_noises)
+    img_noises = img_scaler.fit_transform(img_noises)
 
-    idxs = range(len(real_noises))
+    items = [NoiseItem(real_noises[i], img_noises[i], get_image_path(detector, i)) for i in range(len(real_noises))]
     with mp.Pool(_PROCESSORS_NUM) as pool:
-        list(tqdm.tqdm(pool.imap(save_image, idxs), total=len(idxs)))
+        list(tqdm.tqdm(pool.imap(_save_image, items), total=len(items)))
+
+
+def main():
+    df_full = get_attributes_df()
+    detectors = df_full['detector'].unique()
+
+    for detector in detectors:
+        _create_dir(detector)
+        print(f"Processing detector {detector}")
+        _prepare_detector_images(detector)
+
+
+if __name__ == '__main__':
+    main()
