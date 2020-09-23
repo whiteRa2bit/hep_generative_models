@@ -88,4 +88,3 @@ class WganTrainer:
                     ax[1].imshow(real_sample)
                     plt.show()
                     plt.close()
-
