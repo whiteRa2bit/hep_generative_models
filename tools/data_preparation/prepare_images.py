@@ -14,6 +14,7 @@ from generation.dataset.images_dataset import get_image_dir, get_image_path
 
 _PROCESSORS_NUM = 16
 
+
 @dataclass
 class NoiseItem:
     real_noise: np.array

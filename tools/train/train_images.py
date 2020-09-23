@@ -6,7 +6,7 @@ from generation.nets.shapes_2d import Generator, Discriminator
 from generation.training.wgan_trainer import WganTrainer
 
 
-def run_train(config=CONFIG):    
+def run_train(config=CONFIG):
     dataset = ImageDataset(config['detector'])
 
     generator = Generator(config)

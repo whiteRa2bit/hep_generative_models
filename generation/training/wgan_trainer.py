@@ -28,8 +28,8 @@ class WganTrainer:
     def run_train(self, dataset):
         dataloader = DataLoader(dataset, batch_size=self.config["batch_size"], shuffle=True)
         self._initialize_wandb()
-        
-        d_loss = torch.tensor([0])  # TODO: (@whiteRa2bit, 2020-09-23) Remove 
+
+        d_loss = torch.tensor([0])  # TODO: (@whiteRa2bit, 2020-09-23) Remove
         g_loss = torch.tensor([0])  # TODO: (@whiteRa2bit, 2020-08-23) Remove
         for epoch in range(self.config['epochs_num']):
             for it, data in enumerate(dataloader):
@@ -49,7 +49,7 @@ class WganTrainer:
 
                     # Housekeeping - reset gradient
                     self.reset_grad()
-                else: 
+                else:
                     # Dicriminator forward-loss-backward-update
                     X = Variable(data)
                     X = X.to(self.config['device'])
@@ -80,10 +80,11 @@ class WganTrainer:
                     generated_sample[generated_sample < 0] = 0.0
                     real_sample = X[0].cpu().data
                     real_sample = np.array(real_sample.permute(1, 2, 0))
-                    
+
                     f, ax = plt.subplots(1, 2, figsize=(5, 12))
                     ax[0].set_title("Generated")
                     ax[0].imshow(generated_sample)
                     ax[1].set_title("Real")
                     ax[1].imshow(real_sample)
                     plt.show()
+                    plt.close()
