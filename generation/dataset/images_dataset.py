@@ -12,7 +12,7 @@ class ImageDataset(Dataset):
         self.detector = detector
 
     def __len__(self):
-        return len(os.listdir(IMAGES_DIR))
+        return len(os.listdir(get_image_dir(self.detector)))
 
     def __getitem__(self, idx):
         img_path = get_image_path(self.detector, idx)
