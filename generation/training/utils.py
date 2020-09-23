@@ -3,7 +3,7 @@ import os
 
 import torch
 
-from generation.config import (CHECKPOINTS_DIR)
+from generation.config import CHECKPOINTS_DIR
 
 
 def save_checkpoint(model, epoch, **kwargs):
