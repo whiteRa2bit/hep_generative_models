@@ -24,3 +24,6 @@ STEPS_NUM = 2048
 PROCESSING_TIME_NORM_COEF = 50
 REPEAT_COEF = 100
 FRAC_COEF = 0.7
+
+# Training params
+WANDB_PROJECT = "hep_generative_models"
