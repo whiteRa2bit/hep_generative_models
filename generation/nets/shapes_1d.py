@@ -64,7 +64,6 @@ class Generator(nn.Module):
         plt.show()
 
 
-
 class Discriminator(nn.Module):
     def __init__(self, config):
         super(Discriminator, self).__init__()
