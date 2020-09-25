@@ -2,6 +2,7 @@ import torch
 from torch.utils.data import Dataset
 import numpy as np
 
+from generation.config import SIGNAL_SIZE
 from generation.dataset.data_utils import get_detector_training_data
 
 
@@ -26,7 +27,8 @@ class Scaler:
 
 
 class SignalsDataset(Dataset):
-    def __init__(self, detector):
+    def __init__(self, detector, signal_size=SIGNAL_SIZE):
+        self.signal_size = signal_size
         self.detector = detector
         self.signals = self._get_signals()
         self.scaler = Scaler()
@@ -38,13 +40,13 @@ class SignalsDataset(Dataset):
 
     def __getitem__(self, idx):
         noise_tensor = torch.from_numpy(self.noises[idx])
-        return noise_tensor
+        return noise_tensor.float()
 
     def _get_signals(self):
         signals = get_detector_training_data(self.detector)
         signals = self._unify_shape(signals)
         signals = signals[~np.isnan(signals).any(axis=1)]
-        return signals
+        return signals[:, :self.signal_size]
 
     @staticmethod
     def _unify_shape(data):
