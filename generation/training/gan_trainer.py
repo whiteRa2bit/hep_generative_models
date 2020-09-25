@@ -52,3 +52,4 @@ class GanTrainer(AbstractTrainer):
 
                 if it % self.config['log_each'] == 0:
                     wandb.log({"D loss": d_loss.cpu().data, "G loss": g_loss.cpu().data})
+                    self.generator.visualize(g_sample, X)
