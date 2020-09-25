@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from torch.autograd import Variable
+from torch.autograd import Variable, grad
 from torch.utils.data import DataLoader
 import wandb
 
@@ -29,10 +29,11 @@ class WganTrainer:
         dataloader = DataLoader(dataset, batch_size=self.config["batch_size"], shuffle=True)
         self._initialize_wandb()
 
-        d_loss = torch.tensor([0])  # TODO: (@whiteRa2bit, 2020-09-23) Remove
-        g_loss = torch.tensor([0])  # TODO: (@whiteRa2bit, 2020-08-23) Remove
         for epoch in range(self.config['epochs_num']):
             for it, data in enumerate(dataloader):
+                if it == dataloader.dataset.__len__() // self.config['batch_size']:
+                    break
+
                 if it % self.config['disc_coef'] == 0:
                     # Generator forward-loss-backward-update
                     X = Variable(data)
@@ -60,31 +61,28 @@ class WganTrainer:
                     d_real = self.discriminator(X)
                     d_fake = self.discriminator(g_sample)
 
-                    d_loss = -(torch.mean(d_real) - torch.mean(d_fake))
-                    d_loss.backward()
+                    alpha = torch.rand((self.config["batch_size"], 1)).to(self.config['device'])  # TODO: (@whiteRa2bit, 2020-09-25) Fix shape
+                    x_hat = alpha * X.data + (1 - alpha) * g_sample.data
+                    x_hat.requires_grad = True
+                    pred_hat = self.discriminator(x_hat)
+                    gradients = grad(outputs=pred_hat, inputs=x_hat, grad_outputs=torch.ones(pred_hat.size()).to(self.config['device']),
+                                 create_graph=True, retain_graph=True, only_inputs=True)[0]
+                    gradient_penalty = self.config['lambda'] * ((gradients.view(gradients.size()[0], -1).norm(2, 1) - 1) ** 2).mean()
+                   
+                    d_loss = torch.mean(d_fake) - torch.mean(d_real)
+                    d_loss_gp = d_loss + gradient_penalty
+                    d_loss_gp.backward()
                     self.d_optimizer.step()
-
-                    # # Weight clipping
-                    for p in self.discriminator.parameters():
-                        p.data.clamp_(-0.01, 0.01)  # TODO: (@whiteRa2bit, 2020-08-30) Replace with kwargs param
 
                     # Housekeeping - reset gradient
                     self.reset_grad()
 
-                if it % self.config['log_each'] == 0:
-                    wandb.log({"D loss": d_loss.cpu(), "G loss": g_loss.cpu()})
+                if (it + 1) % self.config['log_each'] == 0:
+                    wandb.log({"D loss": d_loss.cpu(), "D loss GP": d_loss_gp.cpu(), "G loss": g_loss.cpu()})
 
                     generated_sample = g_sample[0].cpu().data
-                    generated_sample = np.array(generated_sample.permute(1, 2, 0))
-                    generated_sample[generated_sample > 1] = 1.0
-                    generated_sample[generated_sample < 0] = 0.0
                     real_sample = X[0].cpu().data
-                    real_sample = np.array(real_sample.permute(1, 2, 0))
-
-                    f, ax = plt.subplots(1, 2, figsize=(5, 12))
-                    ax[0].set_title("Generated")
-                    ax[0].imshow(generated_sample)
-                    ax[1].set_title("Real")
-                    ax[1].imshow(real_sample)
+                    plt.title("Generated")
+                    plt.plot(generated_sample)
+                    wandb.log({"sample_plot": wandb.Image(plt)})
                     plt.show()
-                    plt.close()
