@@ -4,35 +4,12 @@ from torch.utils.data import DataLoader
 import torch.nn.functional as F
 import wandb
 
-from generation.config import WANDB_PROJECT
+from generation.training.abstract_trainer import AbstractTrainer
 
 
-class WganTrainer:
-    def __init__(self, generator, discriminator, g_optimizer, d_optimizer, config):
-        self.generator = generator.to(config['device'])
-        self.discriminator = discriminator.to(config['device'])
-        self.g_optimizer = g_optimizer
-        self.d_optimizer = d_optimizer
-        self.config = config
-
-    def _initialize_wandb(self, project_name=WANDB_PROJECT):
-        wandb.init(config=self.config, project=project_name)
-        wandb.watch(self.generator)
-        wandb.watch(self.discriminator)
-
-    @staticmethod
-    def data_gen(dataloader):  # TODO: (@whiteRa2bit, 2020-09-18) Remove
-        while True:
-            for signal in dataloader:
-                yield signal
-
-    def reset_grad(self):
-        self.generator.zero_grad()
-        self.discriminator.zero_grad()
-
+class GanTrainer(AbstractTrainer):
     def run_train(self, dataset):
         dataloader = DataLoader(dataset, batch_size=self.config["batch_size"], shuffle=True)
-        dataloader = self.data_gen(dataloader)
         self._initialize_wandb()
 
         criterion = F.binary_cross_entropy
@@ -75,3 +52,4 @@ class WganTrainer:
 
                 if it % self.config['log_each'] == 0:
                     wandb.log({"D loss": d_loss.cpu().data, "G loss": g_loss.cpu().data})
+                    self.generator.visualize(g_sample, X)
