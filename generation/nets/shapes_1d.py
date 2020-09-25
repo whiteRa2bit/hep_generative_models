@@ -55,11 +55,11 @@ class Generator(nn.Module):
         generated_sample = generated[0].cpu().data
         real_sample = real[0].cpu().data
 
-        fig, ax = plt.subplots(1, 2, figsize=(5, 12))
+        fig, ax = plt.subplots(1, 2, figsize=(12, 5))
         ax[0].set_title("Generated")
-        ax[0].imshow(generated_sample)
+        ax[0].plot(generated_sample)
         ax[1].set_title("Real")
-        ax[1].imshow(real_sample)
+        ax[1].plot(real_sample)
         wandb.log({"generated_real": wandb.Image(fig)})
         plt.show()
 
