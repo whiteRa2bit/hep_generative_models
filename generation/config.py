@@ -21,7 +21,7 @@ ATTRIBUTE_PATHS = [os.path.join(RAW_DATA_DIR, f'{attr}.npy') for attr in ATTRIBU
 SPACAL_DATA_PATH = os.path.join(RAW_DATA_DIR, 'particles.pkl')
 
 # Processing params
-STEPS_NUM = 2048
+SIGNAL_SIZE = 2048
 PROCESSING_TIME_NORM_COEF = 50
 REPEAT_COEF = 100
 FRAC_COEF = 0.7
@@ -29,10 +29,21 @@ FIG_SIZE = 1
 
 # Training params
 WANDB_PROJECT = "hep_generative_models"
+SIGNALS_TRAINING_CONFIG = {
+    "detector": 0,
+    "lr": 1e-3,
+    "epochs_num": 1000,
+    "batch_size": 64,
+    "log_each": 100,
+    "device": "cuda:2",
+    "x_dim": 512,
+    "z_dim": 32,
+    "disc_coef": 3
+}
 IMAGES_TRAINING_CONFIG = {
     "detector": 0,
     "lr": 1e-3,
-    "epochs_num": 15000,
+    "epochs_num": 1000,
     "batch_size": 64,
     "log_each": 100,
     "device": "cuda:3",
