@@ -61,14 +61,21 @@ class WganTrainer:
                     d_real = self.discriminator(X)
                     d_fake = self.discriminator(g_sample)
 
-                    alpha = torch.rand((self.config["batch_size"], 1)).to(self.config['device'])  # TODO: (@whiteRa2bit, 2020-09-25) Fix shape
+                    alpha = torch.rand((self.config["batch_size"],
+                                        1)).to(self.config['device'])  # TODO: (@whiteRa2bit, 2020-09-25) Fix shape
                     x_hat = alpha * X.data + (1 - alpha) * g_sample.data
                     x_hat.requires_grad = True
                     pred_hat = self.discriminator(x_hat)
-                    gradients = grad(outputs=pred_hat, inputs=x_hat, grad_outputs=torch.ones(pred_hat.size()).to(self.config['device']),
-                                 create_graph=True, retain_graph=True, only_inputs=True)[0]
-                    gradient_penalty = self.config['lambda'] * ((gradients.view(gradients.size()[0], -1).norm(2, 1) - 1) ** 2).mean()
-                   
+                    gradients = grad(
+                        outputs=pred_hat,
+                        inputs=x_hat,
+                        grad_outputs=torch.ones(pred_hat.size()).to(self.config['device']),
+                        create_graph=True,
+                        retain_graph=True,
+                        only_inputs=True)[0]
+                    gradient_penalty = self.config['lambda'] * (
+                        (gradients.view(gradients.size()[0], -1).norm(2, 1) - 1) ** 2).mean()
+
                     d_loss = torch.mean(d_fake) - torch.mean(d_real)
                     d_loss_gp = d_loss + gradient_penalty
                     d_loss_gp.backward()

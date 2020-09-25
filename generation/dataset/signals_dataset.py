@@ -20,7 +20,6 @@ class Scaler:
         new_data = (data - self.min) / (self.max - self.min)
         return new_data
 
-
     def inverse_transform(self, data):
         new_data = data * (self.max - self.min) + self.min
         return new_data
