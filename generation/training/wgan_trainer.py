@@ -70,10 +70,4 @@ class WganTrainer(AbstractTrainer):
 
                 if (it + 1) % self.config['log_each'] == 0:
                     wandb.log({"D loss": d_loss.cpu(), "D loss GP": d_loss_gp.cpu(), "G loss": g_loss.cpu()})
-
-                    generated_sample = g_sample[0].cpu().data
-                    real_sample = X[0].cpu().data
-                    plt.title("Generated")
-                    plt.plot(generated_sample)
-                    wandb.log({"sample_plot": wandb.Image(plt)})
-                    plt.show()
+                    self.generator.visualize(g_sample, X)
