@@ -9,7 +9,7 @@ import tqdm
 
 from generation.dataset.data_utils import get_attributes_df, _get_event_dir, get_event_detector_df, \
     get_event_detector_df_path, get_event_detector_signal_path, get_event_detector_signal, generate_one_signal
-from generation.config import DF_DIR, SIGNAL_DIR, ATTRIBUTES, ATTRIBUTE_PATHS, STEPS_NUM
+from generation.config import DF_DIR, SIGNAL_DIR, ATTRIBUTES, ATTRIBUTE_PATHS, SIGNAL_SIZE
 
 _PROCESSORS_NUM = 16
 _df_full = get_attributes_df()
