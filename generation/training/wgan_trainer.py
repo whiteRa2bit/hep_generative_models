@@ -5,26 +5,10 @@ from torch.autograd import Variable, grad
 from torch.utils.data import DataLoader
 import wandb
 
-from generation.config import WANDB_PROJECT
+from generation.training.abstract_trainer import AbstractTrainer
 
 
-class WganTrainer:
-    def __init__(self, generator, discriminator, g_optimizer, d_optimizer, config):
-        self.generator = generator.to(config['device'])
-        self.discriminator = discriminator.to(config['device'])
-        self.g_optimizer = g_optimizer
-        self.d_optimizer = d_optimizer
-        self.config = config
-
-    def _initialize_wandb(self, project_name=WANDB_PROJECT):
-        wandb.init(config=self.config, project=project_name)
-        wandb.watch(self.generator)
-        wandb.watch(self.discriminator)
-
-    def reset_grad(self):
-        self.generator.zero_grad()
-        self.discriminator.zero_grad()
-
+class WganTrainer(AbstractTrainer):
     def run_train(self, dataset):
         dataloader = DataLoader(dataset, batch_size=self.config["batch_size"], shuffle=True)
         self._initialize_wandb()
