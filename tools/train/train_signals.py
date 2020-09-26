@@ -4,6 +4,7 @@ from generation.config import SIGNALS_TRAINING_CONFIG as CONFIG
 from generation.dataset.signals_dataset import SignalsDataset
 from generation.nets.shapes_1d import Generator, Discriminator
 from generation.training.wgan_trainer import WganTrainer
+from generation.training.utils import set_seed
 
 
 def run_train(config=CONFIG):
@@ -20,4 +21,5 @@ def run_train(config=CONFIG):
 
 
 if __name__ == '__main__':
+    set_seed()
     run_train()
