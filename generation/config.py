@@ -4,7 +4,7 @@ import collections
 # Data params
 _ENERGY = 1
 DATA_DIR = f'/home/pafakanov/data/hep_data/spacal_simulation/{_ENERGY}GeV/'
-CHECKPOINTS_DIR = os.path.join(DATA_DIR, 'checkpoints/')
+CHECKPOINT_DIR = os.path.join(DATA_DIR, 'checkpoints/')
 DF_DIR = os.path.join(DATA_DIR, 'dfs')
 SIGNAL_DIR = os.path.join(DATA_DIR, 'signals')
 RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw_data')
@@ -30,15 +30,16 @@ FIG_SIZE = 1
 # Training params
 WANDB_PROJECT = "hep_generative_models"
 SIGNALS_TRAINING_CONFIG = {
-    "detector": 0,
-    "lr": 1e-3,
-    "epochs_num": 1000,
+    "lr": 1e-5,
+    "epochs_num": 3000,
     "batch_size": 64,
-    "log_each": 100,
+    "log_each": 1,
+    "save_each": 2,
     "device": "cuda:2",
-    "x_dim": 512,
-    "z_dim": 32,
-    "disc_coef": 3
+    "x_dim": 1024,
+    "z_dim": 8,
+    "disc_coef": 5,
+    "lambda": 5
 }
 IMAGES_TRAINING_CONFIG = {
     "detector": 0,
