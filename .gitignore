@@ -6,6 +6,7 @@ setup.cfg
 wandb
 .idea/
 .coverage
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
