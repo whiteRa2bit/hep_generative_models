@@ -30,6 +30,7 @@ FIG_SIZE = 1
 # Training params
 WANDB_PROJECT = "hep_generative_models"
 SIGNALS_TRAINING_CONFIG = {
+    "detector": 0
     "lr": 1e-5,
     "epochs_num": 3000,
     "batch_size": 64,
@@ -46,8 +47,10 @@ IMAGES_TRAINING_CONFIG = {
     "lr": 1e-3,
     "epochs_num": 1000,
     "batch_size": 64,
-    "log_each": 100,
-    "device": "cuda:3",
+    "log_each": 1,
+    "save_each": 2,
+    "device": "cuda:2",
     "z_dim": 16,
-    "disc_coef": 3
+    "disc_coef": 3,
+    "lambda": 5
 }
