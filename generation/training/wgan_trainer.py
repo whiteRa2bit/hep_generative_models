@@ -33,7 +33,7 @@ class WganTrainer(AbstractTrainer):
                     self.g_optimizer.step()
 
                     # Housekeeping - reset gradient
-                    self.reset_grad()
+                    self._reset_grad()
                 else:
                     # Dicriminator forward-loss-backward-update
                     X = Variable(data)
@@ -66,8 +66,11 @@ class WganTrainer(AbstractTrainer):
                     self.d_optimizer.step()
 
                     # Housekeeping - reset gradient
-                    self.reset_grad()
+                    self._reset_grad()
 
-                if (it + 1) % self.config['log_each'] == 0:
-                    wandb.log({"D loss": d_loss.cpu(), "D loss GP": d_loss_gp.cpu(), "G loss": g_loss.cpu()})
-                    self.generator.visualize(g_sample, X)
+            if epoch % self.config['log_each'] == 0:
+                wandb.log({"D loss": d_loss.cpu(), "D loss GP": d_loss_gp.cpu(), "G loss": g_loss.cpu()})
+                self.generator.visualize(g_sample, X)
+            if epoch % self.config['save_each'] == 0:
+                self._save_checkpoint(self.generator, f"generator_{epoch}")
+                self._save_checkpoint(self.discriminator, f"discriminator_{epoch}")
