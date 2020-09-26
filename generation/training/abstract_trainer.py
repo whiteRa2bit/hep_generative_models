@@ -1,10 +1,12 @@
-import os
 from abc import abstractmethod, ABC
+import os
+import random
 
+import numpy as np
 import torch
 import wandb
 
-from generation.config import WANDB_PROJECT, CHECKPOINT_DIR
+from generation.config import WANDB_PROJECT, CHECKPOINT_DIR, RANDOM_SEED
 
 
 class AbstractTrainer(ABC):
@@ -14,6 +16,7 @@ class AbstractTrainer(ABC):
         self.g_optimizer = g_optimizer
         self.d_optimizer = d_optimizer
         self.config = config
+        self._set_seed()
 
     def _initialize_wandb(self, project_name=WANDB_PROJECT):
         wandb.init(config=self.config, project=project_name)
@@ -23,6 +26,14 @@ class AbstractTrainer(ABC):
     def _reset_grad(self):
         self.generator.zero_grad()
         self.discriminator.zero_grad()
+
+    @staticmethod
+    def _set_seed(seed=RANDOM_SEED):
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+        random.seed(seed)
 
     @staticmethod
     def _save_checkpoint(model, checkpoint_name):

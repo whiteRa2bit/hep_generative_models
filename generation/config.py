@@ -29,6 +29,7 @@ FIG_SIZE = 1
 
 # Training params
 WANDB_PROJECT = "hep_generative_models"
+RANDOM_SEED = 42
 SIGNALS_TRAINING_CONFIG = {
     "detector": 0,
     "lr": 1e-5,
