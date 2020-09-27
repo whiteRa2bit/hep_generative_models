@@ -42,19 +42,19 @@ SIGNALS_TRAINING_CONFIG = {
     "x_dim": 1024,
     "z_dim": 8,
     "disc_coef": 5,
-    "lambda": 5
+    "lambda": 1
 }
 AMPLITUDES_TRAINING_CONFIG = {
-    "lr": 1e-5,
-    "epochs_num": 2000,
-    "batch_size": 64,
+    "lr": 1e-4,
+    "epochs_num": 1000,
+    "batch_size": 128,
     "log_each": 1,
     "save_each": 2,
-    "device": "cuda:3",
+    "device": "cuda:1",
     "x_dim": 9,
-    "z_dim": 9,
+    "z_dim": 8,
     "disc_coef": 5,
-    "lambda": 1
+    "lambda": 3
 }
 IMAGES_TRAINING_CONFIG = {
     "detector": 0,
