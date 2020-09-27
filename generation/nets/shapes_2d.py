@@ -60,7 +60,7 @@ class Generator(nn.Module):
         ax[0].imshow(generated_sample)
         ax[1].set_title("Real")
         ax[1].imshow(real_sample)
-        wandb.log({"generated_real": fig}, step=epoch)
+        wandb.log({"generated_real": fig})
         plt.clf()
 
 
