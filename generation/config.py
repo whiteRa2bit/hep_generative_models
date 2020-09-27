@@ -24,6 +24,7 @@ SPACAL_DATA_PATH = os.path.join(RAW_DATA_DIR, 'particles.pkl')
 SIGNAL_SIZE = 2048
 PROCESSING_TIME_NORM_COEF = 50
 REPEAT_COEF = 100
+DETECTORS = range(9)
 FRAC_COEF = 0.7
 FIG_SIZE = 1
 
@@ -33,15 +34,15 @@ RANDOM_SEED = 42
 SIGNALS_TRAINING_CONFIG = {
     "detector": 0,
     "lr": 1e-5,
-    "epochs_num": 3000,
-    "batch_size": 64,
+    "epochs_num": 5000,
+    "batch_size": 256,
     "log_each": 1,
     "save_each": 2,
-    "device": "cuda:1",
+    "device": "cuda:3",
     "x_dim": 1024,
     "z_dim": 8,
-    "disc_coef": 10,
-    "lambda": 10
+    "disc_coef": 5,
+    "lambda": 5
 }
 IMAGES_TRAINING_CONFIG = {
     "detector": 0,
