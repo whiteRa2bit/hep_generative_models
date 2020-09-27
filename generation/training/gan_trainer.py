@@ -49,8 +49,8 @@ class GanTrainer(AbstractTrainer):
                 self.d_optimizer.step()
 
             if epoch % self.config['log_each'] == 0:
-                wandb.log({"D loss": d_loss.cpu().data, "G loss": g_loss.cpu().data})
-                self.generator.visualize(g_sample, X)
+                wandb.log({"D loss": d_loss.cpu().data, "G loss": g_loss.cpu().data}, step=epoch)
+                self.generator.visualize(g_sample, X, epoch)
             if epoch % self.config['save_each'] == 0:
                 self._save_checkpoint(self.generator, f"generator_{epoch}")
                 self._save_checkpoint(self.discriminator, f"discriminator_{epoch}")
