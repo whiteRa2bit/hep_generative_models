@@ -80,7 +80,6 @@ class Discriminator(nn.Module):
         self.layernorm2 = nn.LayerNorm([32, 340])
         self.layernorm3 = nn.LayerNorm([8, 112])
 
-
     def forward(self, x, debug=False):
         def _debug():
             if debug:

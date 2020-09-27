@@ -50,7 +50,7 @@ class WganTrainer(AbstractTrainer):
 
                 # Housekeeping - reset gradient
                 self._reset_grad()
-                
+
                 if it % self.config['disc_coef'] == 0:
                     # Generator forward-loss-backward-update
                     X = Variable(data)
@@ -67,10 +67,15 @@ class WganTrainer(AbstractTrainer):
 
                     # Housekeeping - reset gradient
                     self._reset_grad()
-                    
 
             if epoch % self.config['log_each'] == 0:
-                wandb.log({"D loss": d_loss.cpu(), "Gradient penalty": gradient_penalty.cpu(), "G loss": g_loss.cpu()}, step=epoch)
+                wandb.log(
+                    {
+                        "D loss": d_loss.cpu(),
+                        "Gradient penalty": gradient_penalty.cpu(),
+                        "G loss": g_loss.cpu()
+                    },
+                    step=epoch)
                 self.generator.visualize(g_sample, X, epoch)
             if epoch % self.config['save_each'] == 0:
                 self._save_checkpoint(self.generator, f"generator_{epoch}")
