@@ -11,15 +11,15 @@ class Generator(nn.Module):
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
 
-        self.fc1 = nn.Linear(self.z_dim, self.x_dim)
-        self.fc2 = nn.Linear(self.x_dim, self.x_dim)
-        self.batchnorm1 = nn.BatchNorm1d(self.x_dim)
+        self.fc1 = nn.Linear(self.z_dim, (self.x_dim + self.z_dim) // 2)
+        self.fc2 = nn.Linear((self.x_dim + self.z_dim) // 2, self.x_dim)
+        self.fc3 = nn.Linear(self.x_dim, self.x_dim)
 
     def forward(self, x, debug=False):
-        x = self.fc1(x)
-        x = F.leaky_relu(self.batchnorm1(x))
-        x = self.fc2(x)
-        return torch.sigmoid(x)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        return torch.clamp(x, 0, 1)
 
     @staticmethod
     def visualize(generated, real, epoch):
@@ -39,13 +39,14 @@ class Discriminator(nn.Module):
     def __init__(self, config):
         super(Discriminator, self).__init__()
         self.x_dim = config['x_dim']
+        self.z_dim = config['z_dim']
 
         self.fc1 = nn.Linear(self.x_dim, self.x_dim)
-        self.fc2 = nn.Linear(self.x_dim, 1)
-        self.layernorm1 = nn.LayerNorm([self.x_dim])
+        self.fc2 = nn.Linear(self.x_dim, (self.x_dim + self.z_dim) // 2)
+        self.fc3 = nn.Linear((self.x_dim + self.z_dim) // 2, 1)
 
     def forward(self, x, debug=False):
-        x = self.fc1(x)
-        x = F.leaky_relu(self.layernorm1(x))
-        x = self.fc2(x)
+        x = F.leaky_relu(self.fc1(x))
+        x = F.leaky_relu(self.fc2(x))
+        x = self.fc3(x)
         return x
