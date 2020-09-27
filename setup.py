@@ -11,10 +11,11 @@ requirements = [
     "scipy==1.4.1",
     "numpy==1.18.1",
     "matplotlib==3.2.1",
-    "wandb==0.10.1",
+    "wandb==0.10.2",
     "uproot==3.12.0",
     "tqdm==4.48.2",
-    "pandas==1.1.0"
+    "pandas==1.1.0",
+    "plotly==4.10.0"
 ]
 
 setup(
