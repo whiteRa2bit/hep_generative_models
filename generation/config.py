@@ -46,15 +46,15 @@ SIGNALS_TRAINING_CONFIG = {
 }
 AMPLITUDES_TRAINING_CONFIG = {
     "lr": 1e-5,
-    "epochs_num": 500,
+    "epochs_num": 2000,
     "batch_size": 64,
     "log_each": 1,
     "save_each": 2,
-    "device": "cuda:1",
+    "device": "cuda:3",
     "x_dim": 9,
-    "z_dim": 3,
+    "z_dim": 9,
     "disc_coef": 5,
-    "lambda": 5
+    "lambda": 1
 }
 IMAGES_TRAINING_CONFIG = {
     "detector": 0,

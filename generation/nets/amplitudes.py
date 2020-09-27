@@ -16,9 +16,9 @@ class Generator(nn.Module):
         self.fc3 = nn.Linear(self.x_dim, self.x_dim)
 
     def forward(self, x, debug=False):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
+        x = F.leaky_relu(self.fc1(x))
+        x = F.leaky_relu(self.fc2(x))
+        x = F.leaky_relu(self.fc3(x))
         return torch.clamp(x, 0, 1)
 
     @staticmethod
