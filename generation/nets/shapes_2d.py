@@ -51,7 +51,7 @@ class Generator(nn.Module):
         return x
 
     @staticmethod
-    def visualize(generated, real):
+    def visualize(generated, real, epoch):
         generated_sample = generated[0].cpu().data
         real_sample = real[0].cpu().data
 
@@ -60,8 +60,8 @@ class Generator(nn.Module):
         ax[0].imshow(generated_sample)
         ax[1].set_title("Real")
         ax[1].imshow(real_sample)
-        wandb.log({"generated_real": wandb.Image(fig)})
-        plt.show()
+        wandb.log({"generated_real": fig}, step=epoch)
+        plt.clf()
 
 
 class Discriminator(nn.Module):
