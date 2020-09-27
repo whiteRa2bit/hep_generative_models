@@ -37,11 +37,11 @@ SIGNALS_TRAINING_CONFIG = {
     "batch_size": 64,
     "log_each": 1,
     "save_each": 2,
-    "device": "cuda:2",
+    "device": "cuda:1",
     "x_dim": 1024,
     "z_dim": 8,
-    "disc_coef": 5,
-    "lambda": 5
+    "disc_coef": 10,
+    "lambda": 10
 }
 IMAGES_TRAINING_CONFIG = {
     "detector": 0,
