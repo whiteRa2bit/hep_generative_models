@@ -46,7 +46,7 @@ SIGNALS_TRAINING_CONFIG = {
 }
 AMPLITUDES_TRAINING_CONFIG = {
     "lr": 1e-4,
-    "epochs_num": 1000,
+    "epochs_num": 2000,
     "batch_size": 128,
     "log_each": 1,
     "save_each": 2,
