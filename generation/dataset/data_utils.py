@@ -77,7 +77,7 @@ def get_detector_data(detector: int):
     :param detector: detector number
     :return: numpy array with shape SIGNAL_SIZE
     """
-    signal_path = get_detector_data_path(event, detector)
+    signal_path = get_detector_data_path(detector)
     signal = load_h5(signal_path, H5_DATASET_NAME)
     return signal
 
@@ -132,9 +132,9 @@ def generate_one_signal(df, signal_size: int = SIGNAL_SIZE, use_postprocessing: 
         step_energy = np.sum(step_energies)
         steps_energy.append(step_energy)
     if use_postprocessing:
-        step_energies = postprocess_signal(step_energies)
+        steps_energy = postprocess_signal(steps_energy)
 
-    return np.array(step_energies)
+    return np.array(steps_energy)
 
 
 def generate_signals(df,
