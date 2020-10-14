@@ -45,7 +45,7 @@ def main():  # TODO: (@whiteRa2bit, 2020-10-14) Create training_data folder
 
             full_signals = [event_signals[0] for event_signals in events_signals]
             trunc_signals = [event_signals[1] for event_signals in events_signals]
-            
+
             full_signals = np.array(full_signals)
             trunc_signals = np.array(trunc_signals)
             signal_size = trunc_signals.shape[-1]
