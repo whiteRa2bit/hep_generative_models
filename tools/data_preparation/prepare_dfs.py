@@ -6,21 +6,16 @@ import numpy as np
 import tqdm
 
 from generation.dataset.data_utils import save_h5, get_attributes_df, get_event_dir, get_event_detector_df, \
-    get_event_detector_df_path, get_detector_data_path, get_detector_data, generate_one_signal
-from generation.config import DF_DIR, SIGNAL_DIR, ATTRIBUTES, SIGNAL_SIZE, H5_DATASET_NAME
+    get_event_detector_df_path, create_dir
+from generation.config import DF_DIR, H5_DATASET_NAME
 
 _PROCESSORS_NUM = 8
 _df_full = get_attributes_df()
 
 
-def _create_dirs(df_dir: str = DF_DIR, signal_dir: str = SIGNAL_DIR):
-    def create_dir(path):
-        if not os.path.exists(path):
-            os.mkdir(path)
-
+def _create_dirs(df_dir: str = DF_DIR):
     events = _df_full['event'].unique()
     create_dir(df_dir)
-    create_dir(signal_dir)
     for event in events:
         create_dir(get_event_dir(df_dir, event))
 
@@ -34,17 +29,6 @@ def _prepare_event_df(event: int, df_dir: str = DF_DIR):  # TODO: (@whiteRa2bit,
         event_detector_df.to_parquet(df_path, index=False)
 
 
-def _save_detector_signals(detector_signals, detector):
-    data_path = get_detector_data_path(detector)
-    save_h5(detector_signals, H5_DATASET_NAME, data_path)
-
-
-def _prepare_event_detector_signal(event: int, detector: int, signal_dir: str = SIGNAL_DIR):
-    df = get_event_detector_df(event, detector)
-    signal = generate_one_signal(df)
-    return signal
-
-
 def main():
     _create_dirs()
     events = sorted(_df_full['event'].unique())
@@ -53,14 +37,6 @@ def main():
     with mp.Pool(_PROCESSORS_NUM) as pool:
         print(f'Preparing events dfs...')
         list(tqdm.tqdm(pool.imap(_prepare_event_df, events), total=len(events)))
-
-        for detector in detectors:
-            print(f'Preparing event signals for detector {detector}')
-            processing = functools.partial(_prepare_event_detector_signal, detector=detector)
-            detector_signals = list(tqdm.tqdm(pool.imap(processing, events), total=len(events)))
-
-            detector_signals = np.array(detector_signals)
-            _save_detector_signals(detector_signals, detector)
 
 
 if __name__ == '__main__':
