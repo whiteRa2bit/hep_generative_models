@@ -8,7 +8,12 @@ import tqdm
 import h5py
 
 from generation.config import DF_DIR, SIGNAL_DIR, \
-                PROCESSING_TIME_NORM_COEF, SIGNAL_SIZE, SPACAL_DATA_PATH, TRAINING_DATA_DIR, H5_DATASET_NAME
+                PROCESSING_TIME_NORM_COEF, SIGNAL_SIZE, SPACAL_DATA_PATH, TRUNCATED_SIGNALS_DIR, H5_DATASET_NAME
+
+
+def create_dir(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
 
 
 def save_h5(data, dataset_name, path):
@@ -83,7 +88,7 @@ def get_detector_data(detector: int):
 
 
 def get_detector_training_data_path(detector: int):
-    return os.path.join(TRAINING_DATA_DIR, f'detector_{detector}.h5')
+    return os.path.join(TRUNCATED_SIGNALS_DIR, f'detector_{detector}.h5')
 
 
 def get_detector_training_data(detector: int):

@@ -6,10 +6,10 @@ _ENERGY = 1
 DATA_DIR = f'/home/pafakanov/data/hep_data/spacal_simulation/{_ENERGY}GeV/'
 CHECKPOINT_DIR = os.path.join(DATA_DIR, 'checkpoints/')
 DF_DIR = os.path.join(DATA_DIR, 'dfs')
-SIGNAL_DIR = os.path.join(DATA_DIR, 'signals')
-RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw_data')
-TRAINING_DATA_DIR = os.path.join(DATA_DIR, 'training_data')
+FULL_SIGNALS_DIR = os.path.join(DATA_DIR, 'full_signals')
+TRUNCATED_SIGNALS_DIR = os.path.join(DATA_DIR, 'truncated_signals')
 IMAGES_DIR = os.path.join(DATA_DIR, 'fft_images')
+RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw_data')
 H5_DATASET_NAME = "data"
 
 # Root params
