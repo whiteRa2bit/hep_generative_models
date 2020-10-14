@@ -5,9 +5,23 @@ import os
 import numpy as np
 import pandas as pd
 import tqdm
+import h5py
 
 from generation.config import DF_DIR, SIGNAL_DIR, \
-                PROCESSING_TIME_NORM_COEF, SIGNAL_SIZE, SPACAL_DATA_PATH, TRAINING_DATA_DIR
+                PROCESSING_TIME_NORM_COEF, SIGNAL_SIZE, SPACAL_DATA_PATH, TRAINING_DATA_DIR, H5_DATASET_NAME
+
+
+def save_h5(data, dataset_name, path):
+    h5f = h5py.File(path, 'w')
+    h5f.create_dataset(dataset_name, data=data, compression='gzip')
+    h5f.close()
+
+
+def load_h5(path, dataset_name):
+    h5f = h5py.File(path, 'r')
+    dataset_h5 = h5f[dataset_name][:]
+    h5f.close()
+    return dataset_h5
 
 
 def _get_event_dir(base_dir: str, event: int):
@@ -66,7 +80,7 @@ def get_event_detector_signal(event: int, detector: int):
     :return: numpy array with shape SIGNAL_SIZE
     """
     signal_path = get_event_detector_signal_path(event, detector)
-    signal = np.load(signal_path)
+    signal = load_h5(signal_path, H5_DATASET_NAME)
     return signal
 
 
@@ -76,8 +90,7 @@ def get_detector_training_data_path(detector: int):
 
 def get_detector_training_data(detector: int):
     data_path = get_detector_training_data_path(detector)
-    with open(data_path, 'rb') as data_file:
-        return np.load(data_file)
+    return load_h5(data_path, H5_DATASET_NAME)
 
 
 def get_attributes_df(data_path=SPACAL_DATA_PATH):
