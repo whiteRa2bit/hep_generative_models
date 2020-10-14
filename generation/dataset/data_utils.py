@@ -5,12 +5,31 @@ import os
 import numpy as np
 import pandas as pd
 import tqdm
+import h5py
 
-from generation.config import DF_DIR, SIGNAL_DIR, \
-                PROCESSING_TIME_NORM_COEF, SIGNAL_SIZE, SPACAL_DATA_PATH, TRAINING_DATA_DIR
+from generation.config import DF_DIR, FULL_SIGNALS_DIR, \
+                PROCESSING_TIME_NORM_COEF, SIGNAL_SIZE, SPACAL_DATA_PATH, TRUNCATED_SIGNALS_DIR, H5_DATASET_NAME
 
 
-def _get_event_dir(base_dir: str, event: int):
+def create_dir(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
+
+
+def save_h5(data, dataset_name, path):
+    h5f = h5py.File(path, 'w')
+    h5f.create_dataset(dataset_name, data=data, compression='gzip')
+    h5f.close()
+
+
+def load_h5(path, dataset_name):
+    h5f = h5py.File(path, 'r')
+    dataset_h5 = h5f[dataset_name][:]
+    h5f.close()
+    return dataset_h5
+
+
+def get_event_dir(base_dir: str, event: int):
     """
     Given event and base directory return event directory
     :param base_dir: base directory
@@ -28,8 +47,8 @@ def get_event_detector_df_path(event: int, detector: int, df_dir: str = DF_DIR):
     :param df_dir: directory with dataframe files
     :return: path to pandas dataframe
     """
-    event_dir = _get_event_dir(df_dir, event)
-    df_path = os.path.join(event_dir, 'detector_{}.csv').format(detector)
+    event_dir = get_event_dir(df_dir, event)
+    df_path = os.path.join(event_dir, 'detector_{}.parquet').format(detector)
     return df_path
 
 
@@ -41,43 +60,40 @@ def get_event_detector_df(event: int, detector: int):
     :return: pandas dataframe
     """
     df_path = get_event_detector_df_path(event, detector)
-    df = pd.read_csv(df_path)
+    df = pd.read_parquet(df_path)
     return df
 
 
-def get_event_detector_signal_path(event: int, detector: int, signal_dir: str = SIGNAL_DIR):
+def get_detector_signals_path(detector: int, signals_dir: str = FULL_SIGNALS_DIR):
     """
     Given detector and event returns path to signal
     :param detector: detector number
-    :param event: event number
     :param signal_dir: directory with signal files
     :return: path to np array
     """
-    event_dir = _get_event_dir(signal_dir, event)
-    signal_path = os.path.join(event_dir, 'detector_{}.npy').format(detector)
-    return signal_path
+    signals_path = os.path.join(signals_dir, 'detector_{}.h5').format(detector)
+    return signals_path
 
 
-def get_event_detector_signal(event: int, detector: int):
+def get_detector_signals(detector: int):
     """
     Given detector and event returns corresponding signal
     :param event: event number
     :param detector: detector number
     :return: numpy array with shape SIGNAL_SIZE
     """
-    signal_path = get_event_detector_signal_path(event, detector)
-    signal = np.load(signal_path)
-    return signal
+    signals_path = get_detector_signals_path(detector)
+    signals = load_h5(signals_path, H5_DATASET_NAME)
+    return signals
 
 
 def get_detector_training_data_path(detector: int):
-    return os.path.join(TRAINING_DATA_DIR, f'detector_{detector}.npy')
+    return os.path.join(TRUNCATED_SIGNALS_DIR, f'detector_{detector}.h5')
 
 
 def get_detector_training_data(detector: int):
     data_path = get_detector_training_data_path(detector)
-    with open(data_path, 'rb') as data_file:
-        return np.load(data_file)
+    return load_h5(data_path, H5_DATASET_NAME)
 
 
 def get_attributes_df(data_path=SPACAL_DATA_PATH):
@@ -85,7 +101,7 @@ def get_attributes_df(data_path=SPACAL_DATA_PATH):
     :param data_path:
     :return: df, where each column is an attribute
     """
-    df = pd.read_pickle(data_path)
+    df = pd.read_parquet(data_path)
     return df
 
 
@@ -121,9 +137,9 @@ def generate_one_signal(df, signal_size: int = SIGNAL_SIZE, use_postprocessing: 
         step_energy = np.sum(step_energies)
         steps_energy.append(step_energy)
     if use_postprocessing:
-        step_energies = postprocess_signal(step_energies)
+        steps_energy = postprocess_signal(steps_energy)
 
-    return np.array(step_energies)
+    return np.array(steps_energy)
 
 
 def generate_signals(df,
