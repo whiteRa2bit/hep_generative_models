@@ -68,7 +68,7 @@ def get_event_detector_signal_path(event: int, detector: int, signal_dir: str = 
     :return: path to np array
     """
     event_dir = _get_event_dir(signal_dir, event)
-    signal_path = os.path.join(event_dir, 'detector_{}.npy').format(detector)
+    signal_path = os.path.join(event_dir, 'detector_{}.h5').format(detector)
     return signal_path
 
 
@@ -85,7 +85,7 @@ def get_event_detector_signal(event: int, detector: int):
 
 
 def get_detector_training_data_path(detector: int):
-    return os.path.join(TRAINING_DATA_DIR, f'detector_{detector}.npy')
+    return os.path.join(TRAINING_DATA_DIR, f'detector_{detector}.h5')
 
 
 def get_detector_training_data(detector: int):
