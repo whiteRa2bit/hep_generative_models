@@ -24,7 +24,7 @@ def _save_detector_signals(detector_signals, detector):
 
 def main():  # TODO: (@whiteRa2bit, 2020-10-14) Create training_data folder
     df_full = get_attributes_df()
-    events = df_full['event'].unique()
+    events = sorted(df_full['event'].unique())
     detectors = sorted(df_full['detector'].unique())
 
     with mp.Pool(_PROCESSORS_NUM) as pool:
