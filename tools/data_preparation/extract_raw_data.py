@@ -4,11 +4,10 @@ import numpy as np
 import pandas as pd
 import uproot
 
-from generation.config import ROOT_FILE_PATH, ROOT_TREE_NAME, ATTRIBUTES, ATTRIBUTE_PATHS, SPACAL_DATA_PATH, INT_ATTRIBUTES
+from generation.config import ROOT_FILE_PATH, ROOT_TREE_NAME, ATTRIBUTES, SPACAL_DATA_PATH, INT_ATTRIBUTES
 
 
-def _prepare_attributes_df(root_tree, attrs=ATTRIBUTES, attr_paths=ATTRIBUTE_PATHS,
-                           res_path=SPACAL_DATA_PATH) -> None:  # TODO: (@whiteRa2bit, 2020-08-25) Add types
+def _prepare_attributes_df(root_tree, attrs=ATTRIBUTES, res_path=SPACAL_DATA_PATH) -> None:  # TODO: (@whiteRa2bit, 2020-08-25) Add types
     """
     Creates df containing attributes and saves it at given path
     :param data: Dictionary where keys are attributes' names
@@ -25,7 +24,7 @@ def _prepare_attributes_df(root_tree, attrs=ATTRIBUTES, attr_paths=ATTRIBUTE_PAT
         return
 
     data = {attr: [] for attr in attrs}
-    for attr, attr_path in zip(attrs, attr_paths):
+    for attr in attrs:
         print(f'Processing attribute: {attr}')
         attr_values = root_tree.array(attr)
         attr_type = "int16" if attr in INT_ATTRIBUTES else "float32"
