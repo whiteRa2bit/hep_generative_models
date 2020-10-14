@@ -18,7 +18,7 @@ ATTRIBUTES = ['x', 'y', 'z', 'PhotonEnergy', 'detector', 'timestamp',
               'event']  # TODO: (@whiteRa2bit, 2020-08-25) Add namedtuple
 INT_ATTRIBUTES = ['event', 'detector']
 ATTRIBUTE_PATHS = [os.path.join(RAW_DATA_DIR, f'{attr}.npy') for attr in ATTRIBUTES]
-SPACAL_DATA_PATH = os.path.join(RAW_DATA_DIR, 'particles.pkl')
+SPACAL_DATA_PATH = os.path.join(RAW_DATA_DIR, 'particles.parquet')
 
 # Processing params
 SIGNAL_SIZE = 2048
