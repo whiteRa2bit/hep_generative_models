@@ -7,7 +7,8 @@ import uproot
 from generation.config import ROOT_FILE_PATH, ROOT_TREE_NAME, ATTRIBUTES, SPACAL_DATA_PATH, INT_ATTRIBUTES
 
 
-def _prepare_attributes_df(root_tree, attrs=ATTRIBUTES, res_path=SPACAL_DATA_PATH) -> None:  # TODO: (@whiteRa2bit, 2020-08-25) Add types
+def _prepare_attributes_df(root_tree, attrs=ATTRIBUTES,
+                           res_path=SPACAL_DATA_PATH) -> None:  # TODO: (@whiteRa2bit, 2020-08-25) Add types
     """
     Creates df containing attributes and saves it at given path
     :param data: Dictionary where keys are attributes' names

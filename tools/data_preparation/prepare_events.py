@@ -59,13 +59,14 @@ def main():
             print(f'Preparing event signals for detector {detector}')
             processing = functools.partial(_prepare_event_detector_signal, detector=detector)
             detector_signals = list(tqdm.tqdm(pool.imap(processing, events), total=len(events)))
-            
+
             detector_signals = np.array(detector_signals)
             signal_size = detector_signals.shape[-1]
             print(detector_signals.shape)
             detector_signals = detector_signals.reshape(-1, signal_size)
             print(detector_signals.shape)
             _save_detector_signals(detector_signals)
+
 
 if __name__ == '__main__':
     main()
