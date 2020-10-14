@@ -11,7 +11,7 @@ from generation.dataset.data_utils import get_attributes_df, _get_event_dir, get
     get_event_detector_df_path, get_event_detector_signal_path, get_event_detector_signal, generate_one_signal
 from generation.config import DF_DIR, SIGNAL_DIR, ATTRIBUTES, ATTRIBUTE_PATHS, SIGNAL_SIZE
 
-_PROCESSORS_NUM = 16
+_PROCESSORS_NUM = 8
 _df_full = get_attributes_df()
 
 
@@ -22,10 +22,10 @@ def _create_dirs(df_dir: str = DF_DIR, signal_dir: str = SIGNAL_DIR):
 
     events = _df_full['event'].unique()
     create_dir(df_dir)
-    create_dir(signal_dir)
+    # create_dir(signal_dir)
     for event in events:
         create_dir(_get_event_dir(df_dir, event))
-        create_dir(_get_event_dir(signal_dir, event))
+        # create_dir(_get_event_dir(signal_dir, event))
 
 
 def _prepare_event_df(event: int, df_dir: str = DF_DIR):  # TODO: (@whiteRa2bit, 2020-07-21) Add documentation
@@ -34,17 +34,18 @@ def _prepare_event_df(event: int, df_dir: str = DF_DIR):  # TODO: (@whiteRa2bit,
     for detector in detectors:
         df_path = get_event_detector_df_path(event, detector)
         event_detector_df = event_df[event_df['detector'] == detector]
-        event_detector_df.to_csv(df_path, index=False)
+        event_detector_df.to_parquet(df_path, index=False)
 
 
-def _prepare_event_detector_signal(event: int, detector: int, signal_dir: str = SIGNAL_DIR):
-    df = get_event_detector_df(event, detector)
-    signal_path = get_event_detector_signal_path(event, detector)
-    signal = generate_one_signal(df)
-    np.save(signal_path, signal)
+# def _prepare_event_detector_signal(event: int, detector: int, signal_dir: str = SIGNAL_DIR):
+#     df = get_event_detector_df(event, detector)
+#     signal_path = get_event_detector_signal_path(event, detector)
+#     signal = generate_one_signal(df)
+#     np.save(signal_path, signal)
 
 
 def main():
+    _create_dirs()
     events = _df_full['event'].unique()
     detectors = _df_full['detector'].unique()
 
@@ -52,10 +53,10 @@ def main():
         print(f'Preparing events dfs...')
         list(tqdm.tqdm(pool.imap(_prepare_event_df, events), total=len(events)))
 
-        for detector in detectors:
-            print(f'Preparing event signals for detector {detector}')
-            processing = functools.partial(_prepare_event_detector_signal, detector=detector)
-            list(tqdm.tqdm(pool.imap(processing, events), total=len(events)))
+        # for detector in detectors:
+        #     print(f'Preparing event signals for detector {detector}')
+        #     processing = functools.partial(_prepare_event_detector_signal, detector=detector)
+        #     list(tqdm.tqdm(pool.imap(processing, events), total=len(events)))
 
 
 if __name__ == '__main__':
