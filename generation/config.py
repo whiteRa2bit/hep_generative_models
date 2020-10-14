@@ -10,6 +10,7 @@ SIGNAL_DIR = os.path.join(DATA_DIR, 'signals')
 RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw_data')
 TRAINING_DATA_DIR = os.path.join(DATA_DIR, 'training_data')
 IMAGES_DIR = os.path.join(DATA_DIR, 'fft_images')
+H5_DATASET_NAME = "data"
 
 # Root params
 ROOT_FILE_PATH = os.path.join(RAW_DATA_DIR, 'hybrid0.root')
@@ -17,13 +18,12 @@ ROOT_TREE_NAME = 'hybrid'
 ATTRIBUTES = ['x', 'y', 'z', 'PhotonEnergy', 'detector', 'timestamp',
               'event']  # TODO: (@whiteRa2bit, 2020-08-25) Add namedtuple
 INT_ATTRIBUTES = ['event', 'detector']
-ATTRIBUTE_PATHS = [os.path.join(RAW_DATA_DIR, f'{attr}.npy') for attr in ATTRIBUTES]
 SPACAL_DATA_PATH = os.path.join(RAW_DATA_DIR, 'particles.parquet')
 
 # Processing params
 SIGNAL_SIZE = 2048
 PROCESSING_TIME_NORM_COEF = 50
-REPEAT_COEF = 100
+REPEAT_COEF = 20
 DETECTORS = range(9)
 FRAC_COEF = 0.7
 FIG_SIZE = 1
