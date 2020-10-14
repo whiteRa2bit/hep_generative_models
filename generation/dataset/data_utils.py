@@ -24,7 +24,7 @@ def load_h5(path, dataset_name):
     return dataset_h5
 
 
-def _get_event_dir(base_dir: str, event: int):
+def get_event_dir(base_dir: str, event: int):
     """
     Given event and base directory return event directory
     :param base_dir: base directory
@@ -42,7 +42,7 @@ def get_event_detector_df_path(event: int, detector: int, df_dir: str = DF_DIR):
     :param df_dir: directory with dataframe files
     :return: path to pandas dataframe
     """
-    event_dir = _get_event_dir(df_dir, event)
+    event_dir = get_event_dir(df_dir, event)
     df_path = os.path.join(event_dir, 'detector_{}.parquet').format(detector)
     return df_path
 
@@ -59,27 +59,25 @@ def get_event_detector_df(event: int, detector: int):
     return df
 
 
-def get_event_detector_signal_path(event: int, detector: int, signal_dir: str = SIGNAL_DIR):
+def get_detector_data_path(detector: int, signal_dir: str = SIGNAL_DIR):
     """
     Given detector and event returns path to signal
     :param detector: detector number
-    :param event: event number
     :param signal_dir: directory with signal files
     :return: path to np array
     """
-    event_dir = _get_event_dir(signal_dir, event)
-    signal_path = os.path.join(event_dir, 'detector_{}.h5').format(detector)
+    signal_path = os.path.join(signal_dir, 'detector_{}.h5').format(detector)
     return signal_path
 
 
-def get_event_detector_signal(event: int, detector: int):
+def get_detector_data(detector: int):
     """
     Given detector and event returns corresponding signal
     :param event: event number
     :param detector: detector number
     :return: numpy array with shape SIGNAL_SIZE
     """
-    signal_path = get_event_detector_signal_path(event, detector)
+    signal_path = get_detector_data_path(event, detector)
     signal = load_h5(signal_path, H5_DATASET_NAME)
     return signal
 
