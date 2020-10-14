@@ -7,7 +7,7 @@ import pandas as pd
 import tqdm
 import h5py
 
-from generation.config import DF_DIR, SIGNAL_DIR, \
+from generation.config import DF_DIR, FULL_SIGNALS_DIR, \
                 PROCESSING_TIME_NORM_COEF, SIGNAL_SIZE, SPACAL_DATA_PATH, TRUNCATED_SIGNALS_DIR, H5_DATASET_NAME
 
 
@@ -64,27 +64,27 @@ def get_event_detector_df(event: int, detector: int):
     return df
 
 
-def get_detector_data_path(detector: int, signal_dir: str = SIGNAL_DIR):
+def get_detector_signals_path(detector: int, signals_dir: str = FULL_SIGNALS_DIR):
     """
     Given detector and event returns path to signal
     :param detector: detector number
     :param signal_dir: directory with signal files
     :return: path to np array
     """
-    signal_path = os.path.join(signal_dir, 'detector_{}.h5').format(detector)
-    return signal_path
+    signals_path = os.path.join(signals_dir, 'detector_{}.h5').format(detector)
+    return signals_path
 
 
-def get_detector_data(detector: int):
+def get_detector_signals(detector: int):
     """
     Given detector and event returns corresponding signal
     :param event: event number
     :param detector: detector number
     :return: numpy array with shape SIGNAL_SIZE
     """
-    signal_path = get_detector_data_path(detector)
-    signal = load_h5(signal_path, H5_DATASET_NAME)
-    return signal
+    signals_path = get_detector_signals_path(detector)
+    signals = load_h5(signals_path, H5_DATASET_NAME)
+    return signals
 
 
 def get_detector_training_data_path(detector: int):
