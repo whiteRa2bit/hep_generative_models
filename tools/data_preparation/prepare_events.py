@@ -23,7 +23,6 @@ def _create_dirs(df_dir: str = DF_DIR, signal_dir: str = SIGNAL_DIR):
     create_dir(signal_dir)
     for event in events:
         create_dir(get_event_dir(df_dir, event))
-        create_dir(get_event_dir(signal_dir, event))
 
 
 def _prepare_event_df(event: int, df_dir: str = DF_DIR):  # TODO: (@whiteRa2bit, 2020-07-21) Add documentation
@@ -52,8 +51,8 @@ def main():
     detectors = sorted(_df_full['detector'].unique())
 
     with mp.Pool(_PROCESSORS_NUM) as pool:
-        # print(f'Preparing events dfs...')
-        # list(tqdm.tqdm(pool.imap(_prepare_event_df, events), total=len(events)))
+        print(f'Preparing events dfs...')
+        list(tqdm.tqdm(pool.imap(_prepare_event_df, events), total=len(events)))
 
         for detector in detectors:
             print(f'Preparing event signals for detector {detector}')
@@ -61,11 +60,7 @@ def main():
             detector_signals = list(tqdm.tqdm(pool.imap(processing, events), total=len(events)))
 
             detector_signals = np.array(detector_signals)
-            signal_size = detector_signals.shape[-1]
-            print(detector_signals.shape)
-            detector_signals = detector_signals.reshape(-1, signal_size)
-            print(detector_signals.shape)
-            _save_detector_signals(detector_signals)
+            _save_detector_signals(detector_signals, detector)
 
 
 if __name__ == '__main__':
