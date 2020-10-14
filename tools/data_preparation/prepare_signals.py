@@ -19,7 +19,7 @@ def _create_dirs(full_signals_dir: str = FULL_SIGNALS_DIR, trunc_signals_dir: st
 
 def _process_event_detector(event, detector, n_signals=REPEAT_COEF, frac_coef=FRAC_COEF):
     event_detector_df = get_event_detector_df(event, detector)
-    full_signal = generate_one_signal(df)
+    full_signal = generate_one_signal(event_detector_df)
     trunc_signals = generate_signals(event_detector_df, n_signals, frac=frac_coef)
     return full_signal, trunc_signals
 
