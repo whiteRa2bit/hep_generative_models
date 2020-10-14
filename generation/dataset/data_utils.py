@@ -29,7 +29,7 @@ def get_event_detector_df_path(event: int, detector: int, df_dir: str = DF_DIR):
     :return: path to pandas dataframe
     """
     event_dir = _get_event_dir(df_dir, event)
-    df_path = os.path.join(event_dir, 'detector_{}.csv').format(detector)
+    df_path = os.path.join(event_dir, 'detector_{}.parquet').format(detector)
     return df_path
 
 
@@ -41,7 +41,7 @@ def get_event_detector_df(event: int, detector: int):
     :return: pandas dataframe
     """
     df_path = get_event_detector_df_path(event, detector)
-    df = pd.read_csv(df_path)
+    df = pd.read_parquet(df_path)
     return df
 
 
@@ -85,7 +85,7 @@ def get_attributes_df(data_path=SPACAL_DATA_PATH):
     :param data_path:
     :return: df, where each column is an attribute
     """
-    df = pd.read_pickle(data_path)
+    df = pd.read_parquet(data_path)
     return df
 
 
