@@ -1,55 +1,35 @@
+import numpy as np
 import torch
 from torch.utils.data import Dataset
-import numpy as np
 
-from generation.config import SIGNAL_SIZE
+from generation.config import SIGNAL_SIZE, DETECTORS
 from generation.dataset.data_utils import get_detector_training_data
 
-
-class Scaler:
-    def __init__(self):
-        pass
-
-    def fit(self, data):
-        self.min = np.min(data)
-        self.max = np.max(data)
-
-    def fit_transform(self, data):
-        self.min = np.min(data)
-        self.max = np.max(data)
-        new_data = (data - self.min) / (self.max - self.min)
-        return new_data
-
-    def inverse_transform(self, data):
-        new_data = data * (self.max - self.min) + self.min
-        return new_data
-
-
 class SignalsDataset(Dataset):
-    def __init__(self, detector, signal_size=SIGNAL_SIZE):
+    def __init__(self, detectors=DETECTORS, signal_size=SIGNAL_SIZE):
+        self.detectors = detectors
         self.signal_size = signal_size
-        self.detector = detector
         self.signals = self._get_signals()
-        self.scaler = Scaler()
-        noises = self.signals - np.mean(self.signals, axis=0)
-        self.noises = self.scaler.fit_transform(noises)
+        self.noises = self._get_noises()
 
     def __len__(self):
-        return len(self.noises)
+        return self.noises.shape[1]
 
     def __getitem__(self, idx):
-        noise_tensor = torch.from_numpy(self.noises[idx])
+        noise_tensor = torch.from_numpy(self.noises[:, idx])
         return noise_tensor.float()
 
     def _get_signals(self):
-        signals = get_detector_training_data(self.detector)
-        signals = self._unify_shape(signals)
-        signals = signals[~np.isnan(signals).any(axis=1)]
-        return signals[:, :self.signal_size]
-
-    @staticmethod
-    def _unify_shape(data):
-        min_values = np.min(data, axis=1)
-        max_values = np.max(data, axis=1)
-        data = (data - min_values[:, None]) / (max_values - min_values)[:, None]
-        return data
+        signals = []
+        for detector in self.detectors:
+            signals.append(get_detector_training_data(detector))
+        
+        signals = np.array(signals)[:, :, :self.signal_size]
+        max_amplitudes = np.max(signals, axis=(1, 2))
+        signals = signals / max_amplitudes[:, None, None]
+        return signals[:, :, :self.signal_size]
+    
+    def _get_noises(self):
+        mean_signals = np.mean(self.signals, axis=1)
+        noises = self.signals - mean_signals[:, None, :]
+        return noises
