@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-import numpy as np
 import tqdm
 import torch
 from torch.autograd import Variable, grad
