@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import tqdm
 import torch
 from torch.autograd import Variable, grad
 from torch.utils.data import DataLoader
@@ -13,7 +14,7 @@ class WganTrainer(AbstractTrainer):
         dataloader = DataLoader(dataset, batch_size=self.config["batch_size"], shuffle=True)
         self._initialize_wandb()
 
-        for epoch in range(self.config['epochs_num']):
+        for epoch in tqdm.tqdm(range(self.config['epochs_num'])):
             for it, data in enumerate(dataloader):
                 if it == dataloader.dataset.__len__() // self.config['batch_size']:
                     break
@@ -28,20 +29,7 @@ class WganTrainer(AbstractTrainer):
                 d_real = self.discriminator(X)
                 d_fake = self.discriminator(g_sample)
 
-                alpha = torch.rand((self.config["batch_size"],
-                                    1)).to(self.config['device'])  # TODO: (@whiteRa2bit, 2020-09-25) Fix shape
-                x_hat = alpha * X.data + (1 - alpha) * g_sample.data
-                x_hat.requires_grad = True
-                pred_hat = self.discriminator(x_hat)
-                gradients = grad(
-                    outputs=pred_hat,
-                    inputs=x_hat,
-                    grad_outputs=torch.ones(pred_hat.size()).to(self.config['device']),
-                    create_graph=True,
-                    retain_graph=True,
-                    only_inputs=True)[0]
-                gradient_penalty = self.config['lambda'] * (
-                    (gradients.view(gradients.size()[0], -1).norm(2, 1) - 1) ** 2).mean()
+                gradient_penalty = self._compute_gp(X, g_sample)
 
                 d_loss = torch.mean(d_fake) - torch.mean(d_real)
                 d_loss_gp = d_loss + gradient_penalty
@@ -80,3 +68,20 @@ class WganTrainer(AbstractTrainer):
             if epoch % self.config['save_each'] == 0:
                 self._save_checkpoint(self.generator, f"generator_{epoch}")
                 self._save_checkpoint(self.discriminator, f"discriminator_{epoch}")
+
+    def _compute_gp(self, X, g_sample):
+        alpha = torch.rand((self.config["batch_size"], 1,
+                                    1)).to(self.config['device'])  # TODO: (@whiteRa2bit, 2020-09-25) Fix shape
+        x_hat = alpha * X.data + (1 - alpha) * g_sample.data
+        x_hat.requires_grad = True
+        pred_hat = self.discriminator(x_hat)
+        gradients = grad(
+            outputs=pred_hat,
+            inputs=x_hat,
+            grad_outputs=torch.ones(pred_hat.size()).to(self.config['device']),
+            create_graph=True,
+            retain_graph=True,
+            only_inputs=True)[0]
+        gradient_penalty = self.config['lambda'] * ((gradients.norm(2, dim=1) - 1) ** 2).mean()
+
+        return gradient_penalty
