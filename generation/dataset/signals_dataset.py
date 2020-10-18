@@ -44,12 +44,12 @@ class SignalsDataset(Dataset):
     def _get_signals(self):
         signals = get_detector_training_data(self.detector)
         signals = self._unify_shape(signals)
-        signals = signals[~np.isnan(signals).any(axis=1)]
+        signals = signals[~np.all(signals == 0, axis=1)]
         return signals[:, :self.signal_size]
 
     @staticmethod
-    def _unify_shape(data):
+    def _unify_shape(data, eps=1e-10):
         min_values = np.min(data, axis=1)
         max_values = np.max(data, axis=1)
-        data = (data - min_values[:, None]) / (max_values - min_values)[:, None]
+        data = (data - min_values[:, None]) / (max_values - min_values + eps)[:, None]
         return data
