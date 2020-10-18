@@ -71,7 +71,7 @@ class WganTrainer(AbstractTrainer):
 
     def _compute_gp(self, X, g_sample):
         alpha = torch.rand((self.config["batch_size"], 1,
-                                    1)).to(self.config['device'])  # TODO: (@whiteRa2bit, 2020-09-25) Fix shape
+                            1)).to(self.config['device'])  # TODO: (@whiteRa2bit, 2020-09-25) Fix shape
         x_hat = alpha * X.data + (1 - alpha) * g_sample.data
         x_hat.requires_grad = True
         pred_hat = self.discriminator(x_hat)
