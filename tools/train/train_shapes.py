@@ -16,7 +16,6 @@ def run_train(config=CONFIG):
     d_optimizer = torch.optim.Adam(discriminator.parameters(), lr=config['lr'])
 
     trainer = WganTrainer(generator, discriminator, g_optimizer, d_optimizer, config)
-
     trainer.run_train(dataset)
 
 
