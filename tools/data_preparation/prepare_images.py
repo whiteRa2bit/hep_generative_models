@@ -9,7 +9,7 @@ import tqdm
 
 from generation.config import FIG_SIZE
 from generation.dataset.data_utils import get_attributes_df
-from generation.dataset.signals_dataset import SignalsDataset, Scaler
+from generation.dataset.shapes_dataset import ShapesDataset, Scaler
 from generation.dataset.images_dataset import get_image_dir, get_image_path
 
 _PROCESSORS_NUM = 16
@@ -38,8 +38,8 @@ def _save_image(noise_item):
 
 
 def _prepare_detector_images(detector):
-    signals_dataset = SignalsDataset(detector)
-    noises = signals_dataset.noises
+    shapes_dataset = ShapesDataset(detector)
+    noises = shapes_dataset.noises
 
     fft_noises = np.fft.rfft(noises)
     real_noises = np.real(fft_noises)[:, 1:]  # Explained at fft_shapes notebook

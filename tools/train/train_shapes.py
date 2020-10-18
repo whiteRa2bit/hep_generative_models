@@ -1,14 +1,14 @@
 import torch
 
-from generation.config import SIGNALS_TRAINING_CONFIG as CONFIG
-from generation.dataset.signals_dataset import SignalsDataset
+from generation.config import SHAPES_TRAINING_CONFIG as CONFIG
+from generation.dataset.shapes_dataset import ShapesDataset
 from generation.nets.shapes import Generator, Discriminator
 from generation.training.wgan_trainer import WganTrainer
 from generation.training.utils import set_seed
 
 
 def run_train(config=CONFIG):
-    dataset = SignalsDataset(signal_size=config['x_dim'])
+    dataset = ShapesDataset(config['detector'], signal_size=config['x_dim'])
 
     generator = Generator(config)
     discriminator = Discriminator(config)
