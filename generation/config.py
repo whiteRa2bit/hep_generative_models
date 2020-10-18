@@ -32,6 +32,18 @@ FIG_SIZE = 1
 WANDB_PROJECT = "hep_generative_models"
 RANDOM_SEED = 42
 SIGNALS_TRAINING_CONFIG = {
+    "lr": 1e-5,
+    "epochs_num": 5000,
+    "batch_size": 256,
+    "log_each": 1,
+    "save_each": 2,
+    "device": "cuda:3",
+    "x_dim": 1024,
+    "z_dim": 8,
+    "disc_coef": 5,
+    "lambda": 5
+}
+SHAPES_TRAINING_CONFIG = {
     "detector": 0,
     "lr": 1e-5,
     "epochs_num": 5000,
