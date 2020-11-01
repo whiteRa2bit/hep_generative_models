@@ -7,8 +7,26 @@ import wandb
 from generation.training.abstract_trainer import AbstractTrainer
 
 
+class LambdaLR:
+    def __init__(self, n_epochs, offset, decay_start_epoch):
+        assert (n_epochs - decay_start_epoch) > 0, "Decay must start before the training session ends!"
+        self.n_epochs = n_epochs
+        self.offset = offset
+        self.decay_start_epoch = decay_start_epoch
+
+    def step(self, epoch):
+        return 1.0 - max(0, epoch + self.offset - self.decay_start_epoch) / (self.n_epochs - self.decay_start_epoch)
+
+
 class WganTrainer(AbstractTrainer):
     def run_train(self, dataset):
+        g_lr_scheduler = torch.optim.lr_scheduler.LambdaLR(
+            self.g_optimizer, lr_lambda=LambdaLR(self.config["epochs_num"], 0, self.config['decay_epoch']).step
+        )
+        d_lr_scheduler = torch.optim.lr_scheduler.LambdaLR(
+            self.d_optimizer, lr_lambda=LambdaLR(self.config["epochs_num"], 0, self.config['decay_epoch']).step
+        )
+
         dataloader = DataLoader(dataset, batch_size=self.config["batch_size"], shuffle=True)
         self._initialize_wandb()
 
@@ -37,7 +55,7 @@ class WganTrainer(AbstractTrainer):
                 # Housekeeping - reset gradient
                 self._reset_grad()
 
-                if it % self.config['disc_coef'] == 0:
+                if it % self.config['d_coef'] == 0:
                     # Generator forward-loss-backward-update
                     X = Variable(data)
                     X = X.to(self.config['device'])
@@ -54,12 +72,17 @@ class WganTrainer(AbstractTrainer):
                     # Housekeeping - reset gradient
                     self._reset_grad()
 
+            g_lr_scheduler.step()
+            d_lr_scheduler.step()
+
             if epoch % self.config['log_each'] == 0:
                 wandb.log(
                     {
                         "D loss": d_loss.cpu(),
                         "Gradient penalty": gradient_penalty.cpu(),
-                        "G loss": g_loss.cpu()
+                        "G loss": g_loss.cpu(),
+                        "G lr": self.g_optimizer.param_groups[0]['lr'],
+                        "D lr": self.d_optimizer.param_groups[0]['lr']
                     },
                     step=epoch)
                 self.generator.visualize(g_sample, X, epoch)
