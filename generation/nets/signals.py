@@ -16,13 +16,15 @@ class Generator(nn.Module):
         self.conv1 = nn.Conv1d(1, 8, 3, padding=1)
         self.conv2 = nn.Conv1d(8, 32, 3, padding=1)
         self.conv3 = nn.Conv1d(32, 64, 3, padding=1)
-        self.conv4 = nn.Conv1d(64, 16, 3, padding=1)
-        self.conv5 = nn.Conv1d(16, 9, 3, padding=1)
+        self.conv4 = nn.Conv1d(64, 32, 3, padding=1)
+        # self.conv5 = nn.Conv1d(32, 16, 3, padding=1)
+        # self.conv6 = nn.Conv1d(16, 9, 3, padding=1)
 
         self.batchnorm1 = nn.BatchNorm1d(8)
         self.batchnorm2 = nn.BatchNorm1d(32)
         self.batchnorm3 = nn.BatchNorm1d(64)
-        self.batchnorm4 = nn.BatchNorm1d(16)
+        self.batchnorm4 = nn.BatchNorm1d(32)
+        # self.batchnorm5 = nn.BatchNorm1d(16)
 
     def forward(self, x, debug=False):
         def _debug():
@@ -43,11 +45,16 @@ class Generator(nn.Module):
         x = F.leaky_relu(self.batchnorm3(x))
         _debug()
         x = self.conv4(x)
-        x = F.leaky_relu(self.batchnorm4(x))
-        _debug()
-        x = self.conv5(x)
-        _debug()
-
+        # x = F.leaky_relu(self.batchnorm4(x))
+        # _debug()
+        # x = self.conv5(x)
+        # x = F.leaky_relu(self.batchnorm5(x))
+        # _debug()
+        # x = self.conv6(x)
+        # _debug()
+        # x = torch.clamp(x, 0, 1)
+        # _debug()
+        
         return x
 
     @staticmethod
@@ -67,16 +74,20 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
         self.x_dim = config['x_dim']
 
-        self.fc_final = nn.Linear(288, 1)
-
         self.pool = nn.AvgPool1d(5, 3)
         self.conv1 = nn.Conv1d(9, 16, 7, padding=3)
-        self.conv2 = nn.Conv1d(16, 32, 3, padding=1)
-        self.conv3 = nn.Conv1d(32, 8, 3, padding=1)
+        self.conv2 = nn.Conv1d(16, 32, 5, padding=2)
+        self.conv3 = nn.Conv1d(32, 8, 5, padding=2)
 
-        self.layernorm1 = nn.LayerNorm([16, 1024])
-        self.layernorm2 = nn.LayerNorm([32, 340])
-        self.layernorm3 = nn.LayerNorm([8, 112])
+        layernorm_dim = config["x_dim"]
+        self.layernorm1 = nn.LayerNorm([16, layernorm_dim])
+        layernorm_dim = (layernorm_dim - 2) // 3
+        self.layernorm2 = nn.LayerNorm([32, layernorm_dim])
+        layernorm_dim = (layernorm_dim - 2) // 3
+        self.layernorm3 = nn.LayerNorm([8, layernorm_dim])
+        layernorm_dim = (layernorm_dim - 2) // 3
+
+        self.fc_final = nn.Linear(8 * layernorm_dim, 1)
 
     def forward(self, x, debug=False):
         def _debug():
