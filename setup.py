@@ -14,6 +14,7 @@ requirements = [
     "wandb==0.10.5",
     "uproot==3.12.0",
     "tqdm==4.48.2",
+    "loguru==0.5.3",
     "pandas==1.1.0",
     "plotly==4.10.0"
 ]
