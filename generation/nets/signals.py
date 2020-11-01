@@ -11,14 +11,14 @@ class Generator(nn.Module):
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
 
-        self.fc1 = nn.Linear(self.z_dim, self.x_dim + 24)
+        self.fc1 = nn.Linear(self.z_dim, self.x_dim + 9)
 
         self.conv1 = nn.Conv1d(1, 16, 3, padding=1)
         self.conv2 = nn.Conv1d(16, 32, 3, padding=1)
         self.conv3 = nn.Conv1d(32, 16, 3, padding=1)
         self.conv4 = nn.Conv1d(16, 9, 3, padding=1)
 
-        self.pool = nn.AvgPool1d(25, stride=1)
+        self.pool = nn.AvgPool1d(10, stride=1)
 
         self.batchnorm1 = nn.BatchNorm1d(16)
         self.batchnorm2 = nn.BatchNorm1d(32)
