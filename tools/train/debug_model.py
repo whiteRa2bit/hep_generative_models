@@ -15,5 +15,6 @@ def main(config=CONFIG):
     print(generator)
     print(discriminator)
 
+
 if __name__ == '__main__':
     main()

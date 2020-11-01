@@ -5,9 +5,11 @@ from generation.dataset.shapes_dataset import ShapesDataset
 from generation.nets.shapes import Generator, Discriminator
 from generation.training.wgan_trainer import WganTrainer
 from generation.training.utils import set_seed
+from scheduler import get_gpu_id
 
 
 def run_train(config=CONFIG):
+    config['device'] = f"cuda:{get_gpu_id()}"
     dataset = ShapesDataset(config['detector'], signal_size=config['x_dim'])
 
     generator = Generator(config)

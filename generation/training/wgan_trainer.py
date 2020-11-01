@@ -21,11 +21,9 @@ class LambdaLR:
 class WganTrainer(AbstractTrainer):
     def run_train(self, dataset):
         g_lr_scheduler = torch.optim.lr_scheduler.LambdaLR(
-            self.g_optimizer, lr_lambda=LambdaLR(self.config["epochs_num"], 0, self.config['decay_epoch']).step
-        )
+            self.g_optimizer, lr_lambda=LambdaLR(self.config["epochs_num"], 0, self.config['decay_epoch']).step)
         d_lr_scheduler = torch.optim.lr_scheduler.LambdaLR(
-            self.d_optimizer, lr_lambda=LambdaLR(self.config["epochs_num"], 0, self.config['decay_epoch']).step
-        )
+            self.d_optimizer, lr_lambda=LambdaLR(self.config["epochs_num"], 0, self.config['decay_epoch']).step)
 
         dataloader = DataLoader(dataset, batch_size=self.config["batch_size"], shuffle=True)
         self._initialize_wandb()
