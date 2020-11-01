@@ -26,11 +26,14 @@ class SignalsDataset(Dataset):
             signals.append(get_detector_training_data(detector))
 
         signals = np.array(signals)[:, :, :self.signal_size]
-        max_amplitudes = np.max(signals, axis=(1, 2))
-        signals = signals / max_amplitudes[:, None, None]
+        max_amplitudes = np.max(signals, axis=(1, 2))[:, None, None]
+        signals = signals / max_amplitudes
         return signals[:, :, :self.signal_size]
 
     def _get_noises(self):
-        mean_signals = np.mean(self.signals, axis=1)
-        noises = self.signals - mean_signals[:, None, :]
+        mean_signals = np.mean(self.signals, axis=1)[:, None, :]
+        noises = self.signals - mean_signals
+        max_noises = np.max(noises, axis=(1, 2))[:, None, None]
+        min_noises = np.min(noises, axis=(1, 2))[:, None, None]
+        noises = (noises - min_noises) / (max_noises - min_noises)
         return noises
