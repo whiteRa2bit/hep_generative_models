@@ -15,12 +15,10 @@ class Generator(nn.Module):
 
         self.conv1 = nn.Conv1d(1, 16, 3, padding=1)
         self.conv2 = nn.Conv1d(16, 32, 3, padding=1)
-        self.conv3 = nn.Conv1d(32, 16, 3, padding=1)
-        self.conv4 = nn.Conv1d(16, 9, 3, padding=1)
+        self.conv3 = nn.Conv1d(32, 9, 3, padding=1)
 
         self.batchnorm1 = nn.BatchNorm1d(16)
         self.batchnorm2 = nn.BatchNorm1d(32)
-        self.batchnorm3 = nn.BatchNorm1d(16)
 
     def forward(self, x, debug=False):
         def _debug():
@@ -38,9 +36,6 @@ class Generator(nn.Module):
         x = F.leaky_relu(self.batchnorm2(x))
         _debug()
         x = self.conv3(x)
-        x = F.leaky_relu(self.batchnorm3(x))
-        _debug()
-        x = self.conv4(x)
 
         return x
 
@@ -63,15 +58,12 @@ class Discriminator(nn.Module):
 
         self.pool = nn.AvgPool1d(5, 3)
         self.conv1 = nn.Conv1d(9, 16, 7, padding=3)
-        self.conv2 = nn.Conv1d(16, 32, 5, padding=2)
-        self.conv3 = nn.Conv1d(32, 8, 5, padding=2)
+        self.conv2 = nn.Conv1d(16, 8, 5, padding=2)
 
         layernorm_dim = config["x_dim"]
         self.layernorm1 = nn.LayerNorm([16, layernorm_dim])
         layernorm_dim = (layernorm_dim - 2) // 3
-        self.layernorm2 = nn.LayerNorm([32, layernorm_dim])
-        layernorm_dim = (layernorm_dim - 2) // 3
-        self.layernorm3 = nn.LayerNorm([8, layernorm_dim])
+        self.layernorm2 = nn.LayerNorm([8, layernorm_dim])
         layernorm_dim = (layernorm_dim - 2) // 3
 
         self.fc_final = nn.Linear(8 * layernorm_dim, 1)
@@ -92,11 +84,11 @@ class Discriminator(nn.Module):
         _debug()
         x = self.pool(x)
         _debug()
-        x = self.conv3(x)
-        x = F.leaky_relu(self.layernorm3(x))
-        _debug()
-        x = self.pool(x)
-        _debug()
+        # x = self.conv3(x)
+        # x = F.leaky_relu(self.layernorm3(x))
+        # _debug()
+        # x = self.pool(x)
+        # _debug()
         x = x.view(x.shape[0], -1)
 
         x = x.squeeze(1)
