@@ -1,7 +1,7 @@
+import tqdm
 import torch
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
-import torch.nn.functional as F
 import wandb
 
 from generation.training.abstract_trainer import AbstractTrainer

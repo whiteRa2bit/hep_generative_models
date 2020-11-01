@@ -7,18 +7,13 @@ from generation.training.wgan_trainer import WganTrainer
 from generation.training.utils import set_seed
 
 
-def run_train(config=CONFIG):
-    dataset = SignalsDataset(signal_size=config['x_dim'])
-
+def main(config=CONFIG):
+    z = torch.randn((config["batch_size"], config["z_dim"]))
     generator = Generator(config)
     discriminator = Discriminator(config)
-    g_optimizer = torch.optim.Adam(generator.parameters(), lr=config['g_lr'])
-    d_optimizer = torch.optim.Adam(discriminator.parameters(), lr=config['d_lr'])
-
-    trainer = WganTrainer(generator, discriminator, g_optimizer, d_optimizer, config)
-    trainer.run_train(dataset)
-
+    preds = discriminator(generator(z, debug=True), debug=True)
+    print(generator)
+    print(discriminator)
 
 if __name__ == '__main__':
-    set_seed()
-    run_train()
+    main()
