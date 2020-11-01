@@ -41,7 +41,7 @@ class Generator(nn.Module):
         x = F.leaky_relu(self.batchnorm3(x))
         _debug()
         x = self.conv4(x)
-        
+
         return x
 
     @staticmethod
