@@ -58,15 +58,15 @@ class Discriminator(nn.Module):
 
         self.pool = nn.AvgPool1d(5, 3)
         self.conv1 = nn.Conv1d(9, 16, 7, padding=3)
-        self.conv2 = nn.Conv1d(16, 8, 5, padding=2)
+        # self.conv2 = nn.Conv1d(16, 8, 5, padding=2)
 
         layernorm_dim = config["x_dim"]
         self.layernorm1 = nn.LayerNorm([16, layernorm_dim])
         layernorm_dim = (layernorm_dim - 2) // 3
-        self.layernorm2 = nn.LayerNorm([8, layernorm_dim])
-        layernorm_dim = (layernorm_dim - 2) // 3
+        # self.layernorm2 = nn.LayerNorm([8, layernorm_dim])
+        # layernorm_dim = (layernorm_dim - 2) // 3
 
-        self.fc_final = nn.Linear(8 * layernorm_dim, 1)
+        self.fc_final = nn.Linear(16 * layernorm_dim, 1)
 
     def forward(self, x, debug=False):
         def _debug():
@@ -79,11 +79,11 @@ class Discriminator(nn.Module):
         _debug()
         x = self.pool(x)
         _debug()
-        x = self.conv2(x)
-        x = F.leaky_relu(self.layernorm2(x))
-        _debug()
-        x = self.pool(x)
-        _debug()
+        # x = self.conv2(x)
+        # x = F.leaky_relu(self.layernorm2(x))
+        # _debug()
+        # x = self.pool(x)
+        # _debug()
         # x = self.conv3(x)
         # x = F.leaky_relu(self.layernorm3(x))
         # _debug()
