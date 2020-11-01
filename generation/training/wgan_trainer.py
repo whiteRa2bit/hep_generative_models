@@ -4,27 +4,21 @@ from torch.autograd import Variable, grad
 from torch.utils.data import DataLoader
 import wandb
 
+from generation.training.schedulers import GradualWarmupScheduler
 from generation.training.abstract_trainer import AbstractTrainer
-
-
-class LambdaLR:
-    def __init__(self, n_epochs, offset, decay_start_epoch):
-        assert (n_epochs - decay_start_epoch) > 0, "Decay must start before the training session ends!"
-        self.n_epochs = n_epochs
-        self.offset = offset
-        self.decay_start_epoch = decay_start_epoch
-
-    def step(self, epoch):
-        return 1.0 - max(0, epoch + self.offset - self.decay_start_epoch) / (self.n_epochs - self.decay_start_epoch)
 
 
 class WganTrainer(AbstractTrainer):
     def run_train(self, dataset):
-        g_lr_scheduler = torch.optim.lr_scheduler.LambdaLR(
-            self.g_optimizer, lr_lambda=LambdaLR(self.config["epochs_num"], 0, self.config['decay_epoch']).step)
-        d_lr_scheduler = torch.optim.lr_scheduler.LambdaLR(
-            self.d_optimizer, lr_lambda=LambdaLR(self.config["epochs_num"], 0, self.config['decay_epoch']).step)
-
+        g_cosine_scheduler =  torch.optim.lr_scheduler.CosineAnnealingLR(
+            self.g_optimizer, self.config["epochs_num"], eta_min=0, last_epoch=-1)
+        g_scheduler = GradualWarmupScheduler(
+            self.g_optimizer, multiplier=8, total_epoch=100, after_scheduler=g_cosine_scheduler)
+        d_cosine_scheduler =  torch.optim.lr_scheduler.CosineAnnealingLR(
+            self.d_optimizer, self.config["epochs_num"], eta_min=0, last_epoch=-1)
+        d_scheduler = GradualWarmupScheduler(
+            self.d_optimizer, multiplier=8, total_epoch=100, after_scheduler=d_cosine_scheduler)
+        
         dataloader = DataLoader(dataset, batch_size=self.config["batch_size"], shuffle=True)
         self._initialize_wandb()
 
@@ -70,8 +64,8 @@ class WganTrainer(AbstractTrainer):
                     # Housekeeping - reset gradient
                     self._reset_grad()
 
-            g_lr_scheduler.step()
-            d_lr_scheduler.step()
+            g_scheduler.step(epoch + 1)
+            d_scheduler.step(epoch + 1)
 
             if epoch % self.config['log_each'] == 0:
                 wandb.log(

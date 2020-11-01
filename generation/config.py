@@ -34,7 +34,7 @@ RANDOM_SEED = 42
 SIGNALS_TRAINING_CONFIG = {
     "g_lr": 3e-7,
     "d_lr": 3e-7,
-    "epochs_num": 5000,
+    "epochs_num": 1000,
     "batch_size": 64,
     "log_each": 1,
     "decay_epoch": 0,
