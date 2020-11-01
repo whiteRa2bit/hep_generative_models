@@ -13,18 +13,14 @@ class Generator(nn.Module):
 
         self.fc1 = nn.Linear(self.z_dim, self.x_dim)
 
-        self.conv1 = nn.Conv1d(1, 8, 3, padding=1)
-        self.conv2 = nn.Conv1d(8, 32, 3, padding=1)
-        self.conv3 = nn.Conv1d(32, 64, 3, padding=1)
-        self.conv4 = nn.Conv1d(64, 32, 3, padding=1)
-        # self.conv5 = nn.Conv1d(32, 16, 3, padding=1)
-        # self.conv6 = nn.Conv1d(16, 9, 3, padding=1)
+        self.conv1 = nn.Conv1d(1, 16, 3, padding=1)
+        self.conv2 = nn.Conv1d(16, 32, 3, padding=1)
+        self.conv3 = nn.Conv1d(32, 16, 3, padding=1)
+        self.conv4 = nn.Conv1d(16, 9, 3, padding=1)
 
         self.batchnorm1 = nn.BatchNorm1d(8)
         self.batchnorm2 = nn.BatchNorm1d(32)
-        self.batchnorm3 = nn.BatchNorm1d(64)
-        self.batchnorm4 = nn.BatchNorm1d(32)
-        # self.batchnorm5 = nn.BatchNorm1d(16)
+        self.batchnorm3 = nn.BatchNorm1d(16)
 
     def forward(self, x, debug=False):
         def _debug():
@@ -45,15 +41,6 @@ class Generator(nn.Module):
         x = F.leaky_relu(self.batchnorm3(x))
         _debug()
         x = self.conv4(x)
-        # x = F.leaky_relu(self.batchnorm4(x))
-        # _debug()
-        # x = self.conv5(x)
-        # x = F.leaky_relu(self.batchnorm5(x))
-        # _debug()
-        # x = self.conv6(x)
-        # _debug()
-        # x = torch.clamp(x, 0, 1)
-        # _debug()
         
         return x
 
