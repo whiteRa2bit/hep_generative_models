@@ -33,7 +33,7 @@ WANDB_PROJECT = "hep_generative_models"
 RANDOM_SEED = 42
 SIGNALS_TRAINING_CONFIG = {
     "g_lr": 3e-6,
-    "d_lr": 3e-6,
+    "d_lr": 3e-7,
     "epochs_num": 2000,
     "batch_size": 64,
     "log_each": 1,
