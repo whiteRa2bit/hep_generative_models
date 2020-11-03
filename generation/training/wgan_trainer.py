@@ -17,7 +17,7 @@ class WganTrainer(AbstractTrainer):
         d_cosine_scheduler =  torch.optim.lr_scheduler.CosineAnnealingLR(
             self.d_optimizer, self.config["epochs_num"], eta_min=0, last_epoch=-1)
         d_scheduler = GradualWarmupScheduler(
-            self.d_optimizer, multiplier=8, total_epoch=200, after_scheduler=d_cosine_scheduler)
+            self.d_optimizer, multiplier=4, total_epoch=200, after_scheduler=d_cosine_scheduler)
         
         dataloader = DataLoader(dataset, batch_size=self.config["batch_size"], shuffle=True)
         self._initialize_wandb()
