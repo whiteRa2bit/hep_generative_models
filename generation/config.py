@@ -35,14 +35,14 @@ SIGNALS_TRAINING_CONFIG = {
     "g_lr": 3e-6,
     "d_lr": 3e-7,
     "epochs_num": 2000,
-    "batch_size": 1024,
+    "batch_size": 512,
     "log_each": 1,
     "decay_epoch": 0,
     "save_each": 2,
     "device": "cuda:1",
     "x_dim": 512,
     "z_dim": 8,
-    "d_coef": 3,
+    "d_coef": 4,
     "lambda": 10
 }
 SHAPES_TRAINING_CONFIG = {
