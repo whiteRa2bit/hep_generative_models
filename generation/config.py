@@ -42,7 +42,7 @@ SIGNALS_TRAINING_CONFIG = {
     "device": "cuda:1",
     "x_dim": 512,
     "z_dim": 8,
-    "d_coef": 4,
+    "d_coef": 1,
     "lambda": 10
 }
 SHAPES_TRAINING_CONFIG = {

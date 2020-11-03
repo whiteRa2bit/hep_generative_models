@@ -13,7 +13,7 @@ class WganTrainer(AbstractTrainer):
         g_cosine_scheduler =  torch.optim.lr_scheduler.CosineAnnealingLR(
             self.g_optimizer, self.config["epochs_num"], eta_min=0, last_epoch=-1)
         g_scheduler = GradualWarmupScheduler(
-            self.g_optimizer, multiplier=8, total_epoch=200, after_scheduler=g_cosine_scheduler)
+            self.g_optimizer, multiplier=4, total_epoch=200, after_scheduler=g_cosine_scheduler)
         d_cosine_scheduler =  torch.optim.lr_scheduler.CosineAnnealingLR(
             self.d_optimizer, self.config["epochs_num"], eta_min=0, last_epoch=-1)
         d_scheduler = GradualWarmupScheduler(
