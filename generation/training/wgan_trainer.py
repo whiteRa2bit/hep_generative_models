@@ -64,8 +64,9 @@ class WganTrainer(AbstractTrainer):
                     # Housekeeping - reset gradient
                     self._reset_grad()
 
-            if self.config['use_scheduler']:
+            if self.config['g_use_scheduler']:
                 g_scheduler.step(epoch + 1)
+            if self.config['d_use_scheduler']:
                 d_scheduler.step(epoch + 1)
 
             if epoch % self.config['log_each'] == 0:
