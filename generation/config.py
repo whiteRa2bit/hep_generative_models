@@ -45,10 +45,10 @@ SIGNALS_TRAINING_CONFIG = {
     "d_coef": 3,
     "lambda": 10,
     "use_scheduler": True,
-    "g_lr_multiplier": 3,
-    "g_lr_total_epoch": 100,
-    "d_lr_multiplier": 3,
-    "d_lr_total_epoch": 100
+    "g_lr_multiplier": 2,
+    "g_lr_total_epoch": 300,
+    "d_lr_multiplier": 2,
+    "d_lr_total_epoch": 300
 }
 SHAPES_TRAINING_CONFIG = {
     "detector": 0,
