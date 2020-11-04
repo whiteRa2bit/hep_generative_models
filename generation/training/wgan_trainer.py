@@ -64,8 +64,8 @@ class WganTrainer(AbstractTrainer):
                     # Housekeeping - reset gradient
                     self._reset_grad()
 
-            g_scheduler.step(epoch + 1)
-            d_scheduler.step(epoch + 1)
+            # g_scheduler.step(epoch + 1)
+            # d_scheduler.step(epoch + 1)
 
             if epoch % self.config['log_each'] == 0:
                 wandb.log(

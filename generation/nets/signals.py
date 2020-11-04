@@ -24,13 +24,13 @@ class Generator(nn.Module):
             if debug:
                 print(x.shape)
 
-        x = F.tanh(self.fc0(x))
+        x = torch.tanh(self.fc0(x))
         _debug()
         x = x.view(-1, 9, self.z_dim)
         _debug()
-        x = F.tanh(self.fc1(x))
+        x = torch.tanh(self.fc1(x))
         _debug()
-        x = F.tanh(self.fc2(x))
+        x = torch.tanh(self.fc2(x))
         _debug()
         x = torch.sigmoid(self.fc3(x))
         _debug()
