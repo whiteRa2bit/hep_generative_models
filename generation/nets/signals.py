@@ -14,11 +14,13 @@ class Generator(nn.Module):
         self.fc0 = nn.Linear(self.z_dim, self.z_dim * 9)
         self.fc1 = nn.Linear(self.z_dim, self.x_dim // 16)
         self.fc2 = nn.Linear(self.x_dim // 16, self.x_dim // 4)
-        self.fc3 = nn.Linear(self.x_dim // 4, self.x_dim)
+        self.fc3 = nn.Linear(self.x_dim // 4, self.x_dim + 9)
         
-        self.batchnorm0 = nn.BatchNorm1d(self.z_dim)
-        self.batchnorm1 = nn.BatchNorm1d(self.x_dim // 16)
-        self.batchnorm2 = nn.BatchNorm1d(self.x_dim // 4)
+        self.batchnorm0 = nn.BatchNorm1d(9)
+        self.batchnorm1 = nn.BatchNorm1d(9)
+        self.batchnorm2 = nn.BatchNorm1d(9)
+
+        self.pool = nn.AvgPool1d(10, stride=1)
 
     def forward(self, x, debug=False):
         def _debug():
@@ -39,6 +41,9 @@ class Generator(nn.Module):
         _debug()
         x = torch.sigmoid(self.fc3(x))
         _debug()
+        x = self.pool(x)
+        _debug()
+
         return x
 
 
