@@ -15,7 +15,8 @@ class Generator(nn.Module):
         self.fc1 = nn.Linear(self.z_dim, self.x_dim // 16)
         self.fc2 = nn.Linear(self.x_dim // 16, self.x_dim // 4)
         self.fc3 = nn.Linear(self.x_dim // 4, self.x_dim)
-
+        
+        self.batchnorm0 = nn.BatchNorm1d(self.z_dim)
         self.batchnorm1 = nn.BatchNorm1d(self.x_dim // 16)
         self.batchnorm2 = nn.BatchNorm1d(self.x_dim // 4)
 
@@ -24,13 +25,17 @@ class Generator(nn.Module):
             if debug:
                 print(x.shape)
 
-        x = torch.tanh(self.fc0(x))
+        x = self.fc0(x)
         _debug()
         x = x.view(-1, 9, self.z_dim)
         _debug()
-        x = torch.tanh(self.fc1(x))
+        x = self.batchnorm0(x)
         _debug()
-        x = torch.tanh(self.fc2(x))
+        x = self.batchnorm1(self.fc1(x))
+        x = torch.tanh(x)
+        _debug()
+        x = self.batchnorm2(self.fc2(x))
+        x = torch.tanh(x)
         _debug()
         x = torch.sigmoid(self.fc3(x))
         _debug()
