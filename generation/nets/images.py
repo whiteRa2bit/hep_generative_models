@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import wandb
+from loguru import logger
 
 
 class Generator(nn.Module):
@@ -26,7 +27,7 @@ class Generator(nn.Module):
     def forward(self, x, debug=False):
         def _debug():
             if debug:
-                print(x.shape)
+                logger.info(x.shape)
 
         _debug()
         x = F.leaky_relu(self.fc1(x))
@@ -81,7 +82,7 @@ class Discriminator(nn.Module):
     def forward(self, x, debug=False):
         def _debug():
             if debug:
-                print(x.shape)
+                logger.info(x.shape)
 
         _debug()
         x = F.leaky_relu(self.conv1(x))

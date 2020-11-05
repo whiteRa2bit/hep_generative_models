@@ -6,6 +6,7 @@ import typing as np
 import numpy as np
 import matplotlib.pyplot as plt
 import tqdm
+from loguru import logger
 
 from generation.config import FIG_SIZE
 from generation.dataset.data_utils import get_attributes_df
@@ -61,7 +62,7 @@ def main():
 
     for detector in detectors:
         _create_dir(detector)
-        print(f"Processing detector {detector}")
+        logger.info(f"Processing detector {detector}")
         _prepare_detector_images(detector)
 
 
