@@ -80,7 +80,7 @@ class Discriminator(nn.Module):
     def forward(self, x, debug=False):
         def _debug():
             if debug:
-                print(x.shape)
+                logger.info(x.shape)
 
         x = self.conv1(x)
         _debug()
