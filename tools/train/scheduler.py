@@ -21,7 +21,7 @@ def get_gpu_id(min_memory=1000):
     # The first one will have the most free space
     gpus_info.sort(key=lambda x: -x['memory'])
     # The first one will have the least utilization
-    gpus_info.sort(key=lambda x: x['utilization'])  
+    gpus_info.sort(key=lambda x: x['utilization'])
     gpu_id = gpus_info[0]['id']
     logger.info(f"GPU {gpu_id} was scheduled")
     return gpu_id
