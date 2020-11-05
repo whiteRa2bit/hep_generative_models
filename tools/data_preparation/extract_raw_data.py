@@ -22,7 +22,7 @@ def _prepare_attributes_df(root_tree, attrs=ATTRIBUTES,
         return line_type(line.strip())
 
     if os.path.exists(res_path):
-        logger.info(f"Attributes dataframe at path {res_path} already exsists")  # TODO: (@whiteRa2bit, 2020-08-30) Add logger
+        logger.info(f"Attributes dataframe at path {res_path} already exsists")
         return
 
     data = {attr: [] for attr in attrs}
