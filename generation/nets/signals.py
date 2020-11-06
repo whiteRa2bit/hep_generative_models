@@ -11,41 +11,46 @@ class Generator(nn.Module):
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
 
-        self.fc0 = nn.Linear(self.z_dim, self.z_dim * 9)
-        self.fc1 = nn.Linear(self.z_dim, self.x_dim // 16)
-        self.fc2 = nn.Linear(self.x_dim // 16, self.x_dim // 4)
-        self.fc3 = nn.Linear(self.x_dim // 4, self.x_dim + 9)
-        
-        self.batchnorm0 = nn.BatchNorm1d(9)
-        self.batchnorm1 = nn.BatchNorm1d(9)
-        self.batchnorm2 = nn.BatchNorm1d(9)
+        self.fc1 = nn.Linear(self.z_dim, self.x_dim + 9)
+
+        self.conv1 = nn.Conv1d(1, 16, 3, padding=1)
+        self.conv2 = nn.Conv1d(16, 32, 3, padding=1)
+        self.conv3 = nn.Conv1d(32, 16, 3, padding=1)
+        self.conv4 = nn.Conv1d(16, 9, 3, padding=1)
 
         self.pool = nn.AvgPool1d(10, stride=1)
+
+        self.batchnorm1 = nn.BatchNorm1d(16)
+        self.batchnorm2 = nn.BatchNorm1d(32)
+        self.batchnorm3 = nn.BatchNorm1d(16)
 
     def forward(self, x, debug=False):
         def _debug():
             if debug:
                 print(x.shape)
 
-        x = self.fc0(x)
+        x = F.leaky_relu(self.fc1(x))
         _debug()
-        x = x.view(-1, 9, self.z_dim)
+        x = x.unsqueeze(1)
         _debug()
-        x = self.batchnorm0(x)
+        x = self.conv1(x)
+        x = F.leaky_relu(x)
+        # x = F.leaky_relu(self.batchnorm1(x))
         _debug()
-        x = self.batchnorm1(self.fc1(x))
-        x = torch.tanh(x)
+        x = self.conv2(x)
+        x = F.leaky_relu(x)
+        # x = F.leaky_relu(self.batchnorm2(x))
         _debug()
-        x = self.batchnorm2(self.fc2(x))
-        x = torch.tanh(x)
+        x = self.conv3(x)
+        x = F.leaky_relu(x)
+        # x = F.leaky_relu(self.batchnorm3(x))
         _debug()
-        x = torch.sigmoid(self.fc3(x))
+        x = self.conv4(x)
         _debug()
         x = self.pool(x)
         _debug()
 
         return x
-
 
     @staticmethod
     def visualize(generated, real, epoch):
@@ -57,6 +62,7 @@ class Generator(nn.Module):
             ax[i // 3][i % 3].plot(generated_sample[i])
         wandb.log({"Generated": fig})
         plt.clf()
+
 
 
 class Discriminator(nn.Module):
