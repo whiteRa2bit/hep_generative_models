@@ -3,7 +3,7 @@ import collections
 
 # Data params
 _ENERGY = 1
-DATA_DIR = f'/home/pafakanov/data/hep_data/spacal_simulation/{_ENERGY}GeV/'
+DATA_DIR = f'/mnt/pafakanov/hep_data/{_ENERGY}GeV/'
 CHECKPOINT_DIR = os.path.join(DATA_DIR, 'checkpoints/')
 DF_DIR = os.path.join(DATA_DIR, 'dfs')
 FULL_SIGNALS_DIR = os.path.join(DATA_DIR, 'full_signals')
