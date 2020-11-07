@@ -7,7 +7,7 @@ import tqdm
 import h5py
 from loguru import logger
 
-from generation.config import FULL_SIGNALS_fIa FRAC_SIGNALS_DIR, REPEAT_COEF, FRAC_COEF, H5_DATASET_NAME
+from generation.config import FULL_SIGNALS_DIR, FRAC_SIGNALS_DIR, REPEAT_COEF, FRAC_COEF, H5_DATASET_NAME
 from generation.dataset.data_utils import save_h5, get_attributes_df, get_event_detector_df, generate_one_signal, \
     generate_signals, get_detector_signals_path, get_detector_training_data_path, create_dir
 
