@@ -7,14 +7,15 @@ DATA_DIR = f'/home/pafakanov/data/hep_data/spacal_simulation/{_ENERGY}GeV/'
 CHECKPOINT_DIR = os.path.join(DATA_DIR, 'checkpoints/')
 DF_DIR = os.path.join(DATA_DIR, 'dfs')
 FULL_SIGNALS_DIR = os.path.join(DATA_DIR, 'full_signals')
-TRUNCATED_SIGNALS_DIR = os.path.join(DATA_DIR, 'truncated_signals')
+FRAC_SIGNALS_DIR = os.path.join(DATA_DIR, 'fractional_signals')
 IMAGES_DIR = os.path.join(DATA_DIR, 'fft_images')
 RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw_data')
 H5_DATASET_NAME = "data"
 
 # Root params
-ROOT_FILE_PATH = os.path.join(RAW_DATA_DIR, 'hybrid0.root')
+ROOT_FILES_DIR = os.path.join(RAW_DATA_DIR, 'root_files')
 ROOT_TREE_NAME = 'hybrid'
+EVENT_ATTR = 'event'
 ATTRIBUTES = ['x', 'y', 'z', 'PhotonEnergy', 'detector', 'timestamp',
               'event']  # TODO: (@whiteRa2bit, 2020-08-25) Add namedtuple
 INT_ATTRIBUTES = ['event', 'detector']
@@ -23,7 +24,7 @@ SPACAL_DATA_PATH = os.path.join(RAW_DATA_DIR, 'particles.parquet')
 # Processing params
 SIGNAL_SIZE = 2048
 PROCESSING_TIME_NORM_COEF = 50
-REPEAT_COEF = 20
+REPEAT_COEF = 10
 DETECTORS = range(9)
 FRAC_COEF = 0.7
 FIG_SIZE = 1
