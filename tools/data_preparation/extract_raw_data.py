@@ -3,6 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 import uproot
+from loguru import logger
 
 from generation.config import ROOT_FILE_PATH, ROOT_TREE_NAME, ATTRIBUTES, SPACAL_DATA_PATH, INT_ATTRIBUTES
 
@@ -21,12 +22,12 @@ def _prepare_attributes_df(root_tree, attrs=ATTRIBUTES,
         return line_type(line.strip())
 
     if os.path.exists(res_path):
-        print(f"Attributes dataframe at path {res_path} already exsists")  # TODO: (@whiteRa2bit, 2020-08-30) Add logger
+        logger.info(f"Attributes dataframe at path {res_path} already exsists")
         return
 
     data = {attr: [] for attr in attrs}
     for attr in attrs:
-        print(f'Processing attribute: {attr}')
+        logger.info(f'Processing attribute: {attr}')
         attr_values = root_tree.array(attr)
         attr_type = "int16" if attr in INT_ATTRIBUTES else "float32"
         data[attr] = attr_values.astype(attr_type)

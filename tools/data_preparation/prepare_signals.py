@@ -5,6 +5,7 @@ import multiprocessing as mp
 import numpy as np
 import tqdm
 import h5py
+from loguru import logger
 
 from generation.config import FULL_SIGNALS_DIR, TRUNCATED_SIGNALS_DIR, REPEAT_COEF, FRAC_COEF, H5_DATASET_NAME
 from generation.dataset.data_utils import save_h5, get_attributes_df, get_event_detector_df, generate_one_signal, \
@@ -40,7 +41,7 @@ def main():  # TODO: (@whiteRa2bit, 2020-10-14) Create training_data folder
 
     with mp.Pool(_PROCESSORS_NUM) as pool:
         for detector in detectors:
-            print(f"Processing detector {detector}...")
+            logger.info(f"Processing detector {detector}...")
             processing = functools.partial(_process_event_detector, detector=detector)
             events_signals = list(tqdm.tqdm(pool.imap(processing, events), total=len(events)))
 

@@ -4,6 +4,7 @@ import os
 
 import numpy as np
 import tqdm
+from loguru import logger
 
 from generation.dataset.data_utils import save_h5, get_attributes_df, get_event_dir, get_event_detector_df, \
     get_event_detector_df_path, create_dir
@@ -35,7 +36,7 @@ def main():
     detectors = sorted(_df_full['detector'].unique())
 
     with mp.Pool(_PROCESSORS_NUM) as pool:
-        print(f'Preparing events dfs...')
+        logger.info(f'Preparing events dfs...')
         list(tqdm.tqdm(pool.imap(_prepare_event_df, events), total=len(events)))
 
 
