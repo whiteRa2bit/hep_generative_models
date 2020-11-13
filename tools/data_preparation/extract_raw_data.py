@@ -5,9 +5,11 @@ import pandas as pd
 import uproot
 from loguru import logger
 
+from generation.utils import timer
 from generation.config import ROOT_FILES_DIR, ROOT_TREE_NAME, EVENT_ATTR, ATTRIBUTES, SPACAL_DATA_PATH, INT_ATTRIBUTES
 
 
+@timer
 def _prepare_attributes_df(root_trees, attrs=ATTRIBUTES,
                            res_path=SPACAL_DATA_PATH) -> None:  # TODO: (@whiteRa2bit, 2020-08-25) Add types
     """
