@@ -8,7 +8,6 @@ from generation.utils import timer
 from generation.dataset.data_utils import get_attributes_df, get_event_dir, get_event_detector_df_path, create_dir
 from generation.config import DF_DIR
 
-_PROCESSORS_NUM = 8
 _df_full = get_attributes_df()
 _events = sorted(_df_full["event"].unique())
 _detectors = sorted(_df_full['detector'].unique())
@@ -33,9 +32,9 @@ def _prepare_event_df(event, df_dir: str = DF_DIR):  # TODO: (@whiteRa2bit, 2020
 def main():
     _create_dirs()
 
-    with mp.Pool(_PROCESSORS_NUM) as pool:
-        logger.info(f'Preparing events dfs...')
-        list(tqdm.tqdm(pool.imap(_prepare_event_df, _events), total=len(_events)))
+    logger.info(f'Preparing events dfs...')
+    for event in tqdm.tqdm(_events):
+        _prepare_event_df(event)
 
 
 if __name__ == '__main__':
