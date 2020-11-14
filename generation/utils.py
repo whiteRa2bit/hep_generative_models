@@ -21,7 +21,7 @@ def _execute_and_profile(fn, *args, **kwargs):
     fn_result = fn(*args, **kwargs)
     execution_time = time.time() - start_time
 
-    logger.info(f'Elapsed time for "{fn.__name__}": {execution_time}')
+    logger.info(f'Elapsed time for "{fn.__name__}": {round(execution_time, 1)} seconds')
     return execution_time, fn_result
 
 
