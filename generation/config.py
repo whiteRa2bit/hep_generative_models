@@ -10,6 +10,8 @@ FULL_SIGNALS_DIR = os.path.join(DATA_DIR, 'full_signals')
 FRAC_SIGNALS_DIR = os.path.join(DATA_DIR, 'fractional_signals')
 IMAGES_DIR = os.path.join(DATA_DIR, 'fft_images')
 RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw_data')
+EVENTS_PATH = os.path.join(DATA_DIR, "events.npy")
+DETECTORS_PATH = os.path.join(DATA_DIR, "detectors.npy")
 H5_DATASET_NAME = "data"
 
 # Root params
