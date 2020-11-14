@@ -55,6 +55,8 @@ def _prepare_attributes_df(root_trees, attrs=ATTRIBUTES,
     assert all(len(item) == len(attr_values[0]) for item in attr_values)
 
     df = pd.DataFrame(data)
+    # Filter only back layer
+    df = df[df["z"] < 0]  # TODO: (@whiteRa2bit, 2020-11-14) Fix OOM
     df.to_parquet(res_path)
 
 
