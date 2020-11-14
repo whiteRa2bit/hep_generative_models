@@ -7,8 +7,8 @@ import pandas as pd
 import tqdm
 import h5py
 
-from generation.config import DF_DIR, FULL_SIGNALS_DIR, \
-                PROCESSING_TIME_NORM_COEF, SIGNAL_SIZE, SPACAL_DATA_PATH, FRAC_SIGNALS_DIR, H5_DATASET_NAME
+from generation.config import DF_DIR, EVENTS_PATH, DETECTORS_PATH, FULL_SIGNALS_DIR, PROCESSING_TIME_NORM_COEF, \
+    SIGNAL_SIZE, SPACAL_DATA_PATH, FRAC_SIGNALS_DIR, H5_DATASET_NAME
 
 
 def create_dir(path):
@@ -28,6 +28,25 @@ def load_h5(path, dataset_name):
     h5f.close()
     return dataset_h5
 
+
+def get_events(path=EVENTS_PATH):
+    """
+    Given path to events .npy file returns events
+    param: path : path to events file
+    return: events np array
+    """
+    events = np.load(path)
+    return events
+
+
+def get_detectors(path=DETECTORS_PATH):
+    """
+    Given path to detectors .npy file returns detectors
+    param: path : path to detectors file
+    return: detectors np array
+    """
+    detectors = np.load(path)
+    return detectors
 
 def get_event_dir(base_dir: str, event: int):
     """
