@@ -48,6 +48,7 @@ def get_detectors(path=DETECTORS_PATH):
     detectors = np.load(path)
     return detectors
 
+
 def get_event_dir(base_dir: str, event: int):
     """
     Given event and base directory return event directory

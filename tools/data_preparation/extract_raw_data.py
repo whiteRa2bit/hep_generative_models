@@ -33,7 +33,7 @@ def _prepare_attributes_df(root_trees, attrs=ATTRIBUTES,
         max_nums = [max(events) for events in events_lists]
         start_nums = np.cumsum([num + 1 for num in max_nums])
         for i in range(1, len(events_lists)):
-          events_lists[i] += start_nums[i - 1]
+            events_lists[i] += start_nums[i - 1]
 
         return events_lists
 
