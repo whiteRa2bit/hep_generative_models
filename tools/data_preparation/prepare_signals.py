@@ -19,7 +19,7 @@ def _create_dirs(full_signals_dir: str = FULL_SIGNALS_DIR, frac_signals_dir: str
     create_dir(frac_signals_dir)
 
 
-def _process_event_detector(event, detector, n_signals=REPEAT_COEF, frac_coef=FRAC_COEF):
+def _get_event_detector_signals(event, detector, n_signals=REPEAT_COEF, frac_coef=FRAC_COEF):
     event_detector_df = get_event_detector_df(event, detector)
     full_signal = generate_one_signal(event_detector_df)
     frac_signals = generate_signals(event_detector_df, n_signals, frac=frac_coef)
@@ -38,11 +38,12 @@ def main():
     df_full = get_attributes_df()
     events = sorted(df_full['event'].unique())
     detectors = sorted(df_full['detector'].unique())
+    del df_full
 
     with mp.Pool(_PROCESSORS_NUM) as pool:
         for detector in detectors:
             logger.info(f"Processing detector {detector}...")
-            processing = functools.partial(_process_event_detector, detector=detector)
+            processing = functools.partial(_get_event_detector_signals, detector=detector)
             events_signals = list(tqdm.tqdm(pool.imap(processing, events), total=len(events)))
 
             full_signals = [event_signals[0] for event_signals in events_signals]

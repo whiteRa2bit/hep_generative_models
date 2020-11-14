@@ -24,7 +24,7 @@ SPACAL_DATA_PATH = os.path.join(RAW_DATA_DIR, 'particles.parquet')
 # Processing params
 SIGNAL_SIZE = 2048
 PROCESSING_TIME_NORM_COEF = 50
-REPEAT_COEF = 10
+REPEAT_COEF = 3
 DETECTORS = range(9)
 FRAC_COEF = 0.7
 FIG_SIZE = 1
