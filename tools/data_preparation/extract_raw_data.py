@@ -9,7 +9,6 @@ from generation.utils import timer
 from generation.config import ROOT_FILES_DIR, ROOT_TREE_NAME, EVENT_ATTR, ATTRIBUTES, SPACAL_DATA_PATH, INT_ATTRIBUTES
 
 
-@timer
 def _prepare_attributes_df(root_trees, attrs=ATTRIBUTES,
                            res_path=SPACAL_DATA_PATH) -> None:  # TODO: (@whiteRa2bit, 2020-08-25) Add types
     """
@@ -33,7 +32,7 @@ def _prepare_attributes_df(root_trees, attrs=ATTRIBUTES,
         max_nums = [max(events) for events in events_lists]
         start_nums = np.cumsum([num + 1 for num in max_nums])
         for i in range(1, len(events_lists)):
-          events_lists[i] += start_nums[i - 1]
+            events_lists[i] += start_nums[i - 1]
 
         return events_lists
 
@@ -55,9 +54,12 @@ def _prepare_attributes_df(root_trees, attrs=ATTRIBUTES,
     assert all(len(item) == len(attr_values[0]) for item in attr_values)
 
     df = pd.DataFrame(data)
+    # Filter only back layer
+    df = df[df["z"] < 0]  # TODO: (@whiteRa2bit, 2020-11-14) Fix OOM
     df.to_parquet(res_path)
 
 
+@timer
 def main():
     filenames = os.listdir(ROOT_FILES_DIR)
     logger.info(f"{len(filenames)} files were found: {filenames}")
