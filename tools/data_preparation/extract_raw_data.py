@@ -9,7 +9,6 @@ from generation.utils import timer
 from generation.config import ROOT_FILES_DIR, ROOT_TREE_NAME, EVENT_ATTR, ATTRIBUTES, SPACAL_DATA_PATH, INT_ATTRIBUTES
 
 
-@timer
 def _prepare_attributes_df(root_trees, attrs=ATTRIBUTES,
                            res_path=SPACAL_DATA_PATH) -> None:  # TODO: (@whiteRa2bit, 2020-08-25) Add types
     """
@@ -60,6 +59,7 @@ def _prepare_attributes_df(root_trees, attrs=ATTRIBUTES,
     df.to_parquet(res_path)
 
 
+@timer
 def main():
     filenames = os.listdir(ROOT_FILES_DIR)
     logger.info(f"{len(filenames)} files were found: {filenames}")
