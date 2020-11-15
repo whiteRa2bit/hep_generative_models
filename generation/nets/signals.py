@@ -15,13 +15,12 @@ class Generator(nn.Module):
         self.activation = nn.LeakyReLU()
         self.upsample = nn.Upsample(scale_factor=2)
 
-        self.fc0 = nn.Linear(self.z_dim, self.z_dim * 9)
+        self.fc0 = nn.Linear(self.z_dim, self.z_dim * 8)
 
-        self.conv1 = nn.Conv2d(1, 64, 5, padding=1)
-        self.conv2 = nn.Conv2d(64, 32, 5)
-        self.conv3 = nn.Conv2d(32, 9, 5)
-
-        self.fc = nn.Linear(768, self.x_dim)
+        self.conv1 = nn.Conv1d(1, 128, 9, padding=4)
+        self.conv2 = nn.Conv1d(128, 64, 9, padding=4)
+        self.conv3 = nn.Conv1d(64, 32, 9, padding=4)
+        self.conv4 = nn.Conv1d(32, 9, 9, padding=4)
 
         self.batchnorm1 = nn.BatchNorm1d(9)
         self.batchnorm2 = nn.BatchNorm1d(9)
@@ -33,7 +32,7 @@ class Generator(nn.Module):
 
         x = self.activation(self.fc0(x))
         _debug()
-        x = x.view(-1, 1, 9, self.z_dim)
+        x = x.view(-1, 1, self.z_dim * 8)
         _debug()
         x = self.activation(self.conv1(x))
         _debug()
@@ -47,9 +46,7 @@ class Generator(nn.Module):
         _debug()
         x = self.upsample(x)
         _debug()
-        x = x.view(x.shape[0], 9, -1)
-        _debug()
-        x = self.fc(x)
+        x = torch.tanh(self.conv4(x))
         _debug()
         return x
 
