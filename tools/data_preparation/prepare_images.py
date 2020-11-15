@@ -8,60 +8,43 @@ import matplotlib.pyplot as plt
 import tqdm
 from loguru import logger
 
-from generation.config import FIG_SIZE
-from generation.dataset.data_utils import get_attributes_df
+from generation.config import IMAGE_DIR, FIG_SIZE
+from generation.dataset.data_utils import get_detectors, create_dir
 from generation.dataset.shapes_dataset import ShapesDataset, Scaler
-from generation.dataset.images_dataset import get_image_dir, get_image_path
+from generation.dataset.images_dataset import get_detector_image_dir, get_image_path
 
 _PROCESSORS_NUM = 16
 
 
-@dataclass
-class NoiseItem:
-    real_noise: np.array
-    img_noise: np.array
-    path: str
+def _create_dirs(detectors, image_dir=IMAGE_DIR):
+    create_dir(image_dir)
+    for detector in detectors:
+        create_dir(get_detector_image_dir(detector))
 
 
-def _create_dir(detector):
-    if not os.path.exists(get_image_dir(detector)):
-        os.mkdir(get_image_dir(detector))
-
-
-def _save_image(noise_item):
+def _save_image(noise_path):
+    noise, path = noise_path
     fig = plt.figure(num=None, figsize=(FIG_SIZE, FIG_SIZE), dpi=100)
-    plt.xlim(-0.1, 1.1)
-    plt.ylim(-0.1, 1.1)
     plt.axis('off')
-    plt.scatter(noise_item.real_noise, noise_item.img_noise, color='black')
-    fig.savefig(noise_item.path, bbox_inches='tight', transparent=True, pad_inches=0)
+    plt.specgram(noise, Fs=1)
+    fig.savefig(path, bbox_inches='tight', transparent=True, pad_inches=0)
     plt.close()
 
 
 def _prepare_detector_images(detector):
     shapes_dataset = ShapesDataset(detector)
     noises = shapes_dataset.noises
-
-    fft_noises = np.fft.rfft(noises)
-    real_noises = np.real(fft_noises)[:, 1:]  # Explained at fft_shapes notebook
-    img_noises = np.imag(fft_noises)[:, 1:]
-
-    real_scaler = Scaler()
-    img_scaler = Scaler()
-    real_noises = real_scaler.fit_transform(real_noises)
-    img_noises = img_scaler.fit_transform(img_noises)
-
-    items = [NoiseItem(real_noises[i], img_noises[i], get_image_path(detector, i)) for i in range(len(real_noises))]
+    paths = [get_image_path(detector, i) for i in range(len(noises))]
+    
     with mp.Pool(_PROCESSORS_NUM) as pool:
-        list(tqdm.tqdm(pool.imap(_save_image, items), total=len(items)))
+        list(tqdm.tqdm(pool.imap(_save_image, zip(noises, paths)), total=len(noises)))
 
 
 def main():
-    df_full = get_attributes_df()
-    detectors = sorted(df_full['detector'].unique())
+    detectors = get_detectors()
+    _create_dirs(detectors)
 
     for detector in detectors:
-        _create_dir(detector)
         logger.info(f"Processing detector {detector}")
         _prepare_detector_images(detector)
 

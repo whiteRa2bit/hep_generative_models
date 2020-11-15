@@ -12,12 +12,16 @@ class Generator(nn.Module):
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
 
-        self.activation = nn.ELU()
+        self.activation = nn.LeakyReLU()
+        self.upsample = nn.Upsample(scale_factor=2)
 
         self.fc0 = nn.Linear(self.z_dim, self.z_dim * 9)
-        self.fc1 = nn.Linear(self.z_dim, self.x_dim // 16)
-        self.fc2 = nn.Linear(self.x_dim // 16, self.x_dim // 4)
-        self.fc3 = nn.Linear(self.x_dim // 4, self.x_dim)
+
+        self.conv1 = nn.Conv2d(1, 64, 5, padding=1)
+        self.conv2 = nn.Conv2d(64, 32, 5)
+        self.conv3 = nn.Conv2d(32, 9, 5)
+
+        self.fc = nn.Linear(768, self.x_dim)
 
         self.batchnorm1 = nn.BatchNorm1d(9)
         self.batchnorm2 = nn.BatchNorm1d(9)
@@ -29,13 +33,23 @@ class Generator(nn.Module):
 
         x = self.activation(self.fc0(x))
         _debug()
-        x = x.view(-1, 9, self.z_dim)
+        x = x.view(-1, 1, 9, self.z_dim)
         _debug()
-        x = self.batchnorm1(self.activation(self.fc1(x)))
+        x = self.activation(self.conv1(x))
         _debug()
-        x = self.batchnorm2(self.activation(self.fc2(x)))
+        x = self.upsample(x)
         _debug()
-        x = self.activation(self.fc3(x))
+        x = self.activation(self.conv2(x))
+        _debug()
+        x = self.upsample(x)
+        _debug()
+        x = self.activation(self.conv3(x))
+        _debug()
+        x = self.upsample(x)
+        _debug()
+        x = x.view(x.shape[0], 9, -1)
+        _debug()
+        x = self.fc(x)
         _debug()
         return x
 
