@@ -41,6 +41,9 @@ class WganTrainer(AbstractTrainer):
                     gradient_penalty = self._compute_gp(X, g_sample)
                 else:
                     gradient_penalty = 0
+                    # Clip weights of discriminator
+                    for param in self.discriminator.parameters():
+                        param.data.clamp_(-self.config["clip_value"], self.config["clip_value"])
 
                 d_loss = torch.mean(d_fake) - torch.mean(d_real)
                 d_loss_gp = d_loss + gradient_penalty

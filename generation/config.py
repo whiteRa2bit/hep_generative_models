@@ -47,13 +47,18 @@ SIGNALS_TRAINING_CONFIG = {
     "z_dim": 8,
     "d_coef": 5,
     "use_gp": True,
+    "clip_value": 0.01,
     "lambda": 10,
     "g_use_scheduler": False,
     "g_lr_multiplier": 2,
     "g_lr_total_epoch": 300,
     "d_use_scheduler": False,
     "d_lr_multiplier": 2,
-    "d_lr_total_epoch": 300
+    "d_lr_total_epoch": 300,
+    "g_beta1": 0,
+    "g_beta2": 0.99,
+    "d_beta1": 0,
+    "d_beta2": 0.99
 }
 SHAPES_TRAINING_CONFIG = {
     "detector": 0,

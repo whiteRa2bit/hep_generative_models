@@ -19,8 +19,8 @@ class Generator(nn.Module):
         self.fc2 = nn.Linear(self.x_dim // 16, self.x_dim // 4)
         self.fc3 = nn.Linear(self.x_dim // 4, self.x_dim)
 
-        self.batchnorm1 = nn.BatchNorm1d(self.x_dim // 16)
-        self.batchnorm2 = nn.BatchNorm1d(self.x_dim // 4)
+        self.batchnorm1 = nn.BatchNorm1d(9)
+        self.batchnorm2 = nn.BatchNorm1d(9)
 
     def forward(self, x, debug=False):
         def _debug():
