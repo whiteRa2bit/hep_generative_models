@@ -75,9 +75,9 @@ class WganTrainer(AbstractTrainer):
             if epoch % self.config['log_each'] == 0:
                 wandb.log(
                     {
-                        "D loss": d_loss.cpu(),
-                        "Gradient penalty": gradient_penalty.cpu(),
-                        "G loss": g_loss.cpu(),
+                        "D loss": d_loss.item(),
+                        "Gradient penalty": gradient_penalty,
+                        "G loss": g_loss.item(),
                         "G lr": self.g_optimizer.param_groups[0]['lr'],
                         "D lr": self.d_optimizer.param_groups[0]['lr']
                     },
