@@ -37,7 +37,10 @@ class WganTrainer(AbstractTrainer):
                 d_real = self.discriminator(X)
                 d_fake = self.discriminator(g_sample)
 
-                gradient_penalty = self._compute_gp(X, g_sample)
+                if self.config['use_gp']:
+                    gradient_penalty = self._compute_gp(X, g_sample)
+                else:
+                    gradient_penalty = 0
 
                 d_loss = torch.mean(d_fake) - torch.mean(d_real)
                 d_loss_gp = d_loss + gradient_penalty

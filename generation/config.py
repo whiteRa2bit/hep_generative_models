@@ -46,6 +46,7 @@ SIGNALS_TRAINING_CONFIG = {
     "x_dim": 512,
     "z_dim": 8,
     "d_coef": 3,
+    "use_gp": False,
     "lambda": 10,
     "g_use_scheduler": False,
     "g_lr_multiplier": 2,
