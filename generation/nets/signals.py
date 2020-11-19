@@ -16,28 +16,28 @@ class Generator(torch.nn.Module):
 
         # Input shape: [batch_size, z_dim, 16]
         self.block1 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=config["z_dim"], out_channels=1024, kernel_size=8, stride=1, padding=0),
-            nn.BatchNorm1d(num_features=1024),
+            nn.ConvTranspose1d(in_channels=config["z_dim"], out_channels=128, kernel_size=8, stride=1, padding=0),
+            nn.BatchNorm1d(num_features=128),
             nn.LeakyReLU(inplace=True)
         )
 
-        # Input shape: [batch_size, 1024, 32]
+        # Input shape: [batch_size, 128, 32]
         self.block2 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=1024, out_channels=512, kernel_size=4, stride=4, padding=0),
-            nn.BatchNorm1d(num_features=512),
+            nn.ConvTranspose1d(in_channels=128, out_channels=64, kernel_size=4, stride=4, padding=0),
+            nn.BatchNorm1d(num_features=64),
             nn.LeakyReLU(inplace=True)
         )
 
-        # Input shape: [batch_size, 512, 64]
+        # Input shape: [batch_size, 64, 64]
         self.block3 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=512, out_channels=256, kernel_size=4, stride=4, padding=0),
-            nn.BatchNorm1d(num_features=256),
+            nn.ConvTranspose1d(in_channels=64, out_channels=32, kernel_size=4, stride=4, padding=0),
+            nn.BatchNorm1d(num_features=32),
             nn.LeakyReLU(inplace=True)
         )
 
-        # Input shape: [batch_size, 256, 128]
+        # Input shape: [batch_size, 32, 128]
         self.block4 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=256, out_channels=9, kernel_size=4, stride=4, padding=0)
+            nn.ConvTranspose1d(in_channels=32, out_channels=9, kernel_size=4, stride=4, padding=0)
         )
 
         # Output shape: [batch_size, 9, 256]
@@ -61,7 +61,7 @@ class Generator(torch.nn.Module):
         x = self.block4(x)
         _debug()
         
-        return torch.sigmoid(x)
+        return torch.tanh(x)
 
     @staticmethod
     def visualize(generated, real, epoch):
