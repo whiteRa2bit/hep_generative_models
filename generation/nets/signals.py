@@ -6,49 +6,62 @@ import wandb
 from loguru import logger
 
 
-class Generator(nn.Module):
+class Generator(torch.nn.Module):
     def __init__(self, config):
-        super(Generator, self).__init__()
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
+        super().__init__()
 
-        self.activation = nn.LeakyReLU()
-        self.upsample = nn.Upsample(scale_factor=2)
+        # self.fc = nn.Linear(self.z_dim, 16 * self.z_dim)
 
-        self.fc0 = nn.Linear(self.z_dim, self.z_dim * 8)
+        # Input shape: [batch_size, z_dim, 16]
+        self.block1 = nn.Sequential(
+            nn.ConvTranspose1d(in_channels=config["z_dim"], out_channels=1024, kernel_size=8, stride=1, padding=0),
+            nn.BatchNorm1d(num_features=1024),
+            nn.LeakyReLU(inplace=True)
+        )
 
-        self.conv1 = nn.Conv1d(1, 128, 9, padding=4)
-        self.conv2 = nn.Conv1d(128, 64, 9, padding=4)
-        self.conv3 = nn.Conv1d(64, 32, 9, padding=4)
-        self.conv4 = nn.Conv1d(32, 9, 9, padding=4)
+        # Input shape: [batch_size, 1024, 32]
+        self.block2 = nn.Sequential(
+            nn.ConvTranspose1d(in_channels=1024, out_channels=512, kernel_size=4, stride=4, padding=0),
+            nn.BatchNorm1d(num_features=512),
+            nn.LeakyReLU(inplace=True)
+        )
 
-        self.batchnorm1 = nn.BatchNorm1d(9)
-        self.batchnorm2 = nn.BatchNorm1d(9)
+        # Input shape: [batch_size, 512, 64]
+        self.block3 = nn.Sequential(
+            nn.ConvTranspose1d(in_channels=512, out_channels=256, kernel_size=4, stride=4, padding=0),
+            nn.BatchNorm1d(num_features=256),
+            nn.LeakyReLU(inplace=True)
+        )
+
+        # Input shape: [batch_size, 256, 128]
+        self.block4 = nn.Sequential(
+            nn.ConvTranspose1d(in_channels=256, out_channels=9, kernel_size=4, stride=4, padding=0)
+        )
+
+        # Output shape: [batch_size, 9, 256]
+
 
     def forward(self, x, debug=False):
         def _debug():
             if debug:
                 logger.info(x.shape)
 
-        x = self.activation(self.fc0(x))
+        x = x.unsqueeze(2)
         _debug()
-        x = x.view(-1, 1, self.z_dim * 8)
+        # x = self.fc(x)
+        # _debug()
+        x = self.block1(x)
         _debug()
-        x = self.activation(self.conv1(x))
+        x = self.block2(x)
         _debug()
-        x = self.upsample(x)
+        x = self.block3(x)
         _debug()
-        x = self.activation(self.conv2(x))
+        x = self.block4(x)
         _debug()
-        x = self.upsample(x)
-        _debug()
-        x = self.activation(self.conv3(x))
-        _debug()
-        x = self.upsample(x)
-        _debug()
-        x = torch.tanh(self.conv4(x))
-        _debug()
-        return x
+        
+        return torch.tanh(x)
 
     @staticmethod
     def visualize(generated, real, epoch):
