@@ -61,7 +61,7 @@ class Generator(torch.nn.Module):
         x = self.block4(x)
         _debug()
         
-        return torch.tanh(x)
+        return torch.sigmoid(x)
 
     @staticmethod
     def visualize(generated, real, epoch):
