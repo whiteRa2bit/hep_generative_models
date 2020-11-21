@@ -16,28 +16,28 @@ class Generator(torch.nn.Module):
 
         # Input shape: [batch_size, z_dim, 1]
         self.block1 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=config["z_dim"], out_channels=128, kernel_size=8, stride=1, padding=0),
-            nn.BatchNorm1d(num_features=128),
+            nn.ConvTranspose1d(in_channels=config["z_dim"], out_channels=64, kernel_size=8, stride=1, padding=0),
+            nn.BatchNorm1d(num_features=64),
             nn.LeakyReLU(inplace=True)
         )
 
         # Input shape: [batch_size, 128, 8]
         self.block2 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=128, out_channels=64, kernel_size=4, stride=4, padding=0),
-            nn.BatchNorm1d(num_features=64),
-            nn.LeakyReLU(inplace=True)
-        )
-
-        # Input shape: [batch_size, 64, 32]
-        self.block3 = nn.Sequential(
             nn.ConvTranspose1d(in_channels=64, out_channels=32, kernel_size=4, stride=4, padding=0),
             nn.BatchNorm1d(num_features=32),
             nn.LeakyReLU(inplace=True)
         )
 
+        # Input shape: [batch_size, 64, 32]
+        self.block3 = nn.Sequential(
+            nn.ConvTranspose1d(in_channels=32, out_channels=16, kernel_size=4, stride=4, padding=0),
+            nn.BatchNorm1d(num_features=16),
+            nn.LeakyReLU(inplace=True)
+        )
+
         # Input shape: [batch_size, 32, 128]
         self.block4 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=32, out_channels=9, kernel_size=4, stride=4, padding=0)
+            nn.ConvTranspose1d(in_channels=16, out_channels=9, kernel_size=4, stride=4, padding=0)
         )
 
         # Output shape: [batch_size, 9, 512]
@@ -87,27 +87,27 @@ class Discriminator(nn.Module):
 
         # Input shape: [batch_size, 9, 512]
         self.block1 = nn.Sequential(
-            nn.Conv1d(in_channels=9, out_channels=32, kernel_size=4, stride=4, padding=0),
+            nn.Conv1d(in_channels=9, out_channels=16, kernel_size=4, stride=4, padding=0),
             nn.LeakyReLU(0.2, inplace=True),
         )
 
         # Input shape: [batch_size, 32, 128]
         self.block2 = nn.Sequential(
-            nn.Conv1d(in_channels=32, out_channels=64, kernel_size=4, stride=4, padding=0),
+            nn.Conv1d(in_channels=16, out_channels=32, kernel_size=4, stride=4, padding=0),
             # nn.LayerNorm(512),
             nn.LeakyReLU(0.2, inplace=True),
         )
 
         # Input shape: [batch_size, 64, 32]
         self.block3 = nn.Sequential(
-            nn.Conv1d(in_channels=64, out_channels=128, kernel_size=4, stride=4, padding=1),
+            nn.Conv1d(in_channels=32, out_channels=64, kernel_size=4, stride=4, padding=1),
             # nn.LayerNorm(1024),
             nn.LeakyReLU(0.2, inplace=True)
         )
 
         # Input shape: [batch_size, 128, 8]
         self.block4 = nn.Sequential(
-            nn.Conv1d(in_channels=128, out_channels=1, kernel_size=8, stride=1, padding=0)
+            nn.Conv1d(in_channels=64, out_channels=1, kernel_size=8, stride=1, padding=0)
         )
 
     def forward(self, x, debug=False):
