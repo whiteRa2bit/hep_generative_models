@@ -12,6 +12,7 @@ def main(config=CONFIG):
     generator = Generator(config)
     discriminator = Discriminator(config)
     preds = discriminator(generator(z, debug=True), debug=True)
+    assert preds.shape == (config["batch_size"], 1)
     print(generator)
     print(discriminator)
 
