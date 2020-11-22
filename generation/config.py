@@ -45,7 +45,7 @@ SIGNALS_TRAINING_CONFIG = {
     "device": "cuda:1",
     "x_dim": 512,
     "z_dim": 8,
-    "d_coef": 9,
+    "d_coef": 10,
     "use_gp": True,
     "clip_value": 0.01,
     "lambda": 10,
