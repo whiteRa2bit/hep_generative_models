@@ -99,8 +99,8 @@ class Discriminator(nn.Module):
         # layernorm_dim = (layernorm_dim - 2) // 3
 
         self.fc1 = nn.Linear(self.x_dim, 64)
-        self.fc2 = nn.Linear(64, 8)
-        self.fc_final = nn.Linear(8 * 9, 1)
+        self.fc2 = nn.Linear(64, 1)
+        self.fc_final = nn.Linear(9, 1)
 
     def forward(self, x, debug=False):
         def _debug():
