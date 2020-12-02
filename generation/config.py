@@ -38,7 +38,7 @@ SIGNALS_TRAINING_CONFIG = {
     "g_lr": 3e-4,
     "d_lr": 3e-4,
     "epochs_num": 100,
-    "batch_size": 1,
+    "batch_size": 64,
     "log_each": 1,
     "decay_epoch": 0,
     "save_each": 2,
