@@ -98,10 +98,9 @@ class Discriminator(nn.Module):
         # self.layernorm3 = nn.LayerNorm([8, layernorm_dim])
         # layernorm_dim = (layernorm_dim - 2) // 3
 
-        self.fc1 = nn.Linear(self.x_dim, 128)
-        self.fc2 = nn.Linear(128, 16)
-        self.fc3 = nn.Linear(16, 1)
-        self.fc_final = nn.Linear(9, 1)
+        self.fc1 = nn.Linear(self.x_dim, 64)
+        self.fc2 = nn.Linear(64, 6)
+        self.fc_final = nn.Linear(8 * 9, 1)
 
     def forward(self, x, debug=False):
         def _debug():
@@ -111,8 +110,6 @@ class Discriminator(nn.Module):
         x = torch.tanh(self.fc1(x))
         _debug()
         x = torch.tanh(self.fc2(x))
-        _debug()
-        x = torch.tanh(self.fc3(x))
         _debug()
         x = x.view(x.shape[0], -1)
         _debug()
