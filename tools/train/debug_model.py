@@ -2,7 +2,7 @@ import torch
 
 from generation.config import SIGNALS_TRAINING_CONFIG as CONFIG
 from generation.dataset.signals_dataset import SignalsDataset
-from generation.nets.signals import Generator, Discriminator
+from generation.nets.signals_net import Generator, Discriminator
 from generation.training.wgan_trainer import WganTrainer
 from generation.utils import set_seed
 

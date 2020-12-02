@@ -2,7 +2,7 @@ import torch
 
 from generation.config import SHAPES_TRAINING_CONFIG as CONFIG
 from generation.dataset.shapes_dataset import ShapesDataset
-from generation.nets.shapes import Generator, Discriminator
+from generation.nets.shapes_net import Generator, Discriminator
 from generation.training.wgan_trainer import WganTrainer
 from generation.utils import set_seed
 from scheduler import get_gpu_id
