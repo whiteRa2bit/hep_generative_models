@@ -23,8 +23,12 @@ class WganTrainer(AbstractTrainer):
         self._initialize_wandb()
 
         for epoch in tqdm.tqdm(range(self.config['epochs_num'])):
+            epoch_d_loss = 0
+            epoch_g_loss = 0
+            epoch_gp = 0
+
             for it, data in enumerate(dataloader):
-                if it == dataloader.dataset.__len__() // self.config['batch_size']:
+                if it == len(dataloader.dataset) // self.config['batch_size']:
                     break
 
                 # Dicriminator forward-loss-backward-update
@@ -46,7 +50,9 @@ class WganTrainer(AbstractTrainer):
                         param.data.clamp_(-self.config["clip_value"], self.config["clip_value"])
 
                 d_loss = torch.mean(d_fake) - torch.mean(d_real)
+                epoch_d_loss += d_loss.item()
                 d_loss_gp = d_loss + gradient_penalty
+                epoch_gp += gradient_penalty
                 d_loss_gp.backward()
                 self.d_optimizer.step()
 
@@ -64,6 +70,7 @@ class WganTrainer(AbstractTrainer):
                     d_fake = self.discriminator(g_sample)
 
                     g_loss = -torch.mean(d_fake)
+                    epoch_g_loss += g_loss.item()
                     g_loss.backward()
                     self.g_optimizer.step()
 
@@ -75,12 +82,16 @@ class WganTrainer(AbstractTrainer):
             if self.config['d_use_scheduler']:
                 d_scheduler.step(epoch + 1)
 
+            epoch_d_loss = epoch_d_loss / len(dataloader.dataset)
+            epoch_gp = epoch_gp / len(dataloader.dataset)
+            epoch_g_loss = (epoch_g_loss *  self.config['d_coef']) / len(dataloader.dataset)
+
             if epoch % self.config['log_each'] == 0:
                 wandb.log(
                     {
-                        "D loss": d_loss.item(),
-                        "Gradient penalty": gradient_penalty,
-                        "G loss": g_loss.item(),
+                        "D loss": epoch_d_loss,
+                        "Gradient penalty": epoch_gp,
+                        "G loss": epoch_g_loss,
                         "G lr": self.g_optimizer.param_groups[0]['lr'],
                         "D lr": self.d_optimizer.param_groups[0]['lr']
                     },
