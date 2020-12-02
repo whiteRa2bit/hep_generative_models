@@ -11,7 +11,7 @@ requirements = [
     "scipy==1.4.1",
     "numpy==1.18.1",
     "matplotlib==3.2.1",
-    "wandb==0.10.9",
+    "wandb==0.10.11",
     "uproot==3.12.0",
     "tqdm==4.48.2",
     "h5py==2.10.0",
