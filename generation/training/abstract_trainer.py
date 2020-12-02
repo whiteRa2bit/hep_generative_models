@@ -1,11 +1,13 @@
 from abc import abstractmethod, ABC
 import os
 import random
+import json
 
 import numpy as np
 import torch
 import wandb
 
+from generation.utils import get_checkpoint_dir, get_config_path ,save_as_json
 from generation.config import WANDB_PROJECT, CHECKPOINT_DIR, RANDOM_SEED
 
 
@@ -21,6 +23,7 @@ class AbstractTrainer(ABC):
         wandb.init(config=self.config, project=project_name)
         wandb.watch(self.generator)
         wandb.watch(self.discriminator)
+        save_as_json(self.config, get_config_path(wandb.run.id))
 
     def _reset_grad(self):
         self.generator.zero_grad()
@@ -28,9 +31,7 @@ class AbstractTrainer(ABC):
 
     @staticmethod
     def _save_checkpoint(model, checkpoint_name):
-        checkpoint_dir = os.path.join(CHECKPOINT_DIR, wandb.run.id)
-        if not os.path.exists(checkpoint_dir):
-            os.makedirs(checkpoint_dir)
+        checkpoint_dir = get_checkpoint_dir(wandb.run.id)
         checkpoint_path = os.path.join(checkpoint_dir, f"{checkpoint_name}.pt")
         torch.save(model.state_dict(), checkpoint_path)
 

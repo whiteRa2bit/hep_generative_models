@@ -13,6 +13,7 @@ RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw_data')
 EVENTS_PATH = os.path.join(DATA_DIR, "events.npy")
 DETECTORS_PATH = os.path.join(DATA_DIR, "detectors.npy")
 H5_DATASET_NAME = "data"
+CONFIG_NAME = "config.json"
 
 # Root params
 ROOT_FILES_DIR = os.path.join(RAW_DATA_DIR, 'root_files')
@@ -37,7 +38,7 @@ RANDOM_SEED = 42
 SIGNALS_TRAINING_CONFIG = {
     "g_lr": 1e-7,
     "d_lr": 1e-7,
-    "epochs_num": 5000,
+    "epochs_num": 10,
     "batch_size": 64,
     "log_each": 1,
     "decay_epoch": 0,
