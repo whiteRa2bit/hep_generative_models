@@ -19,7 +19,7 @@ class Generator(nn.Module):
         self.conv3 = nn.Conv1d(32, 16, 3, padding=1)
         self.conv4 = nn.Conv1d(16, 9, 3, padding=1)
 
-        self.batchnorm1 = nn.BatchNorm1d(8)
+        self.batchnorm1 = nn.BatchNorm1d(16)
         self.batchnorm2 = nn.BatchNorm1d(32)
         self.batchnorm3 = nn.BatchNorm1d(16)
 
