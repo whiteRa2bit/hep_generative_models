@@ -13,6 +13,7 @@ RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw_data')
 EVENTS_PATH = os.path.join(DATA_DIR, "events.npy")
 DETECTORS_PATH = os.path.join(DATA_DIR, "detectors.npy")
 H5_DATASET_NAME = "data"
+CONFIG_NAME = "config.json"
 
 # Root params
 ROOT_FILES_DIR = os.path.join(RAW_DATA_DIR, 'root_files')
