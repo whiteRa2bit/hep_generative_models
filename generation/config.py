@@ -44,7 +44,7 @@ SIGNALS_TRAINING_CONFIG = {
     "save_each": 2,
     "device": "cuda:1",
     "x_dim": 512,
-    "z_dim": 16,
+    "z_dim": 8,
     "d_coef": 4,
     "use_gp": True,
     "clip_value": 0.01,
@@ -56,9 +56,9 @@ SIGNALS_TRAINING_CONFIG = {
     "d_use_scheduler": False,
     "d_lr_multiplier": 2,
     "d_lr_total_epoch": 300,
-    "g_beta1": 0.9,
+    "g_beta1": 0,
     "g_beta2": 0.99,
-    "d_beta1": 0.9,
+    "d_beta1": 0,
     "d_beta2": 0.99
 }
 SHAPES_TRAINING_CONFIG = {
