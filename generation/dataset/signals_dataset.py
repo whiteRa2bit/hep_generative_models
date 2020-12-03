@@ -14,11 +14,11 @@ class SignalsDataset(Dataset):
         self.noises = self._get_noises()
 
     def __len__(self):
-        return self.noises.shape[1]
+        return self.signals.shape[1]
 
     def __getitem__(self, idx):
-        noise_tensor = torch.from_numpy(self.noises[:, idx])
-        return noise_tensor.float()
+        signal_tensor = torch.from_numpy(self.signals[:, idx])
+        return signal_tensor.float()
 
     def _get_signals(self):
         signals = []

@@ -43,7 +43,7 @@ class Generator(AbstractGenerator):
         assert config["pad_size"] % 2 == 1
         self.block4 = nn.Sequential(
             nn.ConvTranspose1d(in_channels=out_channels, out_channels=9, kernel_size=4, stride=4, padding=0),
-            nn.MaxPool1d(config["pad_size"], stride=1, padding=config["pad_size"]//2)
+            # nn.MaxPool1d(config["pad_size"], stride=1, padding=config["pad_size"]//2)
         )
 
         # Output shape: [batch_size, 9, 512]
