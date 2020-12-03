@@ -79,7 +79,7 @@ class Generator(AbstractGenerator):
         real_sample = real_sample.cpu().data
         fig_gen = get_figure(generated_sample)
         fig_real = get_figure(real_sample)
-        wandb.log({"Generated": fig_gen, "Real": fig_real})
+        wandb.log({"generated": fig_gen, "real": fig_real})
         plt.clf()
 
 
