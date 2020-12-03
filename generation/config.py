@@ -8,7 +8,7 @@ CHECKPOINT_DIR = os.path.join(DATA_DIR, 'checkpoints/')
 DF_DIR = os.path.join(DATA_DIR, 'dfs')
 FULL_SIGNALS_DIR = os.path.join(DATA_DIR, 'full_signals')
 FRAC_SIGNALS_DIR = os.path.join(DATA_DIR, 'fractional_signals')
-IMAGES_DIR = os.path.join(DATA_DIR, 'fft_images')
+IMAGE_DIR = os.path.join(DATA_DIR, 'images')
 RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw_data')
 EVENTS_PATH = os.path.join(DATA_DIR, "events.npy")
 DETECTORS_PATH = os.path.join(DATA_DIR, "detectors.npy")
@@ -36,10 +36,10 @@ FIG_SIZE = 1
 WANDB_PROJECT = "hep_generative_models"
 RANDOM_SEED = 42
 SIGNALS_TRAINING_CONFIG = {
-    "g_lr": 1e-7,
-    "d_lr": 1e-7,
-    "epochs_num": 10,
-    "batch_size": 64,
+    "g_lr": 3e-4,
+    "d_lr": 1e-4,
+    "epochs_num": 1000,
+    "batch_size": 32,
     "log_each": 1,
     "decay_epoch": 0,
     "save_each": 2,
@@ -47,7 +47,20 @@ SIGNALS_TRAINING_CONFIG = {
     "x_dim": 512,
     "z_dim": 8,
     "d_coef": 5,
-    "lambda": 10
+    "use_gp": True,
+    "clip_value": 0.01,
+    "lambda": 10,
+    "channels": 64,
+    "g_use_scheduler": False,
+    "g_lr_multiplier": 5,
+    "g_lr_total_epoch": 200,
+    "d_use_scheduler": False,
+    "d_lr_multiplier": 5,
+    "d_lr_total_epoch": 200,
+    "g_beta1": 0,
+    "g_beta2": 0.99,
+    "d_beta1": 0,
+    "d_beta2": 0.99
 }
 SHAPES_TRAINING_CONFIG = {
     "detector": 0,

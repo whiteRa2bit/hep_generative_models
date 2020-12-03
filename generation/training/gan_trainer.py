@@ -50,7 +50,7 @@ class GanTrainer(AbstractTrainer):
 
             if epoch % self.config['log_each'] == 0:
                 wandb.log({"D loss": d_loss.cpu().data, "G loss": g_loss.cpu().data}, step=epoch)
-                self.generator.visualize(g_sample, X, epoch)
+                self.generator.visualize(g_sample[0], X[0])
             if epoch % self.config['save_each'] == 0:
                 self._save_checkpoint(self.generator, f"generator_{epoch}")
                 self._save_checkpoint(self.discriminator, f"discriminator_{epoch}")

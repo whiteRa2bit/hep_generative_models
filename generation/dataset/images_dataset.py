@@ -4,7 +4,7 @@ import torch
 from torch.utils.data import Dataset
 from skimage import io
 
-from generation.config import IMAGES_DIR
+from generation.config import IMAGE_DIR
 
 
 class ImageDataset(Dataset):
@@ -12,7 +12,7 @@ class ImageDataset(Dataset):
         self.detector = detector
 
     def __len__(self):
-        return len(os.listdir(get_image_dir(self.detector)))
+        return len(os.listdir(get_detector_image_dir(self.detector)))
 
     def __getitem__(self, idx):
         img_path = get_image_path(self.detector, idx)
@@ -22,8 +22,8 @@ class ImageDataset(Dataset):
 
 
 def get_image_path(detector, idx):
-    return os.path.join(get_image_dir(detector), str(idx)) + '.png'
+    return os.path.join(get_detector_image_dir(detector), str(idx)) + '.png'
 
 
-def get_image_dir(detector):
-    return os.path.join(IMAGES_DIR, f"detector_{detector}")
+def get_detector_image_dir(detector):
+    return os.path.join(IMAGE_DIR, f"detector_{detector}")

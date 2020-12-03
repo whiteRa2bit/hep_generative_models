@@ -4,8 +4,10 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import wandb
 
+from generation.nets.abstract_net import AbstractGenerator, AbstractDiscriminator
 
-class Generator(nn.Module):
+
+class Generator(AbstractGenerator):
     def __init__(self, config):
         super(Generator, self).__init__()
         self.x_dim = config['x_dim']
@@ -22,9 +24,9 @@ class Generator(nn.Module):
         return torch.clamp(x, 0, 1)
 
     @staticmethod
-    def visualize(generated, real, epoch):
-        generated_sample = generated[0].cpu().data
-        real_sample = real[0].cpu().data
+    def visualize(generated_sample, real_sample):
+        generated_sample = generated_sample.cpu().data
+        real_sample = real_sample.cpu().data
 
         fig, ax = plt.subplots(1, 2, figsize=(12, 5))
         ax[0].set_title("Generated")
@@ -35,7 +37,7 @@ class Generator(nn.Module):
         plt.clf()
 
 
-class Discriminator(nn.Module):
+class Discriminator(AbstractDiscriminator):
     def __init__(self, config):
         super(Discriminator, self).__init__()
         self.x_dim = config['x_dim']

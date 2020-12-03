@@ -11,7 +11,10 @@ def main(config=CONFIG):
     z = torch.randn((config["batch_size"], config["z_dim"]))
     generator = Generator(config)
     discriminator = Discriminator(config)
-    preds = discriminator(generator(z, debug=True), debug=True)
+    gen_out = generator(z, debug=True)
+    assert gen_out.shape == (config["batch_size"], 9, config["x_dim"])
+    preds = discriminator(gen_out, debug=True)
+    assert preds.shape == (config["batch_size"], 1)
     print(generator)
     print(discriminator)
 

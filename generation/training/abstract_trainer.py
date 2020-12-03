@@ -7,7 +7,7 @@ import numpy as np
 import torch
 import wandb
 
-from generation.utils import get_checkpoint_dir, get_config_path ,save_as_json
+from generation.utils import get_checkpoint_dir, get_config_path, save_as_json
 from generation.config import WANDB_PROJECT, CHECKPOINT_DIR, RANDOM_SEED
 
 
@@ -37,4 +37,4 @@ class AbstractTrainer(ABC):
 
     @abstractmethod
     def run_train(self, dataset):
-        pass
+        raise NotImplementedError
