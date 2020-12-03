@@ -44,7 +44,7 @@ SIGNALS_TRAINING_CONFIG = {
     "decay_epoch": 0,
     "save_each": 2,
     "device": "cuda:1",
-    "x_dim": 512,
+    "x_dim": 64,
     "z_dim": 64,
     "d_coef": 5,
     "use_gp": True,

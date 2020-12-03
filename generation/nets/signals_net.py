@@ -25,28 +25,28 @@ class Generator(AbstractGenerator):
 
         # Input shape: [batch_size, channels, 8]
         self.block2 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=out_channels, out_channels=out_channels//2, kernel_size=4, stride=4, padding=0),
+            nn.ConvTranspose1d(in_channels=out_channels, out_channels=out_channels//2, kernel_size=4, stride=2, padding=1),
             nn.BatchNorm1d(num_features=out_channels//2),
             nn.LeakyReLU(inplace=True)
         )
         out_channels //= 2
 
-        # Input shape: [batch_size, channels/2, 32]
+        # Input shape: [batch_size, channels/2, 16]
         self.block3 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=out_channels, out_channels=out_channels//2, kernel_size=4, stride=4, padding=0),
+            nn.ConvTranspose1d(in_channels=out_channels, out_channels=out_channels//2, kernel_size=4, stride=2, padding=1),
             nn.BatchNorm1d(num_features=out_channels//2),
             nn.LeakyReLU(inplace=True)
         )
         out_channels //= 2
 
-        # Input shape: [batch_size, channels/4, 128]
+        # Input shape: [batch_size, channels/4, 32]
         assert config["pad_size"] % 2 == 1
         self.block4 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=out_channels, out_channels=9, kernel_size=4, stride=4, padding=0),
+            nn.ConvTranspose1d(in_channels=out_channels, out_channels=9, kernel_size=4, stride=2, padding=1),
             # nn.MaxPool1d(config["pad_size"], stride=1, padding=config["pad_size"]//2)
         )
 
-        # Output shape: [batch_size, 9, 512]
+        # Output shape: [batch_size, 9, 64]
 
 
     def forward(self, x, debug=False):
