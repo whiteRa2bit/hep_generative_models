@@ -45,7 +45,7 @@ SIGNALS_TRAINING_CONFIG = {
     "save_each": 2,
     "device": "cuda:1",
     "x_dim": 512,
-    "z_dim": 8,
+    "z_dim": 64,
     "d_coef": 5,
     "use_gp": True,
     "clip_value": 0.01,
