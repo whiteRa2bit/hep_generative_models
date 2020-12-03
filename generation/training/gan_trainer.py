@@ -1,8 +1,10 @@
 import tqdm
 import torch
+import torch.nn.functional as F
+import wandb
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
-import wandb
+from loguru import logger
 
 from generation.training.abstract_trainer import AbstractTrainer
 
@@ -18,8 +20,11 @@ class GanTrainer(AbstractTrainer):
         zeros_label = Variable(torch.zeros(self.config['batch_size'], 1))
         zeros_label = zeros_label.to(self.config['device'])
 
-        for epoch in range(self.config['epochs_num']):
+        for epoch in tqdm.tqdm(range(self.config['epochs_num'])):
             for it, data in enumerate(dataloader):
+                if it == len(dataloader.dataset) // self.config['batch_size']:
+                    break
+
                 # Train Generator
                 self._reset_grad()
 
@@ -30,7 +35,6 @@ class GanTrainer(AbstractTrainer):
 
                 g_sample = self.generator(z)
                 d_fake = self.discriminator(g_sample)
-
                 g_loss = criterion(d_fake, ones_label)
 
                 g_loss.backward(retain_graph=True)

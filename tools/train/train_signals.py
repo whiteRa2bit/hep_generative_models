@@ -3,7 +3,7 @@ import torch
 from generation.config import SIGNALS_TRAINING_CONFIG as CONFIG
 from generation.dataset.signals_dataset import SignalsDataset
 from generation.nets.signals_net import Generator, Discriminator
-from generation.training.wgan_trainer import WganTrainer
+from generation.training.gan_trainer import GanTrainer
 from generation.utils import set_seed
 from scheduler import get_gpu_id
 
@@ -25,7 +25,7 @@ def run_train(config=CONFIG):
         betas=(config["d_beta1"], config["d_beta2"])
     )
 
-    trainer = WganTrainer(generator, discriminator, g_optimizer, d_optimizer, config)
+    trainer = GanTrainer(generator, discriminator, g_optimizer, d_optimizer, config)
     trainer.run_train(dataset)
 
 
