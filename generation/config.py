@@ -51,7 +51,7 @@ SIGNALS_TRAINING_CONFIG = {
     "clip_value": 0.01,
     "lambda": 10,
     "channels": 64,
-    "pad_size": 33,
+    "pad_size": 65,
     "g_use_scheduler": False,
     "g_lr_multiplier": 5,
     "g_lr_total_epoch": 200,
