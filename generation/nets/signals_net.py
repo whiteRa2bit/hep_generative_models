@@ -5,14 +5,14 @@ import matplotlib.pyplot as plt
 import wandb
 from loguru import logger
 
+from generation.nets.abstract_net import AbstractGenerator, AbstractDiscriminator
 
-class Generator(torch.nn.Module):
+
+class Generator(AbstractGenerator):
     def __init__(self, config):
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
         super().__init__()
-
-        # self.fc = nn.Linear(self.z_dim, 16 * self.z_dim)
 
         # Input shape: [batch_size, z_dim, 1]
         out_channels = config["channels"]
@@ -54,8 +54,6 @@ class Generator(torch.nn.Module):
 
         x = x.unsqueeze(2)
         _debug()
-        # x = self.fc(x)
-        # _debug()
         x = self.block1(x)
         _debug()
         x = self.block2(x)
@@ -68,35 +66,25 @@ class Generator(torch.nn.Module):
         return torch.tanh(x)
 
     @staticmethod
-    def visualize(generated, real, epoch):
-        generated_sample = generated[0].cpu().data
-        real_sample = real[0].cpu().data
-
-        fig, ax = plt.subplots(3, 3, figsize=(10, 10))
-        for i in range(9):
-            ax[i // 3][i % 3].plot(generated_sample[i])
-        wandb.log({"Generated": fig})
+    def visualize(generated_sample, real_sample):
+        def get_figure(sample):
+            fig, ax = plt.subplots(3, 3, figsize=(10, 10))
+            for i in range(9):
+                ax[i // 3][i % 3].plot(sample[i])
+            return fig
+        
+        generated_sample = generated_sample.cpu().data
+        real_sample = real_sample.cpu().data
+        fig_gen = get_figure(generated_sample)
+        fig_real = get_figure(real_sample)
+        wandb.log({"Generated": fig_gen, "Real": fig_real})
         plt.clf()
 
 
-
-class Discriminator(nn.Module):
+class Discriminator(AbstractDiscriminator):
     def __init__(self, config):
         super(Discriminator, self).__init__()
         self.x_dim = config['x_dim']
-
-        # self.pool = nn.AvgPool1d(5, 3)
-        # self.conv1 = nn.Conv1d(9, 16, 7, padding=3)
-        # self.conv2 = nn.Conv1d(16, 8, 5, padding=2)
-        # # self.conv3 = nn.Conv1d(32, 8, 5, padding=2)
-
-        # layernorm_dim = config["x_dim"]
-        # self.layernorm1 = nn.LayerNorm([16, layernorm_dim])
-        # layernorm_dim = (layernorm_dim - 2) // 3
-        # self.layernorm2 = nn.LayerNorm([8, layernorm_dim])
-        # layernorm_dim = (layernorm_dim - 2) // 3
-        # self.layernorm3 = nn.LayerNorm([8, layernorm_dim])
-        # layernorm_dim = (layernorm_dim - 2) // 3
 
         self.fc1 = nn.Linear(self.x_dim, 64)
         self.fc2 = nn.Linear(64, 6)
@@ -116,67 +104,3 @@ class Discriminator(nn.Module):
         x = self.fc_final(x)
 
         return x
-
-# class Discriminator(nn.Module):
-#     def __init__(self, config):
-#         super(Discriminator, self).__init__()
-#         self.x_dim = config['x_dim']
-
-#         self.fc1 = nn.Linear(self.x_dim, 64)
-#         self.fc2 = nn.Linear(64, 8)
-#         self.fc_final = nn.Linear(8 * 9, 1)
-
-#         # Input shape: [batch_size, 9, 512]
-#         out_channels = config["channels"] // 2**3
-#         self.block1 = nn.Sequential(
-#             nn.Conv1d(in_channels=9, out_channels=out_channels, kernel_size=4, stride=4, padding=0),
-#             nn.LeakyReLU(0.2, inplace=True),
-#         )
-
-#         # Input shape: [batch_size, channels/8, 128]
-#         self.block2 = nn.Sequential(
-#             nn.Conv1d(in_channels=out_channels, out_channels=2*out_channels, kernel_size=4, stride=4, padding=0),
-#             # nn.LayerNorm(512),
-#             nn.LeakyReLU(0.2, inplace=True),
-#         )
-#         out_channels *= 2
-
-#         # Input shape: [batch_size, channels/4, 32]
-#         self.block3 = nn.Sequential(
-#             nn.Conv1d(in_channels=out_channels, out_channels=2*out_channels, kernel_size=4, stride=4, padding=1),
-#             # nn.LayerNorm(1024),
-#             nn.LeakyReLU(0.2, inplace=True)
-#         )
-#         out_channels *= 2
-
-#         # Input shape: [batch_size, channels/2, 8]
-#         self.block4 = nn.Sequential(
-#             nn.Conv1d(in_channels=out_channels, out_channels=1, kernel_size=8, stride=1, padding=0)
-#         )
-
-#     def forward(self, x, debug=False):
-#         def _debug():
-#             if debug:
-#                 logger.info(x.shape)
-
-#         x = self.block1(x)
-#         _debug()
-#         x = self.block2(x)
-#         _debug()
-#         x = self.block3(x)
-#         _debug()
-#         x = self.block4(x)
-#         _debug()
-#         x = x.squeeze(1)
-#         _debug()
-        
-#         # x = torch.tanh(self.fc1(x))
-#         # _debug()
-#         # x = torch.tanh(self.fc2(x))
-#         # _debug()
-#         # x = x.view(x.shape[0], -1)
-#         # _debug()
-#         # x = self.fc_final(x)
-#         # _debug()
-
-#         return x
