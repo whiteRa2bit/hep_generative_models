@@ -1,6 +1,6 @@
+import torch
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-import torch
 
 
 class LambdaLR:
