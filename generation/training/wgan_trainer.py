@@ -96,7 +96,7 @@ class WganTrainer(AbstractTrainer):
                         "D lr": self.d_optimizer.param_groups[0]['lr']
                     },
                     step=epoch)
-                self.generator.visualize(g_sample, X, epoch)
+                self.generator.visualize(g_sample[0], X[0])
             if epoch % self.config['save_each'] == 0:
                 self._save_checkpoint(self.generator, f"generator_{epoch}")
                 self._save_checkpoint(self.discriminator, f"discriminator_{epoch}")
