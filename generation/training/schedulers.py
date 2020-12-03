@@ -14,7 +14,6 @@ class LambdaLR:
         return 1.0 - max(0, epoch + self.offset - self.decay_start_epoch) / (self.n_epochs - self.decay_start_epoch)
 
 
-
 class GradualWarmupScheduler(_LRScheduler):
     def __init__(self, optimizer, multiplier, total_epoch, after_scheduler=None):
         self.multiplier = multiplier
@@ -32,8 +31,9 @@ class GradualWarmupScheduler(_LRScheduler):
                 return self.after_scheduler.get_lr()
             return [base_lr * self.multiplier for base_lr in self.base_lrs]
 
-        return [base_lr * ((self.multiplier - 1.) * self.last_epoch / self.total_epoch + 1.) for base_lr in self.base_lrs]
-
+        return [
+            base_lr * ((self.multiplier - 1.) * self.last_epoch / self.total_epoch + 1.) for base_lr in self.base_lrs
+        ]
 
     def step(self, epoch=None, metrics=None):
         if self.finished and self.after_scheduler:

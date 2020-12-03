@@ -7,9 +7,10 @@ from generation.dataset.data_utils import get_detector_training_data
 
 
 class SignalsDataset(Dataset):
-    def __init__(self, detectors=DETECTORS, signal_size=SIGNAL_SIZE):
+    def __init__(self, detectors=DETECTORS, signal_size=SIGNAL_SIZE, freq=1):
         self.detectors = detectors
         self.signal_size = signal_size
+        self.freq = freq
         self.signals = self._get_signals()
         self.noises = self._get_noises()
 
@@ -28,7 +29,8 @@ class SignalsDataset(Dataset):
         signals = np.array(signals)[:, :, :self.signal_size]
         max_amplitudes = np.max(signals, axis=(1, 2))[:, None, None]
         signals = signals / max_amplitudes
-        return signals[:, :, :self.signal_size]
+        signals = signals[:, :, :self.signal_size * self.freq:self.freq]
+        return signals
 
     def _get_noises(self):
         mean_signals = np.mean(self.signals, axis=1)[:, None, :]

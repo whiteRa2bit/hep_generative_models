@@ -35,7 +35,7 @@ def _prepare_detector_images(detector):
     shapes_dataset = ShapesDataset(detector)
     noises = shapes_dataset.noises
     paths = [get_image_path(detector, i) for i in range(len(noises))]
-    
+
     with mp.Pool(_PROCESSORS_NUM) as pool:
         list(tqdm.tqdm(pool.imap(_save_image, zip(noises, paths)), total=len(noises)))
 

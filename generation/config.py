@@ -25,7 +25,7 @@ INT_ATTRIBUTES = ['event', 'detector']
 SPACAL_DATA_PATH = os.path.join(RAW_DATA_DIR, 'particles.parquet')
 
 # Processing params
-SIGNAL_SIZE = 64
+SIGNAL_SIZE = 2048
 PROCESSING_TIME_NORM_COEF = 50
 REPEAT_COEF = 3
 DETECTORS = range(9)
@@ -44,7 +44,8 @@ SIGNALS_TRAINING_CONFIG = {
     "decay_epoch": 0,
     "save_each": 2,
     "device": "cuda:1",
-    "x_dim": 64,
+    "x_dim": 128,
+    "x_freq": 2,
     "z_dim": 64,
     "d_coef": 5,
     "use_gp": True,
