@@ -10,7 +10,7 @@ from generation.nets.abstract_net import AbstractGenerator, AbstractDiscriminato
 
 class Generator(AbstractGenerator):
     def __init__(self, config):
-        super(Generator, self).__init__()
+        super(Generator, self).__init__(config)
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
 
@@ -69,7 +69,7 @@ class Generator(AbstractGenerator):
 
 class Discriminator(AbstractDiscriminator):
     def __init__(self, config):
-        super(Discriminator, self).__init__()
+        super(Discriminator, self).__init__(config)
         self.x_dim = config['x_dim']
 
         self.fc_final = nn.Linear(288, 1)
