@@ -26,10 +26,9 @@ class SignalsDataset(Dataset):
         for detector in self.detectors:
             signals.append(get_detector_training_data(detector))
 
-        signals = np.array(signals)[:, :, :self.signal_size]
+        signals = np.array(signals)[:, :, :self.freq * self.signal_size:self.freq]
         max_amplitudes = np.max(signals, axis=(1, 2))[:, None, None]
         signals = signals / max_amplitudes
-        signals = signals[:, :, :self.signal_size * self.freq:self.freq]
         return signals
 
     def _get_noises(self):

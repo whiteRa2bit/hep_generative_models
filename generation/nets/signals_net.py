@@ -102,6 +102,7 @@ class Discriminator(AbstractDiscriminator):
         _debug()
         x = x.view(x.shape[0], -1)
         _debug()
-        x = torch.sigmoid(self.fc_final(x))
+        x = self.fc_final(x)
+        _debug()
 
         return x
