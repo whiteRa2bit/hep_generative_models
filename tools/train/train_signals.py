@@ -10,7 +10,7 @@ from scheduler import get_gpu_id
 
 def run_train(config=CONFIG):
     config['device'] = f"cuda:{get_gpu_id()}"
-    dataset = SignalsDataset(signal_size=config['x_dim'], freq=config["x_freq"])
+    dataset = SignalsDataset(signal_dim=config['x_dim'], freq=config["x_freq"])
 
     generator = Generator(config)
     discriminator = Discriminator(config)

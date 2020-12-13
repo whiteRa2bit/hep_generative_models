@@ -52,8 +52,8 @@ def main():
 
             full_signals = np.array(full_signals)
             frac_signals = np.array(frac_signals)
-            signal_size = frac_signals.shape[-1]
-            frac_signals = frac_signals.reshape(-1, signal_size)
+            signal_dim = frac_signals.shape[-1]
+            frac_signals = frac_signals.reshape(-1, signal_dim)
             _save_detector_signals(full_signals, frac_signals, detector)
 
 
