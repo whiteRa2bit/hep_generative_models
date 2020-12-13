@@ -16,38 +16,37 @@ class Generator(AbstractGenerator):
 
         # Input shape: [batch_size, z_dim, 1]
         out_channels = config["channels"]
-        assert out_channels % 2**3 == 0
+        assert out_channels % 2 ** 3 == 0
         self.block1 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=config["z_dim"], out_channels=out_channels, kernel_size=8, stride=1, padding=0),
+            nn.ConvTranspose1d(
+                in_channels=config["z_dim"], out_channels=out_channels, kernel_size=4, stride=4, padding=0),
             nn.BatchNorm1d(num_features=out_channels),
-            nn.LeakyReLU(inplace=True)
-        )
+            nn.LeakyReLU(inplace=True))
 
-        # Input shape: [batch_size, channels, 8]
+        # Input shape: [batch_size, channels, 4]
         self.block2 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=out_channels, out_channels=out_channels//2, kernel_size=4, stride=4, padding=0),
-            nn.BatchNorm1d(num_features=out_channels//2),
-            nn.LeakyReLU(inplace=True)
-        )
+            nn.ConvTranspose1d(
+                in_channels=out_channels, out_channels=out_channels // 2, kernel_size=4, stride=4, padding=0),
+            nn.BatchNorm1d(num_features=out_channels // 2),
+            nn.LeakyReLU(inplace=True))
         out_channels //= 2
 
-        # Input shape: [batch_size, channels/2, 32]
+        # Input shape: [batch_size, channels/2, 16]
         self.block3 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=out_channels, out_channels=out_channels//2, kernel_size=4, stride=4, padding=0),
-            nn.BatchNorm1d(num_features=out_channels//2),
-            nn.LeakyReLU(inplace=True)
-        )
+            nn.ConvTranspose1d(
+                in_channels=out_channels, out_channels=out_channels // 2, kernel_size=4, stride=4, padding=0),
+            nn.BatchNorm1d(num_features=out_channels // 2),
+            nn.LeakyReLU(inplace=True))
         out_channels //= 2
 
-        # Input shape: [batch_size, channels/4, 128]
+        # Input shape: [batch_size, channels/4, 64]
         assert config["pad_size"] % 2 == 1
         self.block4 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=out_channels, out_channels=9, kernel_size=4, stride=4, padding=0),
-            nn.AvgPool1d(config["pad_size"], stride=1, padding=config["pad_size"]//2)
+            nn.ConvTranspose1d(in_channels=out_channels, out_channels=9, kernel_size=4, stride=2, padding=1),
+            # nn.AvgPool1d(config["pad_size"], stride=1, padding=config["pad_size"] // 2)
         )
 
-        # Output shape: [batch_size, 9, 512]
-
+        # Output shape: [batch_size, 9, 128]
 
     def forward(self, x, debug=False):
         def _debug():
@@ -64,7 +63,7 @@ class Generator(AbstractGenerator):
         _debug()
         x = self.block4(x)
         _debug()
-        
+
         return torch.tanh(x)
 
     @staticmethod
@@ -74,7 +73,7 @@ class Generator(AbstractGenerator):
             for i in range(9):
                 ax[i // 3][i % 3].plot(sample[i])
             return fig
-        
+
         generated_sample = generated_sample.cpu().data
         real_sample = real_sample.cpu().data
         fig_gen = get_figure(generated_sample)
@@ -104,5 +103,6 @@ class Discriminator(AbstractDiscriminator):
         x = x.view(x.shape[0], -1)
         _debug()
         x = self.fc_final(x)
+        _debug()
 
         return x

@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import Dataset
 import numpy as np
 
-from generation.config import SIGNAL_SIZE
+from generation.config import SIGNAL_DIM
 from generation.dataset.data_utils import get_detector_training_data
 
 
@@ -26,8 +26,8 @@ class Scaler:
 
 
 class ShapesDataset(Dataset):
-    def __init__(self, detector, signal_size=SIGNAL_SIZE):
-        self.signal_size = signal_size
+    def __init__(self, detector, signal_dim=SIGNAL_DIM):
+        self.signal_dim = signal_dim
         self.detector = detector
         self.signals = self._get_signals()
         self.scaler = Scaler()
@@ -45,7 +45,7 @@ class ShapesDataset(Dataset):
         signals = get_detector_training_data(self.detector)
         signals = self._unify_shape(signals)
         signals = signals[~np.isnan(signals).any(axis=1)]
-        return signals[:, :self.signal_size]
+        return signals[:, :self.signal_dim]
 
     @staticmethod
     def _unify_shape(data):

@@ -10,15 +10,21 @@ from generation.training.abstract_trainer import AbstractTrainer
 
 class WganTrainer(AbstractTrainer):
     def run_train(self, dataset):
-        g_cosine_scheduler =  torch.optim.lr_scheduler.CosineAnnealingLR(
+        g_cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
             self.g_optimizer, self.config["epochs_num"], eta_min=0, last_epoch=-1)
         g_scheduler = GradualWarmupScheduler(
-            self.g_optimizer, multiplier=self.config["g_lr_multiplier"], total_epoch=self.config["g_lr_total_epoch"], after_scheduler=g_cosine_scheduler)
-        d_cosine_scheduler =  torch.optim.lr_scheduler.CosineAnnealingLR(
+            self.g_optimizer,
+            multiplier=self.config["g_lr_multiplier"],
+            total_epoch=self.config["g_lr_total_epoch"],
+            after_scheduler=g_cosine_scheduler)
+        d_cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
             self.d_optimizer, self.config["epochs_num"], eta_min=0, last_epoch=-1)
         d_scheduler = GradualWarmupScheduler(
-            self.d_optimizer, multiplier=self.config["d_lr_multiplier"], total_epoch=self.config["d_lr_total_epoch"], after_scheduler=d_cosine_scheduler)
-        
+            self.d_optimizer,
+            multiplier=self.config["d_lr_multiplier"],
+            total_epoch=self.config["d_lr_total_epoch"],
+            after_scheduler=d_cosine_scheduler)
+
         dataloader = DataLoader(dataset, batch_size=self.config["batch_size"], shuffle=True)
         self._initialize_wandb()
 
@@ -84,7 +90,7 @@ class WganTrainer(AbstractTrainer):
 
             epoch_d_loss = epoch_d_loss / len(dataloader.dataset)
             epoch_gp = epoch_gp / len(dataloader.dataset)
-            epoch_g_loss = (epoch_g_loss *  self.config['d_coef']) / len(dataloader.dataset)
+            epoch_g_loss = (epoch_g_loss * self.config['d_coef']) / len(dataloader.dataset)
 
             if epoch % self.config['log_each'] == 0:
                 wandb.log(

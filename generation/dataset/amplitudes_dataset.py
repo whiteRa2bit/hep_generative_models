@@ -3,7 +3,7 @@ import torch
 from torch.utils.data import Dataset
 from sklearn.preprocessing import MinMaxScaler
 
-from generation.config import SIGNAL_SIZE, DETECTORS
+from generation.config import SIGNAL_DIM, DETECTORS
 from generation.dataset.data_utils import get_detector_training_data
 
 
