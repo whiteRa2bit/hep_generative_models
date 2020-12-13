@@ -10,9 +10,9 @@ from generation.nets.abstract_net import AbstractGenerator, AbstractDiscriminato
 
 class Generator(AbstractGenerator):
     def __init__(self, config):
+        super(Generator, self).__init__(config)
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
-        super().__init__()
 
         # Input shape: [batch_size, z_dim, 1]
         out_channels = config["channels"]
@@ -40,8 +40,10 @@ class Generator(AbstractGenerator):
         out_channels //= 2
 
         # Input shape: [batch_size, channels/4, 128]
+        assert config["pad_size"] % 2 == 1
         self.block4 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=out_channels, out_channels=9, kernel_size=4, stride=4, padding=0)
+            nn.ConvTranspose1d(in_channels=out_channels, out_channels=9, kernel_size=4, stride=4, padding=0),
+            nn.AvgPool1d(config["pad_size"], stride=1, padding=config["pad_size"]//2)
         )
 
         # Output shape: [batch_size, 9, 512]
@@ -77,17 +79,17 @@ class Generator(AbstractGenerator):
         real_sample = real_sample.cpu().data
         fig_gen = get_figure(generated_sample)
         fig_real = get_figure(real_sample)
-        wandb.log({"Generated": fig_gen, "Real": fig_real})
+        wandb.log({"generated": fig_gen, "real": fig_real})
         plt.clf()
 
 
 class Discriminator(AbstractDiscriminator):
     def __init__(self, config):
-        super(Discriminator, self).__init__()
+        super(Discriminator, self).__init__(config)
         self.x_dim = config['x_dim']
 
         self.fc1 = nn.Linear(self.x_dim, 64)
-        self.fc2 = nn.Linear(64, 6)
+        self.fc2 = nn.Linear(64, 8)
         self.fc_final = nn.Linear(8 * 9, 1)
 
     def forward(self, x, debug=False):
