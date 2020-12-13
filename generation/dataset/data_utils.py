@@ -8,7 +8,7 @@ import tqdm
 import h5py
 
 from generation.config import DF_DIR, EVENTS_PATH, DETECTORS_PATH, FULL_SIGNALS_DIR, PROCESSING_TIME_NORM_COEF, \
-    SIGNAL_SIZE, SPACAL_DATA_PATH, FRAC_SIGNALS_DIR, H5_DATASET_NAME
+    SIGNAL_DIM, SPACAL_DATA_PATH, FRAC_SIGNALS_DIR, H5_DATASET_NAME
 
 
 def create_dir(path):
@@ -100,7 +100,7 @@ def get_detector_signals(detector: int):
     Given detector and event returns corresponding signal
     :param event: event number
     :param detector: detector number
-    :return: numpy array with shape SIGNAL_SIZE
+    :return: numpy array with shape SIGNAL_DIM
     """
     signals_path = get_detector_signals_path(detector)
     signals = load_h5(signals_path, H5_DATASET_NAME)
@@ -125,10 +125,10 @@ def get_attributes_df(data_path=SPACAL_DATA_PATH):
     return df
 
 
-def _calculate_step(df, signal_size):
+def _calculate_step(df, signal_dim):
     min_timestamp = min(df['timestamp'])  # TODO: (@whiteRa2bit, 2020-09-22) Replace with config params
     max_timestamp = max(df['timestamp'])
-    step = (max_timestamp - min_timestamp) / signal_size
+    step = (max_timestamp - min_timestamp) / signal_dim
     return step
 
 
@@ -139,19 +139,19 @@ def _get_step_energies(df, min_timestamp, max_timestamp):
     return step_energies
 
 
-def generate_one_signal(df, signal_size: int = SIGNAL_SIZE, use_postprocessing: bool = False, frac: float = 1.0):
+def generate_one_signal(df, signal_dim: int = SIGNAL_DIM, use_postprocessing: bool = False, frac: float = 1.0):
     """
     Generates one output for given df
     :param df: df with info of given detector and event
-    :param signal_size: number of timestamps by which time will be splitted
-    :return: np.array [signal_size] with energies
+    :param signal_dim: number of timestamps by which time will be splitted
+    :return: np.array [signal_dim] with energies
     """
     if df.empty:
-        return np.zeros(signal_size)
+        return np.zeros(signal_dim)
 
-    step = _calculate_step(df, signal_size)
+    step = _calculate_step(df, signal_dim)
     steps_energy = []
-    for i in range(signal_size):
+    for i in range(signal_dim):
         step_energies = _get_step_energies(df, i * step, (i + 1) * step)
         step_energies = np.random.choice(step_energies, int(len(step_energies) * frac))
         step_energy = np.sum(step_energies)
@@ -165,27 +165,27 @@ def generate_one_signal(df, signal_size: int = SIGNAL_SIZE, use_postprocessing: 
 def generate_signals(df,
                      data_size: int,
                      use_postprocessing: bool = False,
-                     signal_size: int = SIGNAL_SIZE,
+                     signal_dim: int = SIGNAL_DIM,
                      frac: float = 1.0):
     """
     Generates data for a given detector
     :param df_full: pandas df, output of get_events_df()
     :param data_size: number of samples to get
     :param use_postprocessing: whether to use output before or after photodetector
-    :param signal_size: number of timestamps by which time will be splitted
+    :param signal_dim: number of timestamps by which time will be splitted
     :param sample_coef: percent of data to take for each step
     :return: np.array with generated events
     """
     if df.empty:
-        return np.zeros((data_size, signal_size))
+        return np.zeros((data_size, signal_dim))
 
-    step = _calculate_step(df, signal_size)
+    step = _calculate_step(df, signal_dim)
     steps_energies = []
-    for i in range(signal_size):
+    for i in range(signal_dim):
         step_energies = _get_step_energies(df, i * step, (i + 1) * step)
         steps_energies.append(step_energies)
 
-    output_signals = np.zeros((data_size, signal_size))
+    output_signals = np.zeros((data_size, signal_dim))
     for signal_idx in range(data_size):
         for step_idx, step_energies in enumerate(steps_energies):
             step_energies = np.random.choice(step_energies, int(len(step_energies) * frac))

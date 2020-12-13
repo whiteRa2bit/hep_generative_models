@@ -2,14 +2,14 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-from generation.config import SIGNAL_SIZE, DETECTORS
+from generation.config import SIGNAL_DIM, DETECTORS
 from generation.dataset.data_utils import get_detector_training_data
 
 
 class SignalsDataset(Dataset):
-    def __init__(self, detectors=DETECTORS, signal_size=SIGNAL_SIZE, freq=1):
+    def __init__(self, detectors=DETECTORS, signal_dim=SIGNAL_DIM, freq=1):
         self.detectors = detectors
-        self.signal_size = signal_size
+        self.signal_dim = signal_dim
         self.freq = freq
         self.signals = self._get_signals()
         self.noises = self._get_noises()
@@ -26,7 +26,7 @@ class SignalsDataset(Dataset):
         for detector in self.detectors:
             signals.append(get_detector_training_data(detector))
 
-        signals = np.array(signals)[:, :, :self.freq * self.signal_size:self.freq]
+        signals = np.array(signals)[:, :, :self.freq * self.signal_dim:self.freq]
         max_amplitudes = np.max(signals, axis=(1, 2))[:, None, None]
         signals = signals / max_amplitudes
         return signals
