@@ -4,6 +4,7 @@ from torch.autograd import Variable, grad
 from torch.utils.data import DataLoader
 import wandb
 
+from generation.metrics import get_space_characteristic, get_time_characteristic, get_energy_characteristic
 from generation.training.schedulers import GradualWarmupScheduler
 from generation.training.abstract_trainer import AbstractTrainer
 
@@ -93,16 +94,18 @@ class WganTrainer(AbstractTrainer):
             epoch_g_loss = (epoch_g_loss * self.config['d_coef']) / len(dataloader.dataset)
 
             if epoch % self.config['log_each'] == 0:
+                generated_real_fig = self.generator.visualize(g_sample[0], X[0])
                 wandb.log(
                     {
                         "D loss": epoch_d_loss,
                         "Gradient penalty": epoch_gp,
                         "G loss": epoch_g_loss,
                         "G lr": self.g_optimizer.param_groups[0]['lr'],
-                        "D lr": self.d_optimizer.param_groups[0]['lr']
+                        "D lr": self.d_optimizer.param_groups[0]['lr'],
+                        "generated_real": generated_real_fig
                     },
                     step=epoch)
-                self.generator.visualize(g_sample[0], X[0])
+                
             if epoch % self.config['save_each'] == 0:
                 self._save_checkpoint(self.generator, f"generator_{epoch}")
                 self._save_checkpoint(self.discriminator, f"discriminator_{epoch}")
