@@ -68,18 +68,18 @@ class Generator(AbstractGenerator):
 
     @staticmethod
     def visualize(generated_sample, real_sample):
-        def get_figure(sample):
-            fig, ax = plt.subplots(3, 3, figsize=(10, 10))
-            for i in range(9):
-                ax[i // 3][i % 3].plot(sample[i])
+        def get_figure(generated_sample, real_sample):
+            fig, ax = plt.subplots(3, 6, figsize=(10, 20))
+            for i in range(9):  # TODO: (@whiteRa2bit, 2021-01-05) Replace with config constant
+                ax[i // 3][i % 3].plot(generated_sample[i])
+                ax[i // 3][3 + i % 3].plot(real_sample[i])
             return fig
 
+        plt.clf()
         generated_sample = generated_sample.cpu().data
         real_sample = real_sample.cpu().data
-        fig_gen = get_figure(generated_sample)
-        fig_real = get_figure(real_sample)
-        wandb.log({"generated": fig_gen, "real": fig_real})
-        plt.clf()
+        fig = get_figure(generated_sample, real_sample)
+        return fig
 
 
 class Discriminator(AbstractDiscriminator):
