@@ -1,6 +1,9 @@
 import numpy as np
+import tqdm
+from loguru import logger
 
-from generation.data
+from generation.dataset.data_utils import postprocess_signal
+
 
 def get_energy_characteristic(signals):
     """
@@ -17,6 +20,7 @@ def get_energy_characteristic(signals):
 def get_space_characteristic(signals):
     pass
 
+
 def _get_time_prediction(signal):
     half_amplitude = np.min(signal) + (np.max(signal) - np.min(signal)) / 2
     prev = signal[0]
@@ -24,7 +28,9 @@ def _get_time_prediction(signal):
         if item > half_amplitude:
             return idx
 
+
 def get_time_characteristic(signals):
+    logger.info("Processing signals for time characteristic")
     postprocessed_signals = [postprocess_signal(signal) for signal in tqdm.tqdm(signals)]
     time_preds = [_get_time_prediction(signal) for signal in postprocessed_signals]
     return time_preds
