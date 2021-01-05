@@ -18,11 +18,7 @@ def _prepare_attributes_df(root_trees, attrs=ATTRIBUTES,
     :param res_path: path to attribute file
     :return:
     """
-
-    def _process_line(line, line_type):
-        return line_type(line.strip())
-
-    def _numerate_events(events_lists):
+    def numerate_events(events_lists):
         """
         Function to renumerate events_lists
         :param events_lists: List of lists with event numbers
@@ -44,7 +40,7 @@ def _prepare_attributes_df(root_trees, attrs=ATTRIBUTES,
     for attr in attrs:
         logger.info(f'Processing attribute: {attr}')
         attr_values = [tree.array(attr) for tree in root_trees]
-        attr_values = _numerate_events(attr_values) if attr == EVENT_ATTR else attr_values
+        attr_values = numerate_events(attr_values) if attr == EVENT_ATTR else attr_values
         attr_values = np.concatenate(attr_values)
         attr_type = "int16" if attr in INT_ATTRIBUTES else "float32"
         data[attr] = attr_values.astype(attr_type)
