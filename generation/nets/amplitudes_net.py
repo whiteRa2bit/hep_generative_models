@@ -24,9 +24,9 @@ class Generator(AbstractGenerator):
         return torch.clamp(x, 0, 1)
 
     @staticmethod
-    def visualize(generated_sample, real_sample):
-        generated_sample = generated_sample.cpu().data
+    def visualize(real_sample, generated_sample):
         real_sample = real_sample.cpu().data
+        generated_sample = generated_sample.cpu().data
 
         plt.clf()
         fig, ax = plt.subplots(1, 2, figsize=(12, 5))

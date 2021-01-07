@@ -4,7 +4,7 @@ from torch.autograd import Variable, grad
 from torch.utils.data import DataLoader
 import wandb
 
-from generation.metrics import get_space_characteristic, get_time_characteristic, get_energy_characteristic
+from generation.metrics import get_physical_figs
 from generation.training.schedulers import GradualWarmupScheduler
 from generation.training.abstract_trainer import AbstractTrainer
 
@@ -94,7 +94,8 @@ class WganTrainer(AbstractTrainer):
             epoch_g_loss = (epoch_g_loss * self.config['d_coef']) / len(dataloader.dataset)
 
             if epoch % self.config['log_each'] == 0:
-                generated_real_fig = self.generator.visualize(g_sample[0], X[0])
+                generated_real_fig = self.generator.visualize(X[0], g_sample[0])
+                energy_fig, time_fig = get_physical_figs(X[0], g_sample[0])
                 wandb.log(
                     {
                         "D loss": epoch_d_loss,

@@ -67,8 +67,8 @@ class Generator(AbstractGenerator):
         return torch.tanh(x)
 
     @staticmethod
-    def visualize(generated_sample, real_sample):
-        def get_figure(generated_sample, real_sample):
+    def visualize(real_sample, generated_sample):
+        def get_figure(real_sample, generated_sample):
             fig, ax = plt.subplots(3, 6, figsize=(10, 20))
             for i in range(9):  # TODO: (@whiteRa2bit, 2021-01-05) Replace with config constant
                 ax[i // 3][i % 3].plot(generated_sample[i])
@@ -76,9 +76,9 @@ class Generator(AbstractGenerator):
             return fig
 
         plt.clf()
-        generated_sample = generated_sample.cpu().data
         real_sample = real_sample.cpu().data
-        fig = get_figure(generated_sample, real_sample)
+        generated_sample = generated_sample.cpu().data
+        fig = get_figure(real_sample, generated_sample)
         return fig
 
 

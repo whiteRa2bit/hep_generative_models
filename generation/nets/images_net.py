@@ -54,9 +54,9 @@ class Generator(AbstractGenerator):
         return x
 
     @staticmethod
-    def visualize(generated_sample, real_sample):
-        generated_sample = generated_sample.cpu().data
+    def visualize(real_sample, generated_sample):
         real_sample = real_sample.cpu().data
+        generated_sample = generated_sample.cpu().data
 
         plt.clf()
         fig, ax = plt.subplots(1, 2, figsize=(12, 5))

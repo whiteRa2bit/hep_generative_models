@@ -43,7 +43,7 @@ def get_time_distribution(signals):
     return time_preds
 
 
-def log_metrics_to_wandb(real_signals, fake_signals):
+def get_physical_figs(real_signals, fake_signals):
     def get_distributions_fig(real_distribution, fake_distribution):
         fig, ax = plt.subplots(3, 3, figsize=(10, 10))
         
@@ -52,7 +52,7 @@ def log_metrics_to_wandb(real_signals, fake_signals):
     real_energy_distribution = get_energy_distribution(real_signals)
     fake_energy_distribution = get_energy_distribution(fake_signals)
     real_time_distribution = get_time_distribution(real_signals)
-    fake_time_distribution = get_time_distribution(fake_signals)
-    energy_fig =_get_distributions_fig(real_energy_distribution, fake_energy_distribution)
+    fake_time_distribution = get_time_distribution(fake_signals)   
+    energy_fig = get_distributions_fig(real_energy_distribution, fake_energy_distribution)
     time_fig = get_distributions_fig(real_time_distribution, fake_time_distribution)
-    wandb.log({"generated": fig_gen, "real": fig_real})
+    return energy_fig, time_fig
