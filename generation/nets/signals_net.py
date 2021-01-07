@@ -75,7 +75,6 @@ class Generator(AbstractGenerator):
                 ax[i // 3][3 + i % 3].plot(real_sample[i])
             return fig
 
-        plt.clf()
         real_sample = real_sample.cpu().data
         generated_sample = generated_sample.cpu().data
         fig = get_figure(real_sample, generated_sample)

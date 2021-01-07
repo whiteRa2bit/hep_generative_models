@@ -1,8 +1,9 @@
 import tqdm
 import torch
+import wandb
+import matplotlib.pyplot as plt
 from torch.autograd import Variable, grad
 from torch.utils.data import DataLoader
-import wandb
 
 from generation.metrics import get_physical_figs
 from generation.training.schedulers import GradualWarmupScheduler
@@ -104,10 +105,13 @@ class WganTrainer(AbstractTrainer):
                         "G lr": self.g_optimizer.param_groups[0]['lr'],
                         "D lr": self.d_optimizer.param_groups[0]['lr'],
                         "Generated vs Real": generated_real_fig,
-                        "Energy characteristic": energy_fig,
-                        "Time characteristic": time_fig
+                        "Energy characteristic": wandb.Image(energy_fig),
+                        "Time characteristic": wandb.Image(time_fig)
                     },
                     step=epoch)
+                plt.close(generated_real_fig)
+                plt.close(energy_fig)
+                plt.close(time_fig)
                 
             if epoch % self.config['save_each'] == 0:
                 self._save_checkpoint(self.generator, f"generator_{epoch}")

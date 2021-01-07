@@ -58,14 +58,13 @@ def get_physical_figs(real_signals_tensor, fake_signals_tensor):
         return signals_array
 
     def get_distributions_fig(real_distributions, fake_distributions, bins_num=_BINS_NUM):
-        plt.clf()
         fig, ax = plt.subplots(3, 3, figsize=(10, 10))
         for i in range(9):  # TODO: (@whiteRa2bit, 2021-01-05) Replace with config constant
             real_detector_distribution = real_distributions[i]
             fake_detector_distribution = fake_distributions[i] 
             bins = np.histogram(np.hstack((real_detector_distribution, fake_detector_distribution)), bins=bins_num)[1]
-            ax[i // 3][i % 3].hist(real_detector_distribution, bins=bins)
-            ax[i // 3][i % 3].hist(fake_detector_distribution, bins=bins)            
+            ax[i // 3][i % 3].hist(real_detector_distribution, bins=bins, alpha=0.6)
+            ax[i // 3][i % 3].hist(fake_detector_distribution, bins=bins, alpha=0.6)            
             ax[i // 3][i % 3].legend(["Real", "Fake"])
         return fig
 
