@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tqdm
-from loguru import logger
 
 from generation.dataset.data_utils import postprocess_signal
 
@@ -55,11 +54,8 @@ def _get_space_fig(real_mass_centres, fake_mass_centres):
     :returns: figure with distributions
     """
     fig, ax = plt.subplots(1, 1, figsize=(3, 3))
-    logger.info(f"Mass centre shape: {real_mass_centres.shape}")
-    ax.scatter(real_mass_centres[:, 0], real_mass_centres[:, 1])
-    ax.scatter(fake_mass_centres[:, 0], fake_mass_centres[:, 1])
-    ax.set_xlabel("X", weight='bold')
-    ax.set_ylabel("Y", weight='bold')
+    ax.scatter(real_mass_centres[0, :], real_mass_centres[1, :])
+    ax.scatter(fake_mass_centres[0, :], fake_mass_centres[1, :])
     ax.legend(['Real', 'Fake'])
     return fig
 
