@@ -103,7 +103,9 @@ class WganTrainer(AbstractTrainer):
                         "G loss": epoch_g_loss,
                         "G lr": self.g_optimizer.param_groups[0]['lr'],
                         "D lr": self.d_optimizer.param_groups[0]['lr'],
-                        "generated_real": generated_real_fig
+                        "Generated vs Real": generated_real_fig,
+                        "Energy characteristic": energy_fig,
+                        "Time characteristic": time_fig
                     },
                     step=epoch)
                 

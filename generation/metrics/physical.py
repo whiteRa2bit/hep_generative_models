@@ -1,8 +1,11 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import tqdm
 from loguru import logger
 
 from generation.dataset.data_utils import postprocess_signal
+
+_BINS = 20
 
 
 def get_energy_distribution(signals):
@@ -44,9 +47,13 @@ def get_time_distribution(signals):
 
 
 def get_physical_figs(real_signals, fake_signals):
-    def get_distributions_fig(real_distribution, fake_distribution):
-        fig, ax = plt.subplots(3, 3, figsize=(10, 10))
-        
+    def get_distributions_fig(real_distribution, fake_distribution, bins=_BINS):
+        plt.clf()
+        fig = plt.figure(figsize=(5, 10))
+        bins = np.histogram(np.hstack((real_distribution, fake_distribution)), bins=bins)[1]
+        plt.hist(real_distribution, bins=bins)
+        plt.hist(fake_distribution, bins=bins)
+        plt.legend(["Real", "Fake"])
         return fig
 
     real_energy_distribution = get_energy_distribution(real_signals)
