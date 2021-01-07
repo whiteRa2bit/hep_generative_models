@@ -27,7 +27,7 @@ class WganTrainer(AbstractTrainer):
             after_scheduler=d_cosine_scheduler)
 
         dataloader = DataLoader(dataset, batch_size=self.config["batch_size"], shuffle=True)
-        self._initialize_wandb()
+        # self._initialize_wandb()
 
         for epoch in tqdm.tqdm(range(self.config['epochs_num'])):
             epoch_d_loss = 0
@@ -95,7 +95,7 @@ class WganTrainer(AbstractTrainer):
 
             if epoch % self.config['log_each'] == 0:
                 generated_real_fig = self.generator.visualize(X[0], g_sample[0])
-                energy_fig, time_fig = get_physical_figs(X[0], g_sample[0])
+                energy_fig, time_fig = get_physical_figs(X, g_sample)
                 wandb.log(
                     {
                         "D loss": epoch_d_loss,
