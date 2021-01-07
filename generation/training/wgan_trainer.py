@@ -27,7 +27,7 @@ class WganTrainer(AbstractTrainer):
             after_scheduler=d_cosine_scheduler)
 
         dataloader = DataLoader(dataset, batch_size=self.config["batch_size"], shuffle=True)
-        # self._initialize_wandb()
+        self._initialize_wandb()
 
         for epoch in tqdm.tqdm(range(self.config['epochs_num'])):
             epoch_d_loss = 0

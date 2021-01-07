@@ -15,12 +15,9 @@ def get_energy_distribution(signals):
     :param signals: signals np array of shape [detectors_num, signals_num, signal_size]
     :returns: space characteristic distribution
     """
-    logger.info(f"Signals shape: {signals.shape}")
-    logger.info(f"Signals type: {type(signals)}")
     amplitudes = np.max(signals, axis=2)
     energies = np.sum(signals, axis=2)
     ratios = energies / amplitudes
-    logger.info(f"Ratios shape: {ratios.shape}")
     return ratios
 
 
@@ -43,12 +40,9 @@ def get_time_distribution(signals):
     :param signals: signals np array of shape [detectors_num, signals_num, signal_size]
     :returns: time characteristic distribution
     """
-    logger.info("Processing signals for time characteristic")
-    logger.info(f"Signals shape: {signals.shape}")
     postprocessed_signals = [[postprocess_signal(signal) for signal in detector_signals] for detector_signals in signals]
     time_preds = [[_get_time_prediction(signal) for signal in detector_signals] for detector_signals in postprocessed_signals]
     time_preds = np.array(time_preds)
-    logger.info(f"Time preds shape: {time_preds.shape}")
     return time_preds
 
 
