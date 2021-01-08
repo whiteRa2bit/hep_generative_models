@@ -29,7 +29,6 @@ def _calculate_centre_mass(amplitudes):
     coords = np.array([[-1, 1], [0, 1], [1, 1], \
           [-1, 0], [0, 0], [1, 0], \
           [-1, -1], [0, -1], [1, -1]])
-    # amplitudes = np.repeat(amplitudes[:, None], 2, axis=1)
     return coords.T @ amplitudes
 
 

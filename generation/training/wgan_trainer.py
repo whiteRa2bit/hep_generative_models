@@ -95,7 +95,7 @@ class WganTrainer(AbstractTrainer):
             epoch_g_loss = (epoch_g_loss * self.config['d_coef']) / len(dataloader.dataset)
 
             if epoch % self.config['log_each'] == 0:
-                generated_real_fig = self.generator.visualize(X[0], g_sample[0])
+                real_fake_fig = self.generator.get_rel_fake_fig(X[0], g_sample[0])
                 energy_fig, time_fig, space_fig = get_physical_figs(X, g_sample)
                 wandb.log(
                     {
@@ -104,7 +104,7 @@ class WganTrainer(AbstractTrainer):
                         "G loss": epoch_g_loss,
                         "G lr": self.g_optimizer.param_groups[0]['lr'],
                         "D lr": self.d_optimizer.param_groups[0]['lr'],
-                        "Generated vs Real": generated_real_fig,
+                        "Real vs Fake": real_fake_fig,
                         "Energy characteristic": wandb.Image(energy_fig),
                         "Time characteristic": wandb.Image(time_fig),
                         "Space characteristic": wandb.Image(space_fig)

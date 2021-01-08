@@ -24,16 +24,16 @@ class Generator(AbstractGenerator):
         return torch.clamp(x, 0, 1)
 
     @staticmethod
-    def visualize(real_sample, generated_sample):
+    def get_rel_fake_fig(real_sample, fake_sample):
         real_sample = real_sample.cpu().data
-        generated_sample = generated_sample.cpu().data
+        fake_sample = fake_sample.cpu().data
 
         plt.clf()
         fig, ax = plt.subplots(1, 2, figsize=(12, 5))
-        ax[0].set_title("Generated")
-        ax[0].plot(generated_sample)
-        ax[1].set_title("Real")
-        ax[1].plot(real_sample)
+        ax[0].set_title("Real")
+        ax[0].plot(real_sample)
+        ax[1].set_title("Fake")
+        ax[1].plot(fake_sample)
         return fig
         
 
