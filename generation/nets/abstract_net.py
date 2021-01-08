@@ -16,7 +16,7 @@ class AbstractGenerator(ABC, nn.Module):
 
     @staticmethod
     @abstractmethod
-    def visualize(generated_sample, real_sample):
+    def get_rel_fake_fig(real_sample, fake_sample):
         raise NotImplementedError
 
 

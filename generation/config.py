@@ -40,7 +40,7 @@ SIGNALS_TRAINING_CONFIG = {
     "d_lr": 1e-4,
     "epochs_num": 1000,
     "batch_size": 32,
-    "log_each": 1,
+    "log_each": 5,
     "decay_epoch": 0,
     "save_each": 2,
     "device": "cuda:1",
