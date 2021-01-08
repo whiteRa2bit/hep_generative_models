@@ -110,7 +110,7 @@ class WganTrainer(AbstractTrainer):
                         "Space characteristic": wandb.Image(space_fig)
                     },
                     step=epoch)
-                plt.close(generated_real_fig)
+                plt.close(real_fake_fig)
                 plt.close(energy_fig)
                 plt.close(time_fig)
                 plt.close(space_fig)
