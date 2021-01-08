@@ -72,9 +72,9 @@ class Generator(AbstractGenerator):
         fake_sample = fake_sample.cpu().data
         
         fig, ax = plt.subplots(3, 6, figsize=(10, 20))
-            for i in range(9):  # TODO: (@whiteRa2bit, 2021-01-05) Replace with config constant
-                ax[i // 3][i % 3].plot(real_sample[i])
-                ax[i // 3][3 + i % 3].plot(fake_sample[i])
+        for i in range(9):  # TODO: (@whiteRa2bit, 2021-01-05) Replace with config constant
+            ax[i // 3][i % 3].plot(real_sample[i])
+            ax[i // 3][3 + i % 3].plot(fake_sample[i])
         return fig
 
 

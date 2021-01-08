@@ -1,10 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tqdm
+import multiprocessing as mp
 
 from generation.dataset.data_utils import postprocess_signal
 
 _BINS_NUM = 20
+_PROCESSES_NUM = 24
 
 
 def get_energy_values(signals):
@@ -73,7 +75,11 @@ def get_time_values(signals):
     :param signals: signals np array of shape [detectors_num, signals_num, signal_size]
     :returns: time characteristic values
     """
-    postprocessed_signals = [[postprocess_signal(signal) for signal in detector_signals] for detector_signals in signals]
+    postprocessed_signals = []
+    with mp.Pool(_PROCESSES_NUM) as pool:
+        for detector_signals in signals:
+            postprocessed_detector_signals = pool.map(postprocess_signal, detector_signals)
+            postprocessed_signals.append(postprocessed_detector_signals)
     time_values = [[_get_ref_time_pred(signal) for signal in detector_signals] for detector_signals in postprocessed_signals]
     time_values = np.array(time_values)
     return time_values
