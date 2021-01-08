@@ -79,18 +79,7 @@ def get_time_values(signals):
     return time_values
 
 
-def _transform_signals(signals_tensor):
-    """
-    Transforms torch signals tensor to np array and reshapes it
-    :param signals_tensor: torch tensor with shape [batch_size, detectors_num, x_dim]
-    :returns: np array with shape [detectors_num, batch_size, x_dim]
-    """
-    signals_array = signals_tensor.cpu().detach().numpy()
-    signals_array = np.transpose(signals_array, (1, 0, 2))
-    return signals_array
-
-
-def _get_distributions_fig(real_values, fake_values, bins_num=_BINS_NUM):
+def _get_energy_time_fig(real_values, fake_values, bins_num=_BINS_NUM):
     fig, ax = plt.subplots(3, 3, figsize=(10, 10))
     for i in range(9):  # TODO: (@whiteRa2bit, 2021-01-05) Replace with config constant
         real_detector_values = real_values[i]
@@ -102,17 +91,28 @@ def _get_distributions_fig(real_values, fake_values, bins_num=_BINS_NUM):
     return fig
 
 
+def _transform_signals(signals_tensor):
+    """
+    Transforms torch signals tensor to np array and reshapes it
+    :param signals_tensor: torch tensor with shape [batch_size, detectors_num, x_dim]
+    :returns: np array with shape [detectors_num, batch_size, x_dim]
+    """
+    signals_array = signals_tensor.cpu().detach().numpy()
+    signals_array = np.transpose(signals_array, (1, 0, 2))
+    return signals_array
+
+
 def get_physical_figs(real_signals_tensor, fake_signals_tensor):
     real_signals = _transform_signals(real_signals_tensor)
     fake_signals = _transform_signals(fake_signals_tensor)
 
     real_energy_values = get_energy_values(real_signals)
     fake_energy_values = get_energy_values(fake_signals)
-    energy_fig = _get_distributions_fig(real_energy_values, fake_energy_values)
+    energy_fig = _get_energy_time_fig(real_energy_values, fake_energy_values)
 
     real_time_values = get_time_values(real_signals)
     fake_time_values = get_time_values(fake_signals)
-    time_fig = _get_distributions_fig(real_time_values, fake_time_values)
+    time_fig = _get_energy_time_fig(real_time_values, fake_time_values)
 
     real_space_values = get_space_values(real_signals)
     fake_space_values = get_space_values(fake_signals)
