@@ -59,7 +59,7 @@ def _get_space_fig(real_mass_centres, fake_mass_centres):
     return fig
 
 
-def _get_time_prediction(signal):
+def _get_ref_time_pred(signal):
     half_amplitude = np.min(signal) + (np.max(signal) - np.min(signal)) / 2
     for idx, cur_amplitude in enumerate(signal):
         if cur_amplitude > half_amplitude:
@@ -74,9 +74,9 @@ def get_time_values(signals):
     :returns: time characteristic values
     """
     postprocessed_signals = [[postprocess_signal(signal) for signal in detector_signals] for detector_signals in signals]
-    time_preds = [[_get_time_prediction(signal) for signal in detector_signals] for detector_signals in postprocessed_signals]
-    time_preds = np.array(time_preds)
-    return time_preds
+    time_values = [[_get_ref_time_pred(signal) for signal in detector_signals] for detector_signals in postprocessed_signals]
+    time_values = np.array(time_values)
+    return time_values
 
 
 def _transform_signals(signals_tensor):
