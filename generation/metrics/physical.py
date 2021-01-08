@@ -59,11 +59,10 @@ def _get_space_fig(real_mass_centres, fake_mass_centres):
     return fig
 
 
-# TODO: (@whiteRa2bit, 2021-01-05) Use more meaningful variable names
 def _get_time_prediction(signal):
     half_amplitude = np.min(signal) + (np.max(signal) - np.min(signal)) / 2
-    for idx, item in enumerate(signal):
-        if item > half_amplitude:
+    for idx, cur_amplitude in enumerate(signal):
+        if cur_amplitude > half_amplitude:
             return idx
 
 
