@@ -65,7 +65,6 @@ class Generator(AbstractGenerator):
         ax[1].set_title("Fake")
         ax[1].plot(fake_sample)
         return fig
-        
 
 
 class Discriminator(AbstractDiscriminator):

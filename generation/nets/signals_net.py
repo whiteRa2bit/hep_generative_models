@@ -70,7 +70,7 @@ class Generator(AbstractGenerator):
     def get_rel_fake_fig(real_sample, fake_sample):
         real_sample = real_sample.cpu().data
         fake_sample = fake_sample.cpu().data
-        
+
         fig, ax = plt.subplots(3, 6, figsize=(10, 20))
         for i in range(9):  # TODO: (@whiteRa2bit, 2021-01-05) Replace with config constant
             ax[i // 3][i % 3].plot(real_sample[i])
