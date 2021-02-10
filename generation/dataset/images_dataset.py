@@ -7,7 +7,7 @@ from skimage import io
 from generation.config import IMAGE_DIR
 
 
-class ImageDataset(Dataset):
+class ImagesDataset(Dataset):
     def __init__(self, detector):
         self.detector = detector
 
