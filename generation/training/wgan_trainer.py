@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from torch.autograd import Variable, grad
 from torch.utils.data import DataLoader
 
-from generation.metrics import get_physical_figs
+from generation.metrics import get_physical_metrics_dict
 from generation.training.schedulers import GradualWarmupScheduler
 from generation.training.abstract_trainer import AbstractTrainer
 
@@ -96,25 +96,18 @@ class WganTrainer(AbstractTrainer):
 
             if epoch % self.config['log_each'] == 0:
                 real_fake_fig = self.generator.get_rel_fake_fig(X[0], g_sample[0])
-                energy_fig, time_fig, space_fig = get_physical_figs(X, g_sample)
-                wandb.log(
-                    {
-                        "D loss": epoch_d_loss,
-                        "Gradient penalty": epoch_gp,
-                        "G loss": epoch_g_loss,
-                        "G lr": self.g_optimizer.param_groups[0]['lr'],
-                        "D lr": self.d_optimizer.param_groups[0]['lr'],
-                        "Real vs Fake": real_fake_fig,
-                        "Energy characteristic": wandb.Image(energy_fig),
-                        "Time characteristic": wandb.Image(time_fig),
-                        "Space characteristic": wandb.Image(space_fig)
-                    },
-                    step=epoch)
-                plt.close(real_fake_fig)
-                plt.close(energy_fig)
-                plt.close(time_fig)
-                plt.close(space_fig)
-                
+                metrics_dict = {
+                    "D loss": epoch_d_loss,
+                    "Gradient penalty": epoch_gp,
+                    "G loss": epoch_g_loss,
+                    "G lr": self.g_optimizer.param_groups[0]['lr'],
+                    "D lr": self.d_optimizer.param_groups[0]['lr'],
+                    "Real vs Fake": real_fake_fig,
+                }
+                metrics_dict = {**metrics_dict, **get_physical_metrics_dict(X, g_sample)}
+                wandb.log(metrics_dict, step=epoch)
+                plt.close("all")
+
             if epoch % self.config['save_each'] == 0:
                 self._save_checkpoint(self.generator, f"generator_{epoch}")
                 self._save_checkpoint(self.discriminator, f"discriminator_{epoch}")

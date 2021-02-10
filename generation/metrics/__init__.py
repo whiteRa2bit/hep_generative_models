@@ -1,1 +1,1 @@
-from generation.metrics.physical import get_physical_figs
+from generation.metrics.metrics import get_physical_metrics_dict

@@ -64,7 +64,7 @@ class Generator(AbstractGenerator):
         ax[0].imshow(real_sample)
         ax[1].set_title("Fake")
         ax[1].imshow(fake_sample)
-        return fig   
+        return fig
 
 
 class Discriminator(AbstractDiscriminator):
