@@ -8,9 +8,9 @@ from loguru import logger
 from generation.nets.abstract_net import AbstractGenerator, AbstractDiscriminator
 
 
-class Generator(AbstractGenerator):
+class ShapesGenerator(AbstractGenerator):
     def __init__(self, config):
-        super(Generator, self).__init__(config)
+        super(ShapesGenerator, self).__init__(config)
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
 
@@ -67,9 +67,9 @@ class Generator(AbstractGenerator):
         return fig
 
 
-class Discriminator(AbstractDiscriminator):
+class ShapesDiscriminator(AbstractDiscriminator):
     def __init__(self, config):
-        super(Discriminator, self).__init__(config)
+        super(ShapesDiscriminator, self).__init__(config)
         self.x_dim = config['x_dim']
 
         self.fc_final = nn.Linear(288, 1)
@@ -79,15 +79,17 @@ class Discriminator(AbstractDiscriminator):
         self.conv2 = nn.Conv1d(8, 32, 3, padding=1)
         self.conv3 = nn.Conv1d(32, 8, 3, padding=1)
 
-        self.layernorm1 = nn.LayerNorm([8, 1024])
-        self.layernorm2 = nn.LayerNorm([32, 340])
-        self.layernorm3 = nn.LayerNorm([8, 112])
+        x_dim = config["x_dim"]
+        self.layernorm1 = nn.LayerNorm([8, x_dim])
+        x_dim = (x_dim - 2) // 3
+        self.layernorm2 = nn.LayerNorm([32, x_dim])
+        x_dim = (x_dim - 2) // 3
+        self.layernorm3 = nn.LayerNorm([8, x_dim])
 
     def forward(self, x, debug=False):
         def _debug():
             if debug:
                 logger.info(x.shape)
-
         x = x.unsqueeze(1)
         _debug()
         x = self.conv1(x)

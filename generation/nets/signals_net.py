@@ -8,9 +8,9 @@ from loguru import logger
 from generation.nets.abstract_net import AbstractGenerator, AbstractDiscriminator
 
 
-class Generator(AbstractGenerator):
+class SignalsGenerator(AbstractGenerator):
     def __init__(self, config):
-        super(Generator, self).__init__(config)
+        super(SignalsGenerator, self).__init__(config)
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
 
@@ -78,9 +78,9 @@ class Generator(AbstractGenerator):
         return fig
 
 
-class Discriminator(AbstractDiscriminator):
+class SignalsDiscriminator(AbstractDiscriminator):
     def __init__(self, config):
-        super(Discriminator, self).__init__(config)
+        super(SignalsDiscriminator, self).__init__(config)
         self.x_dim = config['x_dim']
 
         self.fc1 = nn.Linear(self.x_dim, 64)

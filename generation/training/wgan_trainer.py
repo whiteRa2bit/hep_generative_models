@@ -104,7 +104,7 @@ class WganTrainer(AbstractTrainer):
                     "D lr": self.d_optimizer.param_groups[0]['lr'],
                     "Real vs Fake": real_fake_fig,
                 }
-                metrics_dict = {**metrics_dict, **get_physical_metrics_dict(X, g_sample)}
+                # metrics_dict = {**metrics_dict, **get_physical_metrics_dict(X, g_sample)}
                 wandb.log(metrics_dict, step=epoch)
                 plt.close("all")
 
@@ -113,8 +113,9 @@ class WganTrainer(AbstractTrainer):
                 self._save_checkpoint(self.discriminator, f"discriminator_{epoch}")
 
     def _compute_gp(self, X, g_sample):
-        alpha = torch.rand((self.config["batch_size"], 1,
-                            1)).to(self.config['device'])  # TODO: (@whiteRa2bit, 2020-09-25) Fix shape
+        alpha_shape = [self.config["batch_size"]] + [1] * (X.ndim - 1)
+        alpha = torch.rand(alpha_shape).to(self.config['device'])
+
         x_hat = alpha * X.data + (1 - alpha) * g_sample.data
         x_hat.requires_grad = True
         pred_hat = self.discriminator(x_hat)
