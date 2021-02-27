@@ -12,6 +12,7 @@ IMAGE_DIR = os.path.join(DATA_DIR, 'images')
 RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw_data')
 EVENTS_PATH = os.path.join(DATA_DIR, "events.npy")
 DETECTORS_PATH = os.path.join(DATA_DIR, "detectors.npy")
+POSTPROCESSED_SIGNALS_PATH = os.path.join(DATA_DIR, 'postprocessed_signals.npy')
 H5_DATASET_NAME = "data"
 CONFIG_NAME = "config.json"
 
