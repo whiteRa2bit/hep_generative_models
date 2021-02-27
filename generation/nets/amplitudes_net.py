@@ -7,9 +7,9 @@ import wandb
 from generation.nets.abstract_net import AbstractGenerator, AbstractDiscriminator
 
 
-class Generator(AbstractGenerator):
+class AmplitudesGenerator(AbstractGenerator):
     def __init__(self, config):
-        super(Generator, self).__init__(config)
+        super(AmplitudesGenerator, self).__init__(config)
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
 
@@ -37,9 +37,9 @@ class Generator(AbstractGenerator):
         return fig
 
 
-class Discriminator(AbstractDiscriminator):
+class AmplitudesDiscriminator(AbstractDiscriminator):
     def __init__(self, config):
-        super(Discriminator, self).__init__(config)
+        super(AmplitudesDiscriminator, self).__init__(config)
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
 

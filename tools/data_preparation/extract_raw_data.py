@@ -18,6 +18,7 @@ def _prepare_attributes_df(root_trees, attrs=ATTRIBUTES,
     :param res_path: path to attribute file
     :return:
     """
+
     def numerate_events(events_lists):
         """
         Function to renumerate events_lists
