@@ -1,13 +1,13 @@
 import torch
 
-from generation.config import SIGNALS_TRAINING_CONFIG as CONFIG
+from generation.config import SHAPES_TRAINING_CONFIG
 from generation.dataset.shapes_dataset import ShapesDataset
 from generation.nets.shapes_net import ShapesGenerator, ShapesDiscriminator
 from generation.training.wgan_trainer import WganTrainer
 from generation.utils import set_seed
 
 
-def main(config=CONFIG):
+def main(config=SHAPES_TRAINING_CONFIG):
     z = torch.randn((config["batch_size"], config["z_dim"]))
     generator = ShapesGenerator(config)
     discriminator = ShapesDiscriminator(config)

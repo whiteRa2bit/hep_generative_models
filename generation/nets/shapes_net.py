@@ -72,7 +72,7 @@ class ShapesDiscriminator(AbstractDiscriminator):
         super(ShapesDiscriminator, self).__init__(config)
         self.x_dim = config['x_dim']
 
-        self.fc_final = nn.Linear(24, 1)
+        self.fc_final = nn.Linear(288, 1)
 
         self.pool = nn.AvgPool1d(5, 3)
         self.conv1 = nn.Conv1d(1, 8, 7, padding=3)
