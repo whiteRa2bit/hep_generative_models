@@ -1,3 +1,6 @@
+import sys
+sys.path.append('/home/pafakanov/hse/hep_generative_models/tools/train')
+
 import torch
 
 from generation.training.wgan_trainer import WganTrainer
@@ -6,7 +9,10 @@ from generation.utils import set_seed
 from dataset import MyDataset
 from model import Generator, Discriminator
 from config import CONFIG
+from scheduler import get_gpu_id
 
+
+CONFIG["device"] = f"cuda:{get_gpu_id()}"
 dataset = MyDataset()
 generator = Generator(CONFIG)
 discriminator = Discriminator(CONFIG)

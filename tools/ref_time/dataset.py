@@ -26,6 +26,7 @@ class MyDataset(Dataset):
             for signal_idx in range(ref_times.shape[1]):
                 ref_times[detector_idx][signal_idx] = self._get_ref_time_pred(self.signals[detector_idx][signal_idx])
         np.nan_to_num(ref_times, 0)
+        ref_times /= np.max(ref_times, axis=1)[:, None]
         return ref_times
         
     @staticmethod

@@ -11,15 +11,13 @@ class Generator(AbstractGenerator):
         super(Generator, self).__init__(config)
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
-        
+
         self.final = nn.Sequential(
             nn.Linear(self.z_dim, 16),
-            nn.Tanh(),
+            nn.LeakyReLU(),
             nn.Linear(16, 32),
-            nn.Tanh(),
-            nn.Linear(32, 64),
-            nn.Tanh(),
-            nn.Linear(64, self.x_dim),
+            nn.LeakyReLU(),
+            nn.Linear(32, self.x_dim),
             nn.ReLU()
         )
         
@@ -54,27 +52,18 @@ class Discriminator(AbstractDiscriminator):
         self.z_dim = config['z_dim']
 
         self.time_head = nn.Sequential(
-            nn.Linear(self.x_dim // 2, self.x_dim),
-            nn.LeakyReLU(),
-            nn.Linear(self.x_dim, (self.x_dim + self.z_dim) // 2),
-            nn.LeakyReLU(),
-            nn.Linear((self.x_dim + self.z_dim) // 2, 4)
+            nn.Linear(self.x_dim // 2, 4),
+            nn.LeakyReLU()
         )
         
         self.amplitude_head = nn.Sequential(
-            nn.Linear(self.x_dim // 2, self.x_dim),
-            nn.LeakyReLU(),
-            nn.Linear(self.x_dim, (self.x_dim + self.z_dim) // 2),
-            nn.LeakyReLU(),
-            nn.Linear((self.x_dim + self.z_dim) // 2, 4)
+            nn.Linear(self.x_dim // 2, 4),
+            nn.LeakyReLU()
         )
         
         self.global_head = nn.Sequential(
-            nn.Linear(self.x_dim, self.x_dim),
+            nn.Linear(self.x_dim, 4),
             nn.LeakyReLU(),
-            nn.Linear(self.x_dim, (self.x_dim + self.z_dim) // 2),
-            nn.LeakyReLU(),
-            nn.Linear((self.x_dim + self.z_dim) // 2, 4)
         )
         
         self.fc_final = nn.Sequential(
