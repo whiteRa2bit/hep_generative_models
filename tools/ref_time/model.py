@@ -14,19 +14,38 @@ class Generator(AbstractGenerator):
 
         self.final = nn.Sequential(
             nn.Linear(self.z_dim, 64),
-            nn.Sigmoid(),
+            nn.LeakyReLU(),
             nn.Linear(64, 128),
-            nn.Sigmoid(),
+            nn.LeakyReLU(),
             nn.Linear(128, 256),
-            nn.Sigmoid(),
+            nn.LeakyReLU(),
             nn.Linear(256, self.x_dim),
+        )
+
+        self.amplitude_head = nn.Sequential(
+            nn.Linear(self.x_dim, self.x_dim),
+            nn.LeakyReLU(),
+            nn.Linear(self.x_dim, self.x_dim)
+        )
+
+        self.time_head = nn.Sequential(
+            nn.Linear(self.x_dim, self.x_dim),
+            nn.Sigmoid(),
+            nn.Linear(self.x_dim, self.x_dim),
             nn.Sigmoid()
         )
         
         
     def forward(self, x, debug=False):
         out = self.final(x)
-        return out
+        out_reshaped = out.view(x.shape[0], 2, -1)
+       
+        time_features = out_reshaped[:, 0]
+        amplitude_features = out_reshaped[:, 1]
+        time_out = self.time_head(time_features)
+        amplitude_out = self.amplitude_head(amplitude_features)
+        
+        return torch.cat([time_out, amplitude_out], dim=1)
         
         
     @staticmethod
