@@ -9,10 +9,7 @@ def get_time_fig(real_times, fake_times):
     fig, ax = plt.subplots(3, 3, figsize=(15, 15))
     fig.suptitle("Times distributions", fontsize=16)
 
-    all_times = np.concatenate([real_times, fake_times])
-    step = np.max(all_times) - np.min(all_times) / 20
-    
-    time_bins = [x for x in np.arange(np.min(all_times), np.max(all_times), step)]
+    time_bins = [x for x in np.arange(0, 1.1, 0.1)]
 
     for i in range(9):
         ax[i // 3][i % 3].set_title(f"Detector {i + 1}")

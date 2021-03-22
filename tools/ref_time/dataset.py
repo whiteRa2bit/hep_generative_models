@@ -18,7 +18,7 @@ class MyDataset(Dataset):
     def _get_amplitudes(self):
         amplitudes = np.max(self.signals, axis=2)
         amplitudes /= np.max(amplitudes, axis=1)[:, None]
-        return amplitudes
+        return amplitudes - 0.5
     
     def _get_ref_times(self):
         ref_times = np.zeros(self.amplitudes.shape)
@@ -27,7 +27,7 @@ class MyDataset(Dataset):
                 ref_times[detector_idx][signal_idx] = self._get_ref_time_pred(self.signals[detector_idx][signal_idx])
         np.nan_to_num(ref_times, 0)
         ref_times /= np.max(ref_times, axis=1)[:, None]
-        return ref_times
+        return ref_times - 0.5
         
     @staticmethod
     def _get_ref_time_pred(signal):
