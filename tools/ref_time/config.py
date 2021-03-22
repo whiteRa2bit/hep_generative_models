@@ -2,7 +2,7 @@ CONFIG = {
     "g_lr": 3e-5,
     "d_lr": 3e-4,
     "epochs_num": 500,
-    "batch_size": 64,
+    "batch_size": 32,
     "log_each": 5,
     "decay_epoch": 0,
     "save_each": 2,
