@@ -14,11 +14,11 @@ class Generator(AbstractGenerator):
 
         self.final = nn.Sequential(
             nn.Linear(self.z_dim, 64),
-            nn.LeakyReLU(),
+            nn.Tanh(),
             nn.Linear(64, 128),
-            nn.LeakyReLU(),
+            nn.Tanh(),
             nn.Linear(128, 256),
-            nn.LeakyReLU(),
+            nn.Tanh(),
             nn.Linear(256, self.x_dim),
         )
         
