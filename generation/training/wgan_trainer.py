@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from torch.autograd import Variable, grad
 from torch.utils.data import DataLoader
 
-from generation.metrics import get_physical_metrics_dict
+from generation.metrics import get_physical_metrics_dict, get_time_aplitudes_figs
 from generation.training.schedulers import GradualWarmupScheduler
 from generation.training.abstract_trainer import AbstractTrainer
 
@@ -96,15 +96,25 @@ class WganTrainer(AbstractTrainer):
 
             if epoch % self.config['log_each'] == 0:
                 real_fake_fig = self.generator.get_rel_fake_fig(X[0], g_sample[0])
+                time_fig, amplitude_fig, time_distances, amplitude_distances, corrs_distance = get_time_aplitudes_figs(X, g_sample)
+                time_dict = {
+                    f"Time distance {detector + 1}": time_distances[detector] for detector in range(len(time_distances))
+                }
+                amplitude_dict = {
+                    f"Amplitude distance {detector + 1}": amplitude_distances[detector] for detector in range(len(amplitude_distances))
+                }
                 metrics_dict = {
                     "D loss": epoch_d_loss,
                     "Gradient penalty": epoch_gp,
                     "G loss": epoch_g_loss,
                     "G lr": self.g_optimizer.param_groups[0]['lr'],
                     "D lr": self.d_optimizer.param_groups[0]['lr'],
+                    "Amplitude correlations distance": corrs_distance,
                     "Real vs Fake": real_fake_fig,
+                    "Time distributions": wandb.Image(time_fig),
+                    "Amplitudes distributions": wandb.Image(amplitude_fig)
                 }
-                # metrics_dict = {**metrics_dict, **get_physical_metrics_dict(X, g_sample)}
+                metrics_dict = {**metrics_dict, **time_dict, **amplitude_dict}
                 wandb.log(metrics_dict, step=epoch)
                 plt.close("all")
 

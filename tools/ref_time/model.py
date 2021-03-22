@@ -13,12 +13,13 @@ class Generator(AbstractGenerator):
         self.z_dim = config['z_dim']
 
         self.final = nn.Sequential(
-            nn.Linear(self.z_dim, 16),
+            nn.Linear(self.z_dim, 64),
             nn.LeakyReLU(),
-            nn.Linear(16, 32),
+            nn.Linear(64, 128),
             nn.LeakyReLU(),
-            nn.Linear(32, self.x_dim),
-            nn.ReLU()
+            nn.Linear(128, 256),
+            nn.LeakyReLU(),
+            nn.Linear(256, self.x_dim),
         )
         
         
@@ -49,39 +50,42 @@ class Discriminator(AbstractDiscriminator):
     def __init__(self, config):
         super(Discriminator, self).__init__(config)
         self.x_dim = config['x_dim']
-        self.z_dim = config['z_dim']
 
-        self.time_head = nn.Sequential(
-            nn.Linear(self.x_dim // 2, 4),
-            nn.LeakyReLU()
-        )
+        # self.time_head = nn.Sequential(
+        #     nn.Linear(self.x_dim // 2, 16),
+        #     nn.LeakyReLU()
+        # )
         
-        self.amplitude_head = nn.Sequential(
-            nn.Linear(self.x_dim // 2, 4),
-            nn.LeakyReLU()
-        )
+        # self.amplitude_head = nn.Sequential(
+        #     nn.Linear(self.x_dim // 2, 16),
+        #     nn.LeakyReLU()
+        # )
         
-        self.global_head = nn.Sequential(
-            nn.Linear(self.x_dim, 4),
-            nn.LeakyReLU(),
-        )
+        # self.global_head = nn.Sequential(
+        #     nn.Linear(self.x_dim, 16),
+        #     nn.LeakyReLU(),
+        # )
         
         self.fc_final = nn.Sequential(
-            nn.Linear(4 * 3, 1),
-            nn.Sigmoid()
+            nn.Linear(self.x_dim, 64),
+            nn.Tanh(),
+            nn.Linear(64, 128),
+            nn.Tanh(),
+            nn.Linear(128, 1)
         )
-        
+
 
     def forward(self, x, debug=False):
-        reshaped_x = x.view(x.shape[0], 2, -1)
-        time_features = reshaped_x[:, 0]
-        amplitude_features = reshaped_x[:, 1]
+        # reshaped_x = x.view(x.shape[0], 2, -1)
+        # time_features = reshaped_x[:, 0]
+        # amplitude_features = reshaped_x[:, 1]
         
-        global_out = self.global_head(x)
-        time_out = self.time_head(time_features)
-        amplitude_out = self.amplitude_head(amplitude_features)
+        # global_out = self.global_head(x)
+        # time_out = self.time_head(time_features)
+        # amplitude_out = self.amplitude_head(amplitude_features)
         
-        out = torch.cat([global_out, time_out, amplitude_out], dim=1)
-        out = self.fc_final(out)
+        # out = torch.cat([global_out, time_out, amplitude_out], dim=1)
+        out = self.fc_final(x)
+
         
         return out

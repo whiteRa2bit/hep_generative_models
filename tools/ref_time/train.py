@@ -10,8 +10,9 @@ from dataset import MyDataset
 from model import Generator, Discriminator
 from config import CONFIG
 from scheduler import get_gpu_id
+from generation.utils import set_seed
 
-
+set_seed()
 CONFIG["device"] = f"cuda:{get_gpu_id()}"
 dataset = MyDataset()
 generator = Generator(CONFIG)

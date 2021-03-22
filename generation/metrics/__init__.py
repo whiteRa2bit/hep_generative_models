@@ -1,1 +1,2 @@
 from generation.metrics.metrics import get_physical_metrics_dict
+from generation.metrics.cur_metrics import get_time_aplitudes_figs
