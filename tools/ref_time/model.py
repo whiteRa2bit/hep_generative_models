@@ -14,12 +14,13 @@ class Generator(AbstractGenerator):
 
         self.final = nn.Sequential(
             nn.Linear(self.z_dim, 64),
-            nn.Tanh(),
+            nn.Sigmoid(),
             nn.Linear(64, 128),
-            nn.Tanh(),
+            nn.Sigmoid(),
             nn.Linear(128, 256),
-            nn.Tanh(),
+            nn.Sigmoid(),
             nn.Linear(256, self.x_dim),
+            nn.Sigmoid()
         )
         
         
