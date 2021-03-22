@@ -9,7 +9,7 @@ def get_time_fig(real_times, fake_times):
     fig, ax = plt.subplots(3, 3, figsize=(15, 15))
     fig.suptitle("Times distributions", fontsize=16)
 
-    time_bins = [x for x in np.arange(-0.5, 0.6, 0.1)]
+    time_bins = [x for x in np.arange(0, 1.1, 0.1)]
 
     for i in range(9):
         ax[i // 3][i % 3].set_title(f"Detector {i + 1}")
@@ -24,7 +24,7 @@ def get_amplitudes_fig(real_amplitudes, fake_amplitudes):
     fig, ax = plt.subplots(3, 3, figsize=(15, 15))
     fig.suptitle("Amplitudes distributions", fontsize=16)
 
-    time_bins = [x for x in np.arange(-0.5, 0.6, 0.1)]
+    time_bins = [x for x in np.arange(0, 1.1, 0.1)]
 
     for i in range(9):
         ax[i // 3][i % 3].set_title(f"Detector {i + 1}")
