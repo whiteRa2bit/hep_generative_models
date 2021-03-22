@@ -47,7 +47,7 @@ def get_time_aplitudes_figs(real, fake):
     fake_times = np.array([item[:9].cpu().detach().numpy() for item in fake])
     fake_amplitudes = np.array([item[9:].cpu().detach().numpy() for item in fake])
 
-    real_times = np.array([item[9:].cpu().detach().numpy() for item in real])
+    real_times = np.array([item[:9].cpu().detach().numpy() for item in real])
     real_amplitudes = np.array([item[9:].cpu().detach().numpy() for item in real])
 
     time_fig = get_time_fig(real_times, fake_times)
