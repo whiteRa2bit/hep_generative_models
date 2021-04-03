@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from torch.autograd import Variable, grad
 from torch.utils.data import DataLoader
 
-from generation.metrics import get_physical_metrics_dict, get_time_aplitudes_figs
+from generation.metrics import get_time_aplitudes_figs
 from generation.training.schedulers import GradualWarmupScheduler
 from generation.training.abstract_trainer import AbstractTrainer
 
@@ -34,6 +34,8 @@ class WganTrainer(AbstractTrainer):
             epoch_d_loss = 0
             epoch_g_loss = 0
             epoch_gp = 0
+            X_epoch = []
+            g_sample_epoch = []
 
             for it, data in enumerate(dataloader):
                 if it == len(dataloader.dataset) // self.config['batch_size']:
@@ -63,6 +65,9 @@ class WganTrainer(AbstractTrainer):
                 epoch_gp += gradient_penalty
                 d_loss_gp.backward()
                 self.d_optimizer.step()
+
+                X_epoch.append(X)
+                g_sample_epoch.append(g_sample)
 
                 # Housekeeping - reset gradient
                 self._reset_grad()
@@ -96,7 +101,7 @@ class WganTrainer(AbstractTrainer):
 
             if epoch % self.config['log_each'] == 0:
                 real_fake_fig = self.generator.get_rel_fake_fig(X[0], g_sample[0])
-                time_fig, amplitude_fig, time_distances, amplitude_distances, corrs_distance = get_time_aplitudes_figs(X, g_sample)
+                time_fig, amplitude_fig, time_distances, amplitude_distances, corrs_distance = get_time_aplitudes_figs(X_epoch, g_sample_epoch)
                 time_dict = {
                     f"Time distance {detector + 1}": time_distances[detector] for detector in range(len(time_distances))
                 }
