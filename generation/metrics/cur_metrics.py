@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
 from loguru import logger
 from scipy.stats import wasserstein_distance
 
@@ -43,24 +44,23 @@ def get_amplitude_correlations(amplitudes):
     return correlations
 
 
-def get_time_aplitudes_figs(real, fake, samples_to_use=256):
+def get_time_aplitudes_figs(real, fake, samples_to_use=1024):
     def get_times_amplitudes(items):
-        times = np.array([item[:9].cpu().detach().numpy() for item in items])
-        amplitudes = np.array([item[9:].cpu().detach().numpy() for item in items])
+        times = np.array([item[:9] for item in items])
+        amplitudes = np.array([item[9:] for item in items])
         return times, amplitudes
 
     # [N // batch_size, batch_size, 18] -> [batch_size, 18]
     assert len(real) == len(fake)
+    real = real.cpu().detach().numpy()
+    fake = fake.cpu().detach().numpy()
 
-    real = real.view(-1, real.shape[-1])
-    fake = fake.view(-1, fake.shape[-1])
+    real_idxs = np.random.randint(low=0, high=len(real), size=samples_to_use)
+    real_idxs_second = np.random.randint(low=0, high=len(real), size=samples_to_use)
+    fake_idxs = np.random.randint(low=0, high=len(fake), size=samples_to_use)
 
-    real_idxs = np.random.randint(high=len(real), size=samples_to_use)
-    real_idxs_second = np.random.randint(high=len(real), size=samples_to_use)
-    fake_idxs = np.random.randint(high=len(fake), size=samples_to_use)
-
-    real = real[real_idxs]
     real_second = real[real_idxs_second]
+    real = real[real_idxs]
     fake = fake[fake_idxs]
 
     real_times, real_amplitudes = get_times_amplitudes(real)

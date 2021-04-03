@@ -100,6 +100,9 @@ class WganTrainer(AbstractTrainer):
             epoch_g_loss = (epoch_g_loss * self.config['d_coef']) / len(dataloader.dataset)
 
             if epoch % self.config['log_each'] == 0:
+                X_epoch = torch.cat(X_epoch)
+                g_sample_epoch = torch.cat(g_sample_epoch)
+                
                 real_fake_fig = self.generator.get_rel_fake_fig(X[0], g_sample[0])
                 time_fig, amplitude_fig, time_distances, amplitude_distances, corrs_distance = get_time_aplitudes_figs(X_epoch, g_sample_epoch)
                 time_dict = {

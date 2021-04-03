@@ -51,7 +51,7 @@ def calculate_1d_distributions_distances(real_values, fake_values):
         detector_real_values = real_values[detector_idx]
         detector_fake_values = fake_values[detector_idx]
         distances.append(wasserstein_distance(detector_real_values, detector_fake_values))
-    return distances
+    return np.array(distances)
 
 
 def calculate_2d_distributions_distance(real_values, fake_values):
