@@ -44,10 +44,12 @@ class WganTrainer(AbstractTrainer):
                 # Dicriminator forward-loss-backward-update
                 X = Variable(data)
                 X = X.to(self.config['device'])
-                z = Variable(torch.randn(self.config['batch_size'], self.config['z_dim']))
+                z = Variable(torch.randn(self.config['batch_size'], self.config['z_dim'] + 1))
+                z[:, 0] = X[:, 0]  # assign labels
                 z = z.to(self.config['device'])
 
                 g_sample = self.generator(z)
+                g_sample = torch.cat([z[:, 0].reshape(-1, 1), g_sample], dim=1)
                 d_real = self.discriminator(X)
                 d_fake = self.discriminator(g_sample)
 
@@ -76,10 +78,12 @@ class WganTrainer(AbstractTrainer):
                     # Generator forward-loss-backward-update
                     X = Variable(data)
                     X = X.to(self.config['device'])
-                    z = Variable(torch.randn(self.config['batch_size'], self.config['z_dim']))
+                    z = Variable(torch.randn(self.config['batch_size'], self.config['z_dim'] + 1))
+                    z[:, 0] = X[:, 0]  # assign labels
                     z = z.to(self.config['device'])
 
                     g_sample = self.generator(z)
+                    g_sample = torch.cat([z[:, 0].reshape(-1, 1), g_sample], dim=1)
                     d_fake = self.discriminator(g_sample)
 
                     g_loss = -torch.mean(d_fake)

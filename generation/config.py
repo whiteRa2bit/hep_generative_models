@@ -3,16 +3,19 @@ import collections
 
 # Data params
 _ENERGY = 1
+FRAC_COEF = 0.9
+
 DATA_DIR = f'/mnt/pafakanov/hep_data/{_ENERGY}GeV/'
 CHECKPOINT_DIR = os.path.join(DATA_DIR, 'checkpoints/')
 DF_DIR = os.path.join(DATA_DIR, 'dfs')
-FULL_SIGNALS_DIR = os.path.join(DATA_DIR, 'full_signals')
-FRAC_SIGNALS_DIR = os.path.join(DATA_DIR, 'fractional_signals')
+FULL_SIGNALS_DIR = os.path.join(DATA_DIR, f'full_signals/{FRAC_COEF}')
+FRAC_SIGNALS_DIR = os.path.join(DATA_DIR, f'fractional_signals/{FRAC_COEF}')
 IMAGE_DIR = os.path.join(DATA_DIR, 'images')
 RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw_data')
 EVENTS_PATH = os.path.join(DATA_DIR, "events.npy")
 DETECTORS_PATH = os.path.join(DATA_DIR, "detectors.npy")
-POSTPROCESSED_SIGNALS_PATH = os.path.join(DATA_DIR, 'postprocessed_signals.npy')
+POSTPROCESSED_DIR = os.path.join(DATA_DIR, 'postprocessed')
+POSTPROCESSED_SIGNALS_PATH = os.path.join(POSTPROCESSED_DIR, f'{FRAC_COEF}.npy')
 H5_DATASET_NAME = "data"
 CONFIG_NAME = "config.json"
 
@@ -36,7 +39,6 @@ SIGNAL_DIM = 2048
 PROCESSING_TIME_NORM_COEF = 50
 REPEAT_COEF = 3
 DETECTORS = range(9)
-FRAC_COEF = 0.7
 FIG_SIZE = 1
 
 # Training params

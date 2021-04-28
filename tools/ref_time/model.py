@@ -10,7 +10,7 @@ class Generator(AbstractGenerator):
     def __init__(self, config):
         super(Generator, self).__init__(config)
         self.x_dim = config['x_dim']
-        self.z_dim = config['z_dim']
+        self.z_dim = config['z_dim'] + 1
 
         self.final = nn.Sequential(
             nn.Linear(self.z_dim, 64),
@@ -69,7 +69,7 @@ class Generator(AbstractGenerator):
 class Discriminator(AbstractDiscriminator):
     def __init__(self, config):
         super(Discriminator, self).__init__(config)
-        self.x_dim = config['x_dim']
+        self.x_dim = config['x_in_dim']
 
         # self.time_head = nn.Sequential(
         #     nn.Linear(self.x_dim // 2, 16),
@@ -107,5 +107,4 @@ class Discriminator(AbstractDiscriminator):
         # out = torch.cat([global_out, time_out, amplitude_out], dim=1)
         out = self.fc_final(x)
 
-        
         return out
