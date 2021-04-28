@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from torch.autograd import Variable, grad
 from torch.utils.data import DataLoader
 
-from generation.metrics import get_physical_metrics_dict
+from generation.metrics import get_time_aplitudes_figs
 from generation.training.schedulers import GradualWarmupScheduler
 from generation.training.abstract_trainer import AbstractTrainer
 
@@ -34,6 +34,8 @@ class WganTrainer(AbstractTrainer):
             epoch_d_loss = 0
             epoch_g_loss = 0
             epoch_gp = 0
+            X_epoch = []
+            g_sample_epoch = []
 
             for it, data in enumerate(dataloader):
                 if it == len(dataloader.dataset) // self.config['batch_size']:
@@ -42,10 +44,12 @@ class WganTrainer(AbstractTrainer):
                 # Dicriminator forward-loss-backward-update
                 X = Variable(data)
                 X = X.to(self.config['device'])
-                z = Variable(torch.randn(self.config['batch_size'], self.config['z_dim']))
+                z = Variable(torch.randn(self.config['batch_size'], self.config['z_dim'] + 1))
+                z[:, 0] = X[:, 0]  # assign labels
                 z = z.to(self.config['device'])
 
                 g_sample = self.generator(z)
+                g_sample = torch.cat([z[:, 0].reshape(-1, 1), g_sample], dim=1)
                 d_real = self.discriminator(X)
                 d_fake = self.discriminator(g_sample)
 
@@ -64,6 +68,9 @@ class WganTrainer(AbstractTrainer):
                 d_loss_gp.backward()
                 self.d_optimizer.step()
 
+                X_epoch.append(X)
+                g_sample_epoch.append(g_sample)
+
                 # Housekeeping - reset gradient
                 self._reset_grad()
 
@@ -71,10 +78,12 @@ class WganTrainer(AbstractTrainer):
                     # Generator forward-loss-backward-update
                     X = Variable(data)
                     X = X.to(self.config['device'])
-                    z = Variable(torch.randn(self.config['batch_size'], self.config['z_dim']))
+                    z = Variable(torch.randn(self.config['batch_size'], self.config['z_dim'] + 1))
+                    z[:, 0] = X[:, 0]  # assign labels
                     z = z.to(self.config['device'])
 
                     g_sample = self.generator(z)
+                    g_sample = torch.cat([z[:, 0].reshape(-1, 1), g_sample], dim=1)
                     d_fake = self.discriminator(g_sample)
 
                     g_loss = -torch.mean(d_fake)
@@ -95,16 +104,29 @@ class WganTrainer(AbstractTrainer):
             epoch_g_loss = (epoch_g_loss * self.config['d_coef']) / len(dataloader.dataset)
 
             if epoch % self.config['log_each'] == 0:
+                X_epoch = torch.cat(X_epoch)
+                g_sample_epoch = torch.cat(g_sample_epoch)
+                
                 real_fake_fig = self.generator.get_rel_fake_fig(X[0], g_sample[0])
+                time_fig, amplitude_fig, time_distances, amplitude_distances, corrs_distance = get_time_aplitudes_figs(X_epoch, g_sample_epoch)
+                time_dict = {
+                    f"Time distance {detector + 1}": time_distances[detector] for detector in range(len(time_distances))
+                }
+                amplitude_dict = {
+                    f"Amplitude distance {detector + 1}": amplitude_distances[detector] for detector in range(len(amplitude_distances))
+                }
                 metrics_dict = {
                     "D loss": epoch_d_loss,
                     "Gradient penalty": epoch_gp,
                     "G loss": epoch_g_loss,
                     "G lr": self.g_optimizer.param_groups[0]['lr'],
                     "D lr": self.d_optimizer.param_groups[0]['lr'],
+                    "Amplitude correlations distance": corrs_distance,
                     "Real vs Fake": real_fake_fig,
+                    "Time distributions": wandb.Image(time_fig),
+                    "Amplitudes distributions": wandb.Image(amplitude_fig)
                 }
-                # metrics_dict = {**metrics_dict, **get_physical_metrics_dict(X, g_sample)}
+                metrics_dict = {**metrics_dict, **time_dict, **amplitude_dict}
                 wandb.log(metrics_dict, step=epoch)
                 plt.close("all")
 
