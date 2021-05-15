@@ -45,8 +45,13 @@ class WganTrainer(AbstractTrainer):
                 z = Variable(torch.randn(self.config['batch_size'], self.config['z_dim']))
                 z = z.to(self.config['device'])
 
+                eps = torch.rand((self.config['batch_size']), device=self.config['device'])
+                eps = eps.repeat(self.config['x_dim'], 1).T
+
                 g_sample = self.generator(z)
+                g_sample = eps * X + (1 - eps) * g_sample
                 d_real = self.discriminator(X)
+                
                 d_fake = self.discriminator(g_sample)
 
                 if self.config['use_gp']:
