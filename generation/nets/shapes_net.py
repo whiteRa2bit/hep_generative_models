@@ -79,13 +79,9 @@ class ShapesGenerator(AbstractGenerator):
         real_sample = real_sample.cpu().detach().numpy()
         fake_sample = fake_sample.cpu().detach().numpy()
 
-        real_signals, real_times = get_time_values(real_sample, to_postprocess=False)
-        fake_signals, fake_times = get_time_values(fake_sample, to_postprocess=False)
+        real_times = get_time_values(real_sample, to_postprocess=False)
+        fake_times = get_time_values(fake_sample, to_postprocess=False)
         time_distance = calculate_1d_distributions_distances(np.array([real_times]), np.array([fake_times]))[0]
-        
-        # postprocessed_fig, ax = plt.subplots(1, 2, figsize=(12, 5))
-        # ax[0].plot(real_signals[0])
-        # ax[1].plot(fake_signals[0])
 
         time_fig, ax = plt.subplots(1)
         plot_time_distributions(
@@ -98,11 +94,11 @@ class ShapesGenerator(AbstractGenerator):
 
         time_dict = {
             'Time distance': time_distance,
-            'Time distribution': wandb.Image(time_fig),
-            # 'Postprocessed signals': wandb.Image(postprocessed_fig)
+            'Time distribution': wandb.Image(time_fig)
         }
 
         return time_dict
+
 
 class ShapesDiscriminator(AbstractDiscriminator):
     def __init__(self, config):
