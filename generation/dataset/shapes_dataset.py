@@ -3,7 +3,7 @@ from torch.utils.data import Dataset
 import numpy as np
 
 from generation.config import SIGNAL_DIM
-from generation.dataset.data_utils import get_detector_training_data
+from generation.dataset.data_utils import get_detector_postprocessed_signals
 
 
 class Scaler:
@@ -42,7 +42,7 @@ class ShapesDataset(Dataset):
         return item_tensor.float()
 
     def _get_signals(self):
-        signals = get_detector_training_data(self.detector)
+        signals = get_detector_postprocessed_signals(self.detector)
         signals = self._unify_shape(signals)
         signals = signals[~np.isnan(signals).any(axis=1)]
         return signals[:, :self.signal_dim]

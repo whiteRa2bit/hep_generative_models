@@ -28,7 +28,7 @@ def plot_time_distributions(real_times, fake_times, ax, title, bins):
     ax.legend(['Fake', 'Real'])
     
 
-def get_time_values(signals, to_postprocess=True):
+def get_time_values(signals, to_postprocess=False):
     """
     Returns time characteristic values for a given set of signals.
     Time characteristic is a signal reference time. 
@@ -39,9 +39,6 @@ def get_time_values(signals, to_postprocess=True):
         with mp.Pool(_PROCESSES_NUM) as pool:
             signals = pool.map(postprocess_signal, signals)
     
-    print(f'Signals shape: {np.array(signals).shape}')
-    # print(f'Signal 1: {signals[0]}')
-    # print(f'Signal 2: {signals[1]}')
     time_values = [_get_ref_time_pred(signal) for signal in signals]
     time_values = np.array(time_values)
     return signals, time_values
