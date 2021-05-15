@@ -3,7 +3,7 @@ import collections
 
 # Data params
 _ENERGY = 1
-DATA_DIR = f'/mnt/pafakanov/hep_data/{_ENERGY}GeV/'
+DATA_DIR = f'/mnt/pafakanov/hep_data/{_ENERGY}GeV_dummy/'
 CHECKPOINT_DIR = os.path.join(DATA_DIR, 'checkpoints/')
 DF_DIR = os.path.join(DATA_DIR, 'dfs')
 FULL_SIGNALS_DIR = os.path.join(DATA_DIR, 'full_signals')
@@ -25,10 +25,10 @@ INT_ATTRIBUTES = ['event', 'detector']
 SPACAL_DATA_PATH = os.path.join(RAW_DATA_DIR, 'particles.parquet')
 
 # Models params
-AMPLITUDES_MODEL_NAME = "amplitudes_model"
-IMAGES_MODEL_NAME = "images_model"
-SHAPES_MODEL_NAME = "shapes_model"
-SIGNALS_MODEL_NAME = "signals_model"
+AMPLITUDES_MODEL_NAME = "amplitudes"
+IMAGES_MODEL_NAME = "images"
+SHAPES_MODEL_NAME = "shapes"
+SIGNALS_MODEL_NAME = "signals"
 
 # Processing params
 SIGNAL_DIM = 2048
