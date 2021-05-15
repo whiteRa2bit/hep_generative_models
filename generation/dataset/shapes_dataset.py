@@ -31,8 +31,8 @@ class ShapesDataset(Dataset):
         self.detector = detector
         self.signals = self._get_signals()
         self.scaler = Scaler()
-        noises = self.signals - np.mean(self.signals, axis=0)
-        self.noises = self.scaler.fit_transform(noises)
+        self.noises = self.signals - np.mean(self.signals, axis=0)
+        # self.noises = self.scaler.fit_transform(noises)
 
     def __len__(self):
         return len(self.noises)
