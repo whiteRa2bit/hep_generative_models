@@ -8,7 +8,6 @@ class AbstractGenerator(ABC, nn.Module):
     @abstractmethod
     def __init__(self, config):
         super(AbstractGenerator, self).__init__()
-        pass
 
     @abstractmethod
     def forward(self, x, debug=False):
@@ -19,12 +18,16 @@ class AbstractGenerator(ABC, nn.Module):
     def get_rel_fake_fig(real_sample, fake_sample):
         raise NotImplementedError
 
+    @staticmethod
+    @abstractmethod
+    def get_metrics_to_log(real_sample, fake_sample):
+        raise NotImplementedError
+
 
 class AbstractDiscriminator(ABC, nn.Module):
     @abstractmethod
     def __init__(self, config):
         super(AbstractDiscriminator, self).__init__()
-        pass
 
     @abstractmethod
     def forward(self, x, debug=False):
