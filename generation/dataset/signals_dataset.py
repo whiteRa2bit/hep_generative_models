@@ -3,7 +3,7 @@ import torch
 from torch.utils.data import Dataset
 
 from generation.config import SIGNAL_DIM, DETECTORS
-from generation.dataset.data_utils import get_detector_training_data
+from generation.dataset.data_utils import get_detector_postprocessed_signals
 
 
 class SignalsDataset(Dataset):
@@ -12,19 +12,20 @@ class SignalsDataset(Dataset):
         self.signal_dim = signal_dim
         self.freq = freq
         self.signals = self._get_signals()
+        print(f'Signals shape: {self.signals.shape}')
         self.noises = self._get_noises()
 
     def __len__(self):
         return self.noises.shape[1]
 
     def __getitem__(self, idx):
-        noise_tensor = torch.from_numpy(self.noises[:, idx])
-        return noise_tensor.float()
+        item_tensor = torch.from_numpy(self.signals[:, idx])
+        return item_tensor.float()
 
     def _get_signals(self):
         signals = []
         for detector in self.detectors:
-            signals.append(get_detector_training_data(detector))
+            signals.append(get_detector_postprocessed_signals(detector))
 
         signals = np.array(signals)[:, :, :self.freq * self.signal_dim:self.freq]
         max_amplitudes = np.max(signals, axis=(1, 2))[:, None, None]
