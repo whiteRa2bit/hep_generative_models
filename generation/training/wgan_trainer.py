@@ -45,7 +45,7 @@ class WganTrainer(AbstractTrainer):
                 z = Variable(torch.randn(self.config['batch_size'], self.config['z_dim']))
                 z = z.to(self.config['device'])
 
-                eps = torch.rand((self.config['batch_size']))
+                eps = torch.rand((self.config['batch_size']), device=self.config['device'])
                 eps = eps.repeat(self.config['x_dim'], 1).T
 
                 g_sample = self.generator(z)
