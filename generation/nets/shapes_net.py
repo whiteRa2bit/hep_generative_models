@@ -51,7 +51,7 @@ class ShapesGenerator(AbstractGenerator):
         x = self.conv5(x)
         _debug()
 
-        return torch.sigmoid(x.squeeze(1))
+        return torch.tanh(x.squeeze(1))
 
     @staticmethod
     def get_rel_fake_fig(real_sample, fake_sample):

@@ -8,7 +8,7 @@ import tqdm
 import h5py
 
 from generation.config import DF_DIR, EVENTS_PATH, DETECTORS_PATH, FULL_SIGNALS_DIR, PROCESSING_TIME_NORM_COEF, \
-    SIGNAL_DIM, SPACAL_DATA_PATH, FRAC_SIGNALS_DIR, H5_DATASET_NAME
+    SIGNAL_DIM, SPACAL_DATA_PATH, FRAC_SIGNALS_DIR, H5_DATASET_NAME, POSTPROCESSED_SIGNALS_DIR
 
 
 def create_dir(path):
@@ -103,6 +103,29 @@ def get_detector_signals(detector: int):
     :return: numpy array with shape SIGNAL_DIM
     """
     signals_path = get_detector_signals_path(detector)
+    signals = load_h5(signals_path, H5_DATASET_NAME)
+    return signals
+
+
+def get_detector_postprocessed_signals_path(detector: int, signals_dir: str = POSTPROCESSED_SIGNALS_DIR):
+    """
+    Given detector and event returns path to signal
+    :param detector: detector number
+    :param signal_dir: directory with signal files
+    :return: path to np array
+    """
+    signals_path = os.path.join(signals_dir, 'detector_{}.h5').format(detector)
+    return signals_path
+
+
+def get_detector_postprocessed_signals(detector: int):
+    """
+    Given detector and event returns corresponding signal
+    :param event: event number
+    :param detector: detector number
+    :return: numpy array with shape SIGNAL_DIM
+    """
+    signals_path = get_detector_postprocessed_signals_path(detector)
     signals = load_h5(signals_path, H5_DATASET_NAME)
     return signals
 
