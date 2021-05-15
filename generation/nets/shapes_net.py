@@ -93,7 +93,7 @@ class ShapesGenerator(AbstractGenerator):
             fake_times=fake_times, 
             ax=ax, 
             title='Time distribution',
-            bins=[x for x in np.arange(100, 250, 10)]
+            bins=[x for x in np.arange(0, 200, 10)]
         )
 
         time_dict = {
