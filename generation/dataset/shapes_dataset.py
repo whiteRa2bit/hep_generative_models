@@ -38,7 +38,7 @@ class ShapesDataset(Dataset):
         return len(self.noises)
 
     def __getitem__(self, idx):
-        item_tensor = torch.from_numpy(signal)
+        item_tensor = torch.from_numpy(self.signals[idx])
         return item_tensor.float()
 
     def _get_signals(self):

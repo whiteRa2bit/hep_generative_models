@@ -75,7 +75,7 @@ SHAPES_TRAINING_CONFIG = {
     "detector": 0,
     "g_lr": 3e-4,
     "d_lr": 1e-4,
-    "epochs_num": 1000,
+    "epochs_num": 2000,
     "batch_size": 32,
     "log_each": 5,
     "decay_epoch": 0,
