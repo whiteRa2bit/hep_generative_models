@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import wandb
 
 from generation.nets.abstract_net import AbstractGenerator, AbstractDiscriminator
+from generation.metrics.amplitude_metrics import get_space_metrics_dict, get_amplitude_fig
+from generation.metrics.utils import calculate_1d_distributions_distances
 
 
 class AmplitudesGenerator(AbstractGenerator):
@@ -13,15 +15,15 @@ class AmplitudesGenerator(AbstractGenerator):
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
 
-        self.fc1 = nn.Linear(self.z_dim, (self.x_dim + self.z_dim) // 2)
-        self.fc2 = nn.Linear((self.x_dim + self.z_dim) // 2, self.x_dim)
-        self.fc3 = nn.Linear(self.x_dim, self.x_dim)
+        self.fc1 = nn.Linear(self.z_dim, 64)
+        self.fc2 = nn.Linear(64, 32)
+        self.fc3 = nn.Linear(32, self.x_dim)
 
     def forward(self, x, debug=False):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
-        return torch.clamp(x, 0, 1)
+        return torch.sigmoid(x)
 
     @staticmethod
     def get_rel_fake_fig(real_sample, fake_sample):
@@ -36,6 +38,27 @@ class AmplitudesGenerator(AbstractGenerator):
         ax[1].plot(fake_sample)
         return fig
 
+    @staticmethod
+    def get_metrics_to_log(real_sample, fake_sample):
+        """
+        real_sample: [batch_size, detectors_num]
+        fake_sample: [batch_size, detectors_num]
+        """
+        real_sample = real_sample.T.cpu().detach().numpy()
+        fake_sample = fake_sample.T.cpu().detach().numpy()
+
+        space_metrics_dict = get_space_metrics_dict(real_sample, fake_sample)
+        amplitude_distances = calculate_1d_distributions_distances(real_sample, fake_sample)
+        amplitude_fig = get_amplitude_fig(real_sample, fake_sample)
+
+        amplitude_dict = {
+            f"Amplitude distance {detector + 1}": amplitude_distances[detector] for detector in range(len(amplitude_distances))
+        }
+        amplitude_dict["Amplitudes distributions"] = wandb.Image(amplitude_fig)
+        amplitude_dict = {**amplitude_dict, **space_metrics_dict}
+
+        return amplitude_dict
+
 
 class AmplitudesDiscriminator(AbstractDiscriminator):
     def __init__(self, config):
@@ -43,12 +66,12 @@ class AmplitudesDiscriminator(AbstractDiscriminator):
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
 
-        self.fc1 = nn.Linear(self.x_dim, self.x_dim)
-        self.fc2 = nn.Linear(self.x_dim, (self.x_dim + self.z_dim) // 2)
-        self.fc3 = nn.Linear((self.x_dim + self.z_dim) // 2, 1)
+        self.fc1 = nn.Linear(self.x_dim, 32)
+        self.fc2 = nn.Linear(32, 16)
+        self.fc3 = nn.Linear(16, 1)
 
     def forward(self, x, debug=False):
         x = F.leaky_relu(self.fc1(x))
         x = F.leaky_relu(self.fc2(x))
         x = self.fc3(x)
-        return x
+        return torch.sigmoid(x)

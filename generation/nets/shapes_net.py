@@ -1,11 +1,14 @@
+import numpy as np
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import matplotlib.pyplot as plt
 import wandb
 from loguru import logger
 
 from generation.nets.abstract_net import AbstractGenerator, AbstractDiscriminator
+from generation.metrics.time_metrics import get_time_values, plot_time_distributions
+from generation.metrics.utils import calculate_1d_distributions_distances
 
 
 class ShapesGenerator(AbstractGenerator):
@@ -13,6 +16,7 @@ class ShapesGenerator(AbstractGenerator):
         super(ShapesGenerator, self).__init__(config)
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
+        self._detector = config['detector']
 
         self.fc1 = nn.Linear(self.z_dim, self.x_dim)
 
@@ -66,6 +70,39 @@ class ShapesGenerator(AbstractGenerator):
         ax[1].plot(fake_sample)
         return fig
 
+    @staticmethod
+    def get_metrics_to_log(real_sample, fake_sample):
+        """
+        real_sample: [batch_size, detectors_num]
+        fake_sample: [batch_size, detectors_num]
+        """
+        real_sample = real_sample.cpu().detach().numpy()
+        fake_sample = fake_sample.cpu().detach().numpy()
+
+        real_signals, real_times = get_time_values(real_sample, to_postprocess=False)
+        fake_signals, fake_times = get_time_values(fake_sample, to_postprocess=False)
+        time_distance = calculate_1d_distributions_distances(np.array([real_times]), np.array([fake_times]))[0]
+        
+        # postprocessed_fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+        # ax[0].plot(real_signals[0])
+        # ax[1].plot(fake_signals[0])
+
+        time_fig, ax = plt.subplots(1)
+        plot_time_distributions(
+            real_times=real_times, 
+            fake_times=fake_times, 
+            ax=ax, 
+            title='Time distribution',
+            bins=[x for x in np.arange(0, 200, 10)]
+        )
+
+        time_dict = {
+            'Time distance': time_distance,
+            'Time distribution': wandb.Image(time_fig),
+            # 'Postprocessed signals': wandb.Image(postprocessed_fig)
+        }
+
+        return time_dict
 
 class ShapesDiscriminator(AbstractDiscriminator):
     def __init__(self, config):

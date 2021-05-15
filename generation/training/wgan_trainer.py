@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from torch.autograd import Variable, grad
 from torch.utils.data import DataLoader
 
-from generation.metrics import get_physical_metrics_dict
 from generation.training.schedulers import GradualWarmupScheduler
 from generation.training.abstract_trainer import AbstractTrainer
 
@@ -49,13 +48,13 @@ class WganTrainer(AbstractTrainer):
                 eps = eps.repeat(self.config['x_dim'], 1).T
 
                 g_sample = self.generator(z)
-                g_sample = eps * X + (1 - eps) * g_sample
+                g_sample_mixed = eps * X + (1 - eps) * g_sample
                 d_real = self.discriminator(X)
                 
-                d_fake = self.discriminator(g_sample)
+                d_fake = self.discriminator(g_sample_mixed)
 
                 if self.config['use_gp']:
-                    gradient_penalty = self._compute_gp(X, g_sample)
+                    gradient_penalty = self._compute_gp(X, g_sample_mixed)
                 else:
                     gradient_penalty = 0
                     # Clip weights of discriminator
@@ -109,7 +108,7 @@ class WganTrainer(AbstractTrainer):
                     "D lr": self.d_optimizer.param_groups[0]['lr'],
                     "Real vs Fake": real_fake_fig,
                 }
-                # metrics_dict = {**metrics_dict, **get_physical_metrics_dict(X, g_sample)}
+                metrics_dict = {**metrics_dict, **self.generator.get_metrics_to_log(X, g_sample)}
                 wandb.log(metrics_dict, step=epoch)
                 plt.close("all")
 

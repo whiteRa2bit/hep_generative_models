@@ -12,6 +12,7 @@ from generation.dataset.shapes_dataset import ShapesDataset
 from generation.nets.shapes_net import ShapesGenerator, ShapesDiscriminator
 from generation.dataset.signals_dataset import SignalsDataset
 from generation.nets.signals_net import SignalsGenerator, SignalsDiscriminator
+from generation.training.gan_trainer import GanTrainer
 from generation.training.wgan_trainer import WganTrainer
 from generation.utils import set_seed
 from scheduler import get_gpu_id
@@ -34,35 +35,40 @@ def _get_params_by_model_name(model_name):
         dataset = AmplitudesDataset()
         generator = AmplitudesGenerator(config)
         discriminator = AmplitudesDiscriminator(config)
+        trainer_class = GanTrainer
     elif model_name == IMAGES_MODEL_NAME:
         config = IMAGES_TRAINING_CONFIG
         dataset = ImagesDataset(detector=config["detector"])
         generator = ImagesGenerator(config)
         discriminator = ImagesDiscriminator(config)
+        trainer_class = WganTrainer
     elif model_name == SHAPES_MODEL_NAME:
         config = SHAPES_TRAINING_CONFIG
         dataset = ShapesDataset(detector=config["detector"], signal_dim=config["x_dim"])
         generator = ShapesGenerator(config)
         discriminator = ShapesDiscriminator(config)
+        trainer_class = WganTrainer
     elif model_name == SIGNALS_MODEL_NAME:
         config = SIGNALS_TRAINING_CONFIG
         dataset = SignalsDataset(signal_dim=config["x_dim"], freq=config["x_freq"])
         generator = SignalsGenerator(config)
         discriminator = SignalsDiscriminator(config)
+        trainer_class = WganTrainer
 
-    return dataset, generator, discriminator, config
+    return dataset, generator, discriminator, trainer_class, config
 
 
 def run_train(model_name):
-    dataset, generator, discriminator, config = _get_params_by_model_name(model_name)
+    dataset, generator, discriminator, trainer_class, config = _get_params_by_model_name(model_name)
     config["device"] = f"cuda:{get_gpu_id()}"
 
     g_optimizer = torch.optim.Adam(
-        generator.parameters(), lr=config['g_lr'], betas=(config["g_beta1"], config["g_beta2"]))
+            generator.parameters(), lr=config['g_lr'], betas=(config["g_beta1"], config["g_beta2"]))
     d_optimizer = torch.optim.Adam(
         discriminator.parameters(), lr=config['d_lr'], betas=(config["d_beta1"], config["d_beta2"]))
+    trainer = trainer_class(generator, discriminator, g_optimizer, d_optimizer, config)
 
-    trainer = WganTrainer(generator, discriminator, g_optimizer, d_optimizer, config)
+
     trainer.run_train(dataset)
 
 
