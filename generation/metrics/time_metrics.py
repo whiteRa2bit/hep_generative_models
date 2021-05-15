@@ -41,7 +41,7 @@ def get_time_values(signals, to_postprocess=False):
     
     time_values = [_get_ref_time_pred(signal) for signal in signals]
     time_values = np.array(time_values)
-    return signals, time_values
+    return time_values
 
 
 def get_time_metrics_dict(real_signals, fake_signals):
