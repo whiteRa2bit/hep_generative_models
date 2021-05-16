@@ -1,7 +1,8 @@
+import numpy as np
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import matplotlib.pyplot as plt
 import wandb
 
 from generation.nets.abstract_net import AbstractGenerator, AbstractDiscriminator
@@ -51,8 +52,8 @@ class AmplitudesGenerator(AbstractGenerator):
         amplitude_distances = calculate_1d_distributions_distances(real_sample, fake_sample)
         amplitude_fig = get_amplitude_fig(real_sample, fake_sample)
 
-        real_amplitude_corrs = get_correlations(real_amplitudes)
-        fake_amplitude_corrs = get_correlations(fake_amplitudes)
+        real_amplitude_corrs = get_correlations(real_sample)
+        fake_amplitude_corrs = get_correlations(fake_sample)
         amplitude_corrs_distance = np.mean(np.abs(real_amplitude_corrs - fake_amplitude_corrs))
 
         amplitude_dict = {
