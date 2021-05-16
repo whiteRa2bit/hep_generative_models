@@ -16,15 +16,15 @@ class AmplitudesGenerator(AbstractGenerator):
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
 
-        self.fc1 = nn.Linear(self.z_dim, 64)
-        self.fc2 = nn.Linear(64, 32)
+        self.fc1 = nn.Linear(self.z_dim, 16)
+        self.fc2 = nn.Linear(16, 32)
         self.fc3 = nn.Linear(32, self.x_dim)
 
     def forward(self, x, debug=False):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
-        return torch.sigmoid(x)
+        x = F.leaky_relu(self.fc1(x))
+        x = F.leaky_relu(self.fc2(x))
+        x = F.leaky_relu(self.fc3(x))
+        return torch.clamp(x, 0, 1)
 
     @staticmethod
     def get_rel_fake_fig(real_sample, fake_sample):
@@ -72,12 +72,12 @@ class AmplitudesDiscriminator(AbstractDiscriminator):
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
 
-        self.fc1 = nn.Linear(self.x_dim, 32)
-        self.fc2 = nn.Linear(32, 16)
-        self.fc3 = nn.Linear(16, 1)
+        self.fc1 = nn.Linear(self.x_dim, 16)
+        self.fc2 = nn.Linear(16, 8)
+        self.fc3 = nn.Linear(8, 1)
 
     def forward(self, x, debug=False):
         x = F.leaky_relu(self.fc1(x))
         x = F.leaky_relu(self.fc2(x))
         x = self.fc3(x)
-        return torch.sigmoid(x)
+        return x
