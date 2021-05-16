@@ -6,7 +6,7 @@ import wandb
 
 from generation.nets.abstract_net import AbstractGenerator, AbstractDiscriminator
 from generation.metrics.amplitude_metrics import get_space_metrics_dict, get_amplitude_fig
-from generation.metrics.utils import calculate_1d_distributions_distances
+from generation.metrics.utils import calculate_1d_distributions_distances, get_correlations
 
 
 class AmplitudesGenerator(AbstractGenerator):
@@ -51,9 +51,14 @@ class AmplitudesGenerator(AbstractGenerator):
         amplitude_distances = calculate_1d_distributions_distances(real_sample, fake_sample)
         amplitude_fig = get_amplitude_fig(real_sample, fake_sample)
 
+        real_amplitude_corrs = get_correlations(real_amplitudes)
+        fake_amplitude_corrs = get_correlations(fake_amplitudes)
+        amplitude_corrs_distance = np.mean(np.abs(real_amplitude_corrs - fake_amplitude_corrs))
+
         amplitude_dict = {
             f"Amplitude distance {detector + 1}": amplitude_distances[detector] for detector in range(len(amplitude_distances))
         }
+        amplitude_dict["Amplitude correlations distance"] = amplitude_corrs_distance
         amplitude_dict["Amplitudes distributions"] = wandb.Image(amplitude_fig)
         amplitude_dict = {**amplitude_dict, **space_metrics_dict}
 

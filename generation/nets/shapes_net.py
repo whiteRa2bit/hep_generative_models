@@ -82,8 +82,7 @@ class ShapesGenerator(AbstractGenerator):
         real_times = get_time_values(real_sample, to_postprocess=False)
         fake_times = get_time_values(fake_sample, to_postprocess=False)
         time_distance = calculate_1d_distributions_distances(np.array([real_times]), np.array([fake_times]))[0]
-    
-
+ 
         time_fig, ax = plt.subplots(1)
         plot_time_distributions(
             real_times=real_times, 

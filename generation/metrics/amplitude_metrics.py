@@ -30,19 +30,6 @@ def get_amplitude_fig(real_amplitudes, fake_amplitudes):
     return fig
 
 
-def get_amplitude_correlations(amplitudes):
-    """
-    :param amplitudes: [detectors_num, signals_num]
-    """
-    assert len(amplitudes) == len(DETECTORS)
-
-    correlations = np.zeros((9, 9))
-    for i in range(9):
-        for j in range(9):
-            correlations[i][j] = round(np.corrcoef(amplitudes[i], amplitudes[j])[0][1], 2)
-    return correlations
-
-
 def _calculate_centre_mass(amplitudes):
     """
     Returns centre mass for a given amplitudes array
