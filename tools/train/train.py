@@ -59,7 +59,7 @@ def _get_params_by_model_name(model_name):
         trainer_class = WganTrainer
     elif model_name == SIMPLIFIED_MODEL_NAME:
         config = SIMPLIFIED_MODEL_CONFIG
-        dataset = SimplifiedDataset(signal_dim=config["x_dim"], freq=config["x_freq"])
+        dataset = SimplifiedDataset(signal_dim=config["signal_dim"], freq=config["x_freq"])
         generator = SimplifiedGenerator(config)
         discriminator = SimplifiedDiscriminator(config)
         trainer_class = WganTrainer

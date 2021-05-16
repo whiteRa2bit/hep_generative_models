@@ -53,7 +53,7 @@ SIGNALS_TRAINING_CONFIG = {
     "save_each": 2,
     "device": "cuda:1",
     "x_dim": 1024,
-    "x_freq": 2,
+    "x_freq": 1,
     "z_dim": 64,
     "d_coef": 5,
     "use_gp": True,
@@ -138,18 +138,22 @@ IMAGES_TRAINING_CONFIG = {
     "disc_coef": 3,
     "lambda": 5
 }
+
+TIME_NORM_COEF = 100
+
 SIMPLIFIED_MODEL_CONFIG = {
-    "g_lr": 3e-5,
-    "d_lr": 3e-4,
-    "epochs_num": 500,
-    "batch_size": 32,
-    "log_each": 5,
+    "g_lr": 1e-3,
+    "d_lr": 1e-3,
+    "epochs_num": 2000,
+    "batch_size": 128,
+    "log_each": 50,
     "decay_epoch": 0,
     "save_each": 2,
     "device": "cuda:2",
-    "x_freq": 2,
+    "x_freq": 1,
     "x_dim": 18,
-    "z_dim": 64,
+    "signal_dim": 1024,
+    "z_dim": 16,
     "d_coef": 5,
     "use_gp": True,
     "clip_value": 0.1,

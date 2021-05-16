@@ -6,6 +6,7 @@ import torch.nn.functional as F
 import wandb
 
 from generation.nets.abstract_net import AbstractGenerator, AbstractDiscriminator
+from generation.config import TIME_NORM_COEF
 from generation.metrics.amplitude_metrics import get_space_metrics_dict, get_amplitude_fig
 from generation.metrics.time_metrics import get_time_values, plot_time_distributions
 from generation.metrics.utils import calculate_1d_distributions_distances, get_correlations
@@ -17,38 +18,47 @@ class SimplifiedGenerator(AbstractGenerator):
         self.z_dim = config['z_dim']
 
         self.final = nn.Sequential(
-            nn.Linear(self.z_dim, 64),
-            nn.LeakyReLU(),
+            nn.Linear(self.z_dim, 32),
+            nn.Tanh(),
+            nn.Linear(32, 64),
+            nn.Tanh(),
             nn.Linear(64, 128),
-            nn.LeakyReLU(),
-            nn.Linear(128, 256),
-            nn.LeakyReLU(),
-            nn.Linear(256, self.x_dim),
-        )
-
-        self.amplitude_head = nn.Sequential(
-            nn.Linear(self.x_dim // 2, self.x_dim),
-            nn.LeakyReLU(),
-            nn.Linear(self.x_dim, self.x_dim // 2),
+            nn.Tanh(),
+            nn.Linear(128, self.x_dim // 2),
+            nn.ReLU(),
             nn.Tanh()
         )
 
-        self.time_head = nn.Sequential(
-            nn.Linear(self.x_dim // 2, self.x_dim),
-            nn.Sigmoid(),
-            nn.Linear(self.x_dim, self.x_dim // 2),
-        )
+        self.W1 = torch.nn.Parameter(torch.randn(self.x_dim // 2))
+        self.W2 = torch.nn.Parameter(torch.randn(self.x_dim // 2))
+        self.W1.requires_grad = True
+        self.W2.requires_grad = True
+
+        # self.amplitude_head = nn.Sequential(
+        #     nn.Linear(self.x_dim // 2, self.x_dim),
+        #     nn.LeakyReLU(),
+        #     nn.Linear(self.x_dim, self.x_dim // 2),
+        #     nn.Tanh()
+        # )
+
+        # self.time_head = nn.Sequential(
+        #     nn.Linear(self.x_dim // 2, self.x_dim),
+        #     nn.Sigmoid(),
+        #     nn.Linear(self.x_dim, self.x_dim // 2),
+        # )
 
     def forward(self, x, debug=False):
-        out = self.final(x)
-        out_reshaped = out.view(x.shape[0], 2, -1)
+        amplitudes_features = self.final(x)
+        # out_reshaped = out.view(x.shape[0], 2, -1)
 
-        time_features = out_reshaped[:, 0]
-        amplitude_features = out_reshaped[:, 1]
-        time_out = self.time_head(time_features)
-        amplitude_out = self.amplitude_head(amplitude_features)
+        # time_features = out_reshaped[:, 0]
+        # amplitude_features = out_reshaped[:, 1]
+        # time_out = self.time_head(time_features)
+        # amplitude_out = self.amplitude_head(amplitude_features)
 
-        return torch.cat([time_out, amplitude_out], dim=1)
+        # return torch.cat([time_out, amplitude_out], dim=1)
+        time_features = torch.tanh(torch.tanh(amplitudes_features * self.W1) * self.W2)
+        return torch.cat([time_features, amplitudes_features], dim=1)
 
     @staticmethod
     def get_rel_fake_fig(real_sample, fake_sample):
@@ -83,7 +93,10 @@ class SimplifiedGenerator(AbstractGenerator):
 
         real_times, real_amplitudes = get_times_amplitudes(real_sample)
         fake_times, fake_amplitudes = get_times_amplitudes(fake_sample)
-        
+
+        real_times *= TIME_NORM_COEF
+        fake_times *= TIME_NORM_COEF
+
         space_metrics_dict = get_space_metrics_dict(real_amplitudes, fake_amplitudes)
         amplitude_distances = calculate_1d_distributions_distances(real_amplitudes, fake_amplitudes)
         amplitude_fig = get_amplitude_fig(real_amplitudes, fake_amplitudes)
@@ -130,11 +143,12 @@ class SimplifiedDiscriminator(AbstractDiscriminator):
         self.x_dim = config['x_dim']
 
         self.fc_final = nn.Sequential(
-            nn.Linear(self.x_dim, 64),
+            nn.Linear(self.x_dim, 32),
             nn.Tanh(),
-            nn.Linear(64, 128),
+            nn.Linear(32, 64),
             nn.Tanh(),
-            nn.Linear(128, 1)
+            nn.Linear(64, 1),
+            nn.Sigmoid()
         )
 
 

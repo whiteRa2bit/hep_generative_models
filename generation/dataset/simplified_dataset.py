@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-from generation.config import SIGNAL_DIM, DETECTORS
+from generation.config import SIGNAL_DIM, DETECTORS, TIME_NORM_COEF
 from generation.dataset.data_utils import get_detector_postprocessed_signals
 from generation.metrics.time_metrics import get_ref_time_pred
 
@@ -39,7 +39,7 @@ class SimplifiedDataset(Dataset):
             for signal_idx in range(ref_times.shape[1]):
                 ref_times[detector_idx][signal_idx] = get_ref_time_pred(self.signals[detector_idx][signal_idx])
         np.nan_to_num(ref_times, 0)
-        return ref_times
+        return ref_times / TIME_NORM_COEF
 
     def __len__(self):
         return self.signals.shape[1]

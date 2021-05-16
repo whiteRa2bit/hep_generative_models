@@ -44,20 +44,13 @@ class WganTrainer(AbstractTrainer):
                 z = Variable(torch.randn(self.config['batch_size'], self.config['z_dim']))
                 z = z.to(self.config['device'])
 
-                
-                eps = torch.rand((self.config['batch_size']), device=self.config['device'])
-                eps_shape = list(X.shape[1:]) + [1]
-                eps = eps.repeat(eps_shape)
-                eps = eps.permute([-1] + list(range(eps.ndim - 1)))
-
                 g_sample = self.generator(z)
-                g_sample_mixed = eps * X + (1 - eps) * g_sample
                 d_real = self.discriminator(X)
                 
-                d_fake = self.discriminator(g_sample_mixed)
+                d_fake = self.discriminator(torch.grid_sampler)
 
                 if self.config['use_gp']:
-                    gradient_penalty = self._compute_gp(X, g_sample_mixed)
+                    gradient_penalty = self._compute_gp(X, g_sample)
                 else:
                     gradient_penalty = 0
                     # Clip weights of discriminator
