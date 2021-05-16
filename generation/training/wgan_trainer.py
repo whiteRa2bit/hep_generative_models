@@ -51,9 +51,6 @@ class WganTrainer(AbstractTrainer):
                 eps = eps.permute([-1] + list(range(eps.ndim - 1)))
 
                 g_sample = self.generator(z)
-                # print(f'X shape: {X.shape}')  TODO: (@whiteRa2bit, 2021-05-15) Remove
-                # print(f'eps shape: {eps.shape}')
-                # print(f'g sample shape: {g_sample.shape}')
                 g_sample_mixed = eps * X + (1 - eps) * g_sample
                 d_real = self.discriminator(X)
                 
