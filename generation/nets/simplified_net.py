@@ -29,14 +29,14 @@ class SimplifiedGenerator(AbstractGenerator):
         self.amplitude_head = nn.Sequential(
             nn.Linear(self.x_dim // 2, self.x_dim),
             nn.LeakyReLU(),
-            nn.Linear(self.x_dim, self.x_dim // 2)
+            nn.Linear(self.x_dim, self.x_dim // 2),
+            nn.Tanh()
         )
 
         self.time_head = nn.Sequential(
             nn.Linear(self.x_dim // 2, self.x_dim),
             nn.Sigmoid(),
             nn.Linear(self.x_dim, self.x_dim // 2),
-            nn.Sigmoid()
         )
 
     def forward(self, x, debug=False):

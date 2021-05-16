@@ -3,7 +3,7 @@ import collections
 
 # Data params
 _ENERGY = 1
-DATA_DIR = f'/mnt/pafakanov/hep_data/{_ENERGY}GeV_dummy/'
+DATA_DIR = f'/mnt/pafakanov/hep_data/{_ENERGY}GeV/'
 CHECKPOINT_DIR = os.path.join(DATA_DIR, 'checkpoints/')
 DF_DIR = os.path.join(DATA_DIR, 'dfs')
 FULL_SIGNALS_DIR = os.path.join(DATA_DIR, 'full_signals')
@@ -106,7 +106,7 @@ AMPLITUDES_TRAINING_CONFIG = {
     "g_lr": 1e-4,
     "d_lr": 1e-4,
     "epochs_num": 2000,
-    "batch_size": 128,
+    "batch_size": 512,
     "log_each": 1,
     "save_each": 2,
     "device": "cuda:1",
