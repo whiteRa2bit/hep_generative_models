@@ -73,10 +73,10 @@ SIGNALS_TRAINING_CONFIG = {
     "d_beta2": 0.99
 }
 SHAPES_TRAINING_CONFIG = {
-    "detector": 0,
+    "detector": 1,
     "g_lr": 3e-4,
     "d_lr": 1e-4,
-    "epochs_num": 2000,
+    "epochs_num": 4000,
     "batch_size": 32,
     "log_each": 5,
     "decay_epoch": 0,
@@ -130,4 +130,31 @@ IMAGES_TRAINING_CONFIG = {
     "z_dim": 16,
     "disc_coef": 3,
     "lambda": 5
+}
+SIMPLIFIED_MODEL_CONFIG = {
+    "g_lr": 3e-5,
+    "d_lr": 3e-4,
+    "epochs_num": 500,
+    "batch_size": 32,
+    "log_each": 5,
+    "decay_epoch": 0,
+    "save_each": 2,
+    "device": "cuda:2",
+    "x_freq": 2,
+    "x_dim": 18,
+    "z_dim": 64,
+    "d_coef": 5,
+    "use_gp": True,
+    "clip_value": 0.1,
+    "lambda": 10,
+    "g_use_scheduler": True,
+    "g_lr_multiplier": 5,
+    "g_lr_total_epoch": 200,
+    "d_use_scheduler": True,
+    "d_lr_multiplier": 5,
+    "d_lr_total_epoch": 200,
+    "g_beta1": 0,
+    "g_beta2": 0.9,
+    "d_beta1": 0,
+    "d_beta2": 0.9
 }

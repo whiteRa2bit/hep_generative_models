@@ -14,7 +14,7 @@ def get_ref_time_pred(signal):
     for idx, cur_amplitude in enumerate(signal):
         if cur_amplitude > half_amplitude:
             return idx
-    return -1
+    return 0
 
 
 def plot_time_distributions(real_times, fake_times, ax, title, bins):

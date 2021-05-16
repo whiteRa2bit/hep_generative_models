@@ -3,7 +3,8 @@ import argparse
 import torch
 
 from generation.config import AMPLITUDES_MODEL_NAME, IMAGES_MODEL_NAME, SHAPES_MODEL_NAME, SIGNALS_MODEL_NAME, \
-    AMPLITUDES_TRAINING_CONFIG, IMAGES_TRAINING_CONFIG, SHAPES_TRAINING_CONFIG, SIGNALS_TRAINING_CONFIG
+    SIMPLIFIED_MODEL_NAME, AMPLITUDES_TRAINING_CONFIG, IMAGES_TRAINING_CONFIG, SHAPES_TRAINING_CONFIG, \
+    SIGNALS_TRAINING_CONFIG, SIMPLIFIED_MODEL_CONFIG
 from generation.dataset.amplitudes_dataset import AmplitudesDataset
 from generation.nets.amplitudes_net import AmplitudesGenerator, AmplitudesDiscriminator
 from generation.dataset.images_dataset import ImagesDataset
@@ -13,7 +14,7 @@ from generation.nets.shapes_net import ShapesGenerator, ShapesDiscriminator
 from generation.dataset.signals_dataset import SignalsDataset
 from generation.nets.signals_net import SignalsGenerator, SignalsDiscriminator
 from generation.dataset.simplified_dataset import SimplifiedDataset
-from generation.nets.simplitfied_net import SimplifiedGenerator, SimplifiedDiscriminator
+from generation.nets.simplified_net import SimplifiedGenerator, SimplifiedDiscriminator
 from generation.training.gan_trainer import GanTrainer
 from generation.training.wgan_trainer import WganTrainer
 from generation.utils import set_seed
@@ -25,7 +26,7 @@ def parse_args():
     argparser.add_argument(
         '-m',
         '--model_name',
-        choices=[AMPLITUDES_MODEL_NAME, IMAGES_MODEL_NAME, SHAPES_MODEL_NAME, SIGNALS_MODEL_NAME],
+        choices=[AMPLITUDES_MODEL_NAME, IMAGES_MODEL_NAME, SHAPES_MODEL_NAME, SIGNALS_MODEL_NAME, SIMPLIFIED_MODEL_NAME],
         required=True)
     args = argparser.parse_args()
     return args
@@ -55,6 +56,12 @@ def _get_params_by_model_name(model_name):
         dataset = SignalsDataset(signal_dim=config["x_dim"], freq=config["x_freq"])
         generator = SignalsGenerator(config)
         discriminator = SignalsDiscriminator(config)
+        trainer_class = WganTrainer
+    elif model_name == SIMPLIFIED_MODEL_NAME:
+        config = SIMPLIFIED_MODEL_CONFIG
+        dataset = SimplifiedDataset(signal_dim=config["x_dim"], freq=config["x_freq"])
+        generator = SimplifiedGenerator(config)
+        discriminator = SimplifiedDiscriminator(config)
         trainer_class = WganTrainer
 
     return dataset, generator, discriminator, trainer_class, config
