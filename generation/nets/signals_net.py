@@ -1,11 +1,15 @@
+import numpy as np
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import matplotlib.pyplot as plt
 import wandb
 from loguru import logger
 
 from generation.nets.abstract_net import AbstractGenerator, AbstractDiscriminator
+from generation.metrics.amplitude_metrics import get_space_metrics_dict, get_amplitude_fig, get_amplitude_correlations
+from generation.metrics.time_metrics import get_time_values, plot_time_distributions
+from generation.metrics.utils import calculate_1d_distributions_distances
 
 
 class SignalsGenerator(AbstractGenerator):
@@ -21,14 +25,14 @@ class SignalsGenerator(AbstractGenerator):
             nn.ConvTranspose1d(
                 in_channels=config["z_dim"], out_channels=out_channels, kernel_size=4, stride=4, padding=0),
             nn.BatchNorm1d(num_features=out_channels),
-            nn.LeakyReLU(inplace=True))
+            nn.ReLU(inplace=True))
 
         # Input shape: [batch_size, channels, 4]
         self.block2 = nn.Sequential(
             nn.ConvTranspose1d(
                 in_channels=out_channels, out_channels=out_channels // 2, kernel_size=4, stride=4, padding=0),
             nn.BatchNorm1d(num_features=out_channels // 2),
-            nn.LeakyReLU(inplace=True))
+            nn.ReLU(inplace=True))
         out_channels //= 2
 
         # Input shape: [batch_size, channels/2, 16]
@@ -36,17 +40,25 @@ class SignalsGenerator(AbstractGenerator):
             nn.ConvTranspose1d(
                 in_channels=out_channels, out_channels=out_channels // 2, kernel_size=4, stride=4, padding=0),
             nn.BatchNorm1d(num_features=out_channels // 2),
-            nn.LeakyReLU(inplace=True))
+            nn.ReLU(inplace=True))
         out_channels //= 2
 
         # Input shape: [batch_size, channels/4, 64]
         assert config["pad_size"] % 2 == 1
         self.block4 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=out_channels, out_channels=9, kernel_size=4, stride=2, padding=1),
+            nn.ConvTranspose1d(in_channels=out_channels, out_channels=out_channels // 2, kernel_size=4, stride=4, padding=0),
+            nn.BatchNorm1d(num_features=out_channels // 2),
+            nn.ReLU(inplace=True)
             # nn.AvgPool1d(config["pad_size"], stride=1, padding=config["pad_size"] // 2)
         )
+        out_channels //= 2
 
-        # Output shape: [batch_size, 9, 128]
+        # Input shape: [batch_size, channels/8, 256]
+        self.block5 = nn.Sequential(
+            nn.ConvTranspose1d(
+                in_channels=out_channels, out_channels=9, kernel_size=4, stride=4, padding=0),
+        )
+        # Output shape: [batch_size, 9, 1024]
 
     def forward(self, x, debug=False):
         def _debug():
@@ -63,8 +75,10 @@ class SignalsGenerator(AbstractGenerator):
         _debug()
         x = self.block4(x)
         _debug()
+        x = self.block5(x)
+        _debug()
 
-        return torch.tanh(x)
+        return x
 
     @staticmethod
     def get_rel_fake_fig(real_sample, fake_sample):
@@ -77,28 +91,100 @@ class SignalsGenerator(AbstractGenerator):
             ax[i // 3][3 + i % 3].plot(fake_sample[i])
         return fig
 
+    @staticmethod
+    def get_metrics_to_log(real_sample, fake_sample):
+        """
+        real_sample: [batch_size, detectors_num, signal_size]
+        fake_sample: [batch_size, detectors_num, signal_size]
+        """
+        real_sample = np.transpose(real_sample.cpu().detach().numpy(), (1, 0, 2))
+        fake_sample = np.transpose(fake_sample.cpu().detach().numpy(), (1, 0, 2))
+
+        real_amplitudes = np.max(real_sample, axis=2) - np.min(real_sample, axis=2)
+        fake_amplitudes = np.max(fake_sample, axis=2) - np.min(fake_sample, axis=2)
+
+        space_metrics_dict = get_space_metrics_dict(real_amplitudes, fake_amplitudes)
+        amplitude_distances = calculate_1d_distributions_distances(real_amplitudes, fake_amplitudes)
+        amplitude_fig = get_amplitude_fig(real_amplitudes, fake_amplitudes)
+
+        real_amplitude_corrs = get_amplitude_correlations(real_amplitudes)
+        fake_amplitude_corrs = get_amplitude_correlations(fake_amplitudes)
+        corrs_distance = np.mean(np.abs(real_amplitude_corrs - fake_amplitude_corrs))
+
+        amplitude_dict = {
+            f"Amplitude distance {detector + 1}": amplitude_distances[detector] for detector in range(len(amplitude_distances))
+        }
+        amplitude_dict["Amplitude correlations distance"] = corrs_distance
+        amplitude_dict["Amplitudes distributions"] = wandb.Image(amplitude_fig)
+        amplitude_dict = {**amplitude_dict, **space_metrics_dict}
+
+        real_times = np.array([get_time_values(detector_sample, to_postprocess=False) for detector_sample in real_sample])
+        fake_times = np.array([get_time_values(detector_sample, to_postprocess=False) for detector_sample in fake_sample])
+        
+        time_distances = calculate_1d_distributions_distances(real_times, fake_times)
+        time_dict = {
+            f"Time distance {detector + 1}": time_distances[detector] for detector in range(len(time_distances))
+        }
+
+        time_fig, ax = plt.subplots(3, 3, figsize=(15, 15))
+        time_fig.suptitle("Times distributions", fontsize=16)
+        for i in range(9):
+            plot_time_distributions(
+                real_times=real_times[i], 
+                fake_times=fake_times[i], 
+                ax=ax[i // 3][i % 3], 
+                title=f'Detector {i + 1}',
+                bins=[x for x in np.arange(0, 200, 10)]
+            )
+
+        time_dict['Time distribution'] = wandb.Image(time_fig),
+
+        return {**time_dict, **amplitude_dict}
+
 
 class SignalsDiscriminator(AbstractDiscriminator):
     def __init__(self, config):
         super(SignalsDiscriminator, self).__init__(config)
-        self.x_dim = config['x_dim']
+        x_dim = config['x_dim']
+        out_channels = config['channels']
 
-        self.fc1 = nn.Linear(self.x_dim, 64)
-        self.fc2 = nn.Linear(64, 8)
-        self.fc_final = nn.Linear(8 * 9, 1)
+        self.block1 = nn.Sequential(
+            nn.Conv1d(in_channels=9, out_channels=out_channels, kernel_size=4, stride=4, padding=0),
+            nn.LayerNorm([out_channels, x_dim // 4]),
+            nn.LeakyReLU(inplace=True)
+        )
+        x_dim //= 4
 
-    def forward(self, x, debug=False):
-        def _debug():
-            if debug:
-                logger.info(x.shape)
-
-        x = torch.tanh(self.fc1(x))
-        _debug()
-        x = torch.tanh(self.fc2(x))
-        _debug()
-        x = x.view(x.shape[0], -1)
-        _debug()
-        x = self.fc_final(x)
-        _debug()
-
+        self.block2 = nn.Sequential(
+            nn.Conv1d(in_channels=out_channels, out_channels=out_channels * 2, kernel_size=4, stride=4, padding=0),
+            nn.LayerNorm([out_channels * 2, x_dim // 4]),
+            nn.LeakyReLU(inplace=True)
+        )
+        out_channels *= 2
+        x_dim //= 4
+        
+        self.block3 = nn.Sequential(
+            nn.Conv1d(in_channels=out_channels, out_channels=out_channels * 2, kernel_size=4, stride=4, padding=0),
+            nn.LayerNorm([out_channels * 2, x_dim // 4]),
+            nn.LeakyReLU(inplace=True)
+        )
+        out_channels *= 2
+        x_dim //= 4
+        
+        self.block4 = nn.Sequential(
+            nn.Conv1d(in_channels=out_channels, out_channels=out_channels * 2, kernel_size=4, stride=4, padding=0),
+            nn.LayerNorm([out_channels * 2, x_dim // 4]),
+            nn.LeakyReLU(inplace=True)
+        )
+        out_channels *= 2
+        x_dim //= 4
+        
+        self.block5 = nn.Conv1d(in_channels=out_channels, out_channels=1, kernel_size=4, stride=4, padding=0)
+        
+    def forward(self, input):
+        x = self.block1(input)
+        x = self.block2(x)
+        x = self.block3(x)
+        x = self.block4(x)
+        x = self.block5(x)
         return x
