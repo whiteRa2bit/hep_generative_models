@@ -25,14 +25,14 @@ class SignalsGenerator(AbstractGenerator):
             nn.ConvTranspose1d(
                 in_channels=config["z_dim"], out_channels=out_channels, kernel_size=4, stride=4, padding=0),
             nn.BatchNorm1d(num_features=out_channels),
-            nn.LeakyReLU(inplace=True))
+            nn.ReLU(inplace=True))
 
         # Input shape: [batch_size, channels, 4]
         self.block2 = nn.Sequential(
             nn.ConvTranspose1d(
                 in_channels=out_channels, out_channels=out_channels // 2, kernel_size=4, stride=4, padding=0),
             nn.BatchNorm1d(num_features=out_channels // 2),
-            nn.LeakyReLU(inplace=True))
+            nn.ReLU(inplace=True))
         out_channels //= 2
 
         # Input shape: [batch_size, channels/2, 16]
@@ -40,7 +40,7 @@ class SignalsGenerator(AbstractGenerator):
             nn.ConvTranspose1d(
                 in_channels=out_channels, out_channels=out_channels // 2, kernel_size=4, stride=4, padding=0),
             nn.BatchNorm1d(num_features=out_channels // 2),
-            nn.LeakyReLU(inplace=True))
+            nn.ReLU(inplace=True))
         out_channels //= 2
 
         # Input shape: [batch_size, channels/4, 64]
@@ -48,6 +48,7 @@ class SignalsGenerator(AbstractGenerator):
         self.block4 = nn.Sequential(
             nn.ConvTranspose1d(in_channels=out_channels, out_channels=out_channels // 2, kernel_size=4, stride=4, padding=0),
             nn.BatchNorm1d(num_features=out_channels // 2),
+            nn.ReLU(inplace=True)
             # nn.AvgPool1d(config["pad_size"], stride=1, padding=config["pad_size"] // 2)
         )
         out_channels //= 2
@@ -77,7 +78,7 @@ class SignalsGenerator(AbstractGenerator):
         x = self.block5(x)
         _debug()
 
-        return torch.tanh(x)
+        return x
 
     @staticmethod
     def get_rel_fake_fig(real_sample, fake_sample):
@@ -144,24 +145,46 @@ class SignalsGenerator(AbstractGenerator):
 class SignalsDiscriminator(AbstractDiscriminator):
     def __init__(self, config):
         super(SignalsDiscriminator, self).__init__(config)
-        self.x_dim = config['x_dim']
+        x_dim = config['x_dim']
+        out_channels = config['channels']
 
-        self.fc1 = nn.Linear(self.x_dim, 64)
-        self.fc2 = nn.Linear(64, 8)
-        self.fc_final = nn.Linear(8 * 9, 1)
+        self.block1 = nn.Sequential(
+            nn.Conv1d(in_channels=9, out_channels=out_channels, kernel_size=4, stride=4, padding=0),
+            nn.LayerNorm([out_channels, x_dim // 4]),
+            nn.LeakyReLU(inplace=True)
+        )
+        x_dim //= 4
 
-    def forward(self, x, debug=False):
-        def _debug():
-            if debug:
-                logger.info(x.shape)
-
-        x = torch.tanh(self.fc1(x))
-        _debug()
-        x = torch.tanh(self.fc2(x))
-        _debug()
-        x = x.view(x.shape[0], -1)
-        _debug()
-        x = self.fc_final(x)
-        _debug()
-
+        self.block2 = nn.Sequential(
+            nn.Conv1d(in_channels=out_channels, out_channels=out_channels * 2, kernel_size=4, stride=4, padding=0),
+            nn.LayerNorm([out_channels * 2, x_dim // 4]),
+            nn.LeakyReLU(inplace=True)
+        )
+        out_channels *= 2
+        x_dim //= 4
+        
+        self.block3 = nn.Sequential(
+            nn.Conv1d(in_channels=out_channels, out_channels=out_channels * 2, kernel_size=4, stride=4, padding=0),
+            nn.LayerNorm([out_channels * 2, x_dim // 4]),
+            nn.LeakyReLU(inplace=True)
+        )
+        out_channels *= 2
+        x_dim //= 4
+        
+        self.block4 = nn.Sequential(
+            nn.Conv1d(in_channels=out_channels, out_channels=out_channels * 2, kernel_size=4, stride=4, padding=0),
+            nn.LayerNorm([out_channels * 2, x_dim // 4]),
+            nn.LeakyReLU(inplace=True)
+        )
+        out_channels *= 2
+        x_dim //= 4
+        
+        self.block5 = nn.Conv1d(in_channels=out_channels, out_channels=1, kernel_size=4, stride=4, padding=0)
+        
+    def forward(self, input):
+        x = self.block1(input)
+        x = self.block2(x)
+        x = self.block3(x)
+        x = self.block4(x)
+        x = self.block5(x)
         return x
