@@ -8,7 +8,7 @@ from loguru import logger
 
 from generation.nets.abstract_net import AbstractGenerator, AbstractDiscriminator
 from generation.metrics.time_metrics import get_time_values, plot_time_distributions
-from generation.metrics.utils import calculate_1d_distributions_distances
+from generation.metrics.utils import calculate_1d_distributions_distances, get_correlations
 
 
 class ShapesGenerator(AbstractGenerator):
@@ -83,6 +83,9 @@ class ShapesGenerator(AbstractGenerator):
         fake_times = get_time_values(fake_sample, to_postprocess=False)
         time_distance = calculate_1d_distributions_distances(np.array([real_times]), np.array([fake_times]))[0]
     
+        real_times_corrs = get_correlations(real_times)
+        fake_times_corrs = get_correlations(fake_times)
+        time_corrs_distance = np.mean(np.abs(real_times_corrs - fake_times_corrs))
 
         time_fig, ax = plt.subplots(1)
         plot_time_distributions(
@@ -96,6 +99,7 @@ class ShapesGenerator(AbstractGenerator):
         time_dict = {
             'Time distance': time_distance,
             'Time distribution': wandb.Image(time_fig),
+            'Time correlations distance': time_corrs_distance
         }
 
         return time_dict

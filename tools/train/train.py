@@ -12,6 +12,8 @@ from generation.dataset.shapes_dataset import ShapesDataset
 from generation.nets.shapes_net import ShapesGenerator, ShapesDiscriminator
 from generation.dataset.signals_dataset import SignalsDataset
 from generation.nets.signals_net import SignalsGenerator, SignalsDiscriminator
+from generation.dataset.simplified_dataset import SimplifiedDataset
+from generation.nets.simplitfied_net import SimplifiedGenerator, SimplifiedDiscriminator
 from generation.training.gan_trainer import GanTrainer
 from generation.training.wgan_trainer import WganTrainer
 from generation.utils import set_seed

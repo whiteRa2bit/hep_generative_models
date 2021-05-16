@@ -7,9 +7,9 @@ import wandb
 from loguru import logger
 
 from generation.nets.abstract_net import AbstractGenerator, AbstractDiscriminator
-from generation.metrics.amplitude_metrics import get_space_metrics_dict, get_amplitude_fig, get_amplitude_correlations
+from generation.metrics.amplitude_metrics import get_space_metrics_dict, get_amplitude_fig
 from generation.metrics.time_metrics import get_time_values, plot_time_distributions
-from generation.metrics.utils import calculate_1d_distributions_distances
+from generation.metrics.utils import calculate_1d_distributions_distances, get_correlations
 
 
 class SignalsGenerator(AbstractGenerator):
@@ -107,20 +107,24 @@ class SignalsGenerator(AbstractGenerator):
         amplitude_distances = calculate_1d_distributions_distances(real_amplitudes, fake_amplitudes)
         amplitude_fig = get_amplitude_fig(real_amplitudes, fake_amplitudes)
 
-        real_amplitude_corrs = get_amplitude_correlations(real_amplitudes)
-        fake_amplitude_corrs = get_amplitude_correlations(fake_amplitudes)
-        corrs_distance = np.mean(np.abs(real_amplitude_corrs - fake_amplitude_corrs))
+        real_amplitude_corrs = get_correlations(real_amplitudes)
+        fake_amplitude_corrs = get_correlations(fake_amplitudes)
+        amplitude_corrs_distance = np.mean(np.abs(real_amplitude_corrs - fake_amplitude_corrs))
 
         amplitude_dict = {
             f"Amplitude distance {detector + 1}": amplitude_distances[detector] for detector in range(len(amplitude_distances))
         }
-        amplitude_dict["Amplitude correlations distance"] = corrs_distance
+        amplitude_dict["Amplitude correlations distance"] = amplitude_corrs_distance
         amplitude_dict["Amplitudes distributions"] = wandb.Image(amplitude_fig)
         amplitude_dict = {**amplitude_dict, **space_metrics_dict}
 
         real_times = np.array([get_time_values(detector_sample, to_postprocess=False) for detector_sample in real_sample])
         fake_times = np.array([get_time_values(detector_sample, to_postprocess=False) for detector_sample in fake_sample])
         
+        real_times_corrs = get_correlations(real_times)
+        fake_times_corrs = get_correlations(fake_times)
+        time_corrs_distance = np.mean(np.abs(real_times_corrs - fake_times_corrs))
+
         time_distances = calculate_1d_distributions_distances(real_times, fake_times)
         time_dict = {
             f"Time distance {detector + 1}": time_distances[detector] for detector in range(len(time_distances))
@@ -136,7 +140,7 @@ class SignalsGenerator(AbstractGenerator):
                 title=f'Detector {i + 1}',
                 bins=[x for x in np.arange(0, 200, 10)]
             )
-
+        time_dict["Time correlations distance"] = time_corrs_distance
         time_dict['Time distribution'] = wandb.Image(time_fig),
 
         return {**time_dict, **amplitude_dict}
@@ -178,9 +182,9 @@ class SignalsDiscriminator(AbstractDiscriminator):
         )
         out_channels *= 2
         x_dim //= 4
-        
+
         self.block5 = nn.Conv1d(in_channels=out_channels, out_channels=1, kernel_size=4, stride=4, padding=0)
-        
+
     def forward(self, input):
         x = self.block1(input)
         x = self.block2(x)

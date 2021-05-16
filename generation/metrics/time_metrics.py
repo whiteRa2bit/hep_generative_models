@@ -9,7 +9,7 @@ from generation.config import DETECTORS
 _PROCESSES_NUM = 24
 
 
-def _get_ref_time_pred(signal):
+def get_ref_time_pred(signal):
     half_amplitude = np.min(signal) + (np.max(signal) - np.min(signal)) / 2
     for idx, cur_amplitude in enumerate(signal):
         if cur_amplitude > half_amplitude:
@@ -39,7 +39,7 @@ def get_time_values(signals, to_postprocess=False):
         with mp.Pool(_PROCESSES_NUM) as pool:
             signals = pool.map(postprocess_signal, signals)
     
-    time_values = [_get_ref_time_pred(signal) for signal in signals]
+    time_values = [get_ref_time_pred(signal) for signal in signals]
     time_values = np.array(time_values)
     return time_values
 
