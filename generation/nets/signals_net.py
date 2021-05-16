@@ -18,67 +18,44 @@ class SignalsGenerator(AbstractGenerator):
         self.x_dim = config['x_dim']
         self.z_dim = config['z_dim']
 
-        # Input shape: [batch_size, z_dim, 1]
-        out_channels = config["channels"]
-        assert out_channels % 2 ** 3 == 0
-        self.block1 = nn.Sequential(
-            nn.ConvTranspose1d(
-                in_channels=config["z_dim"], out_channels=out_channels, kernel_size=4, stride=4, padding=0),
-            nn.BatchNorm1d(num_features=out_channels),
-            nn.ReLU(inplace=True))
+        self.fc1 = nn.Linear(self.z_dim, self.x_dim)
 
-        # Input shape: [batch_size, channels, 4]
-        self.block2 = nn.Sequential(
-            nn.ConvTranspose1d(
-                in_channels=out_channels, out_channels=out_channels // 2, kernel_size=4, stride=4, padding=0),
-            nn.BatchNorm1d(num_features=out_channels // 2),
-            nn.ReLU(inplace=True))
-        out_channels //= 2
+        self.conv1 = nn.Conv1d(1, 8, 3, padding=1)
+        self.conv2 = nn.Conv1d(8, 32, 3, padding=1)
+        self.conv3 = nn.Conv1d(32, 16, 3, padding=1)
+        self.conv4 = nn.Conv1d(16, 8, 3, padding=1)
+        self.conv5 = nn.Conv1d(8, 9, 3, padding=1)
 
-        # Input shape: [batch_size, channels/2, 16]
-        self.block3 = nn.Sequential(
-            nn.ConvTranspose1d(
-                in_channels=out_channels, out_channels=out_channels // 2, kernel_size=4, stride=4, padding=0),
-            nn.BatchNorm1d(num_features=out_channels // 2),
-            nn.ReLU(inplace=True))
-        out_channels //= 2
-
-        # Input shape: [batch_size, channels/4, 64]
-        assert config["pad_size"] % 2 == 1
-        self.block4 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=out_channels, out_channels=out_channels // 2, kernel_size=4, stride=4, padding=0),
-            nn.BatchNorm1d(num_features=out_channels // 2),
-            nn.ReLU(inplace=True)
-            # nn.AvgPool1d(config["pad_size"], stride=1, padding=config["pad_size"] // 2)
-        )
-        out_channels //= 2
-
-        # Input shape: [batch_size, channels/8, 256]
-        self.block5 = nn.Sequential(
-            nn.ConvTranspose1d(
-                in_channels=out_channels, out_channels=9, kernel_size=4, stride=4, padding=0),
-        )
-        # Output shape: [batch_size, 9, 1024]
+        self.batchnorm1 = nn.BatchNorm1d(8)
+        self.batchnorm2 = nn.BatchNorm1d(32)
+        self.batchnorm3 = nn.BatchNorm1d(16)
+        self.batchnorm4 = nn.BatchNorm1d(8)
 
     def forward(self, x, debug=False):
         def _debug():
             if debug:
                 logger.info(x.shape)
 
-        x = x.unsqueeze(2)
+        x = F.leaky_relu(self.fc1(x))
         _debug()
-        x = self.block1(x)
+        x = x.unsqueeze(1)
         _debug()
-        x = self.block2(x)
+        x = self.conv1(x)
+        x = F.leaky_relu(self.batchnorm1(x))
         _debug()
-        x = self.block3(x)
+        x = self.conv2(x)
+        x = F.leaky_relu(self.batchnorm2(x))
         _debug()
-        x = self.block4(x)
+        x = self.conv3(x)
+        x = F.leaky_relu(self.batchnorm3(x))
         _debug()
-        x = self.block5(x)
+        x = self.conv4(x)
+        x = F.leaky_relu(self.batchnorm4(x))
+        _debug()
+        x = self.conv5(x)
         _debug()
 
-        return x
+        return torch.sigmoid(x.squeeze(1))
 
     @staticmethod
     def get_rel_fake_fig(real_sample, fake_sample):
@@ -149,46 +126,48 @@ class SignalsGenerator(AbstractGenerator):
 class SignalsDiscriminator(AbstractDiscriminator):
     def __init__(self, config):
         super(SignalsDiscriminator, self).__init__(config)
-        x_dim = config['x_dim']
-        out_channels = config['channels']
+        self.x_dim = config['x_dim']
 
-        self.block1 = nn.Sequential(
-            nn.Conv1d(in_channels=9, out_channels=out_channels, kernel_size=4, stride=4, padding=0),
-            nn.LayerNorm([out_channels, x_dim // 4]),
-            nn.LeakyReLU(inplace=True)
-        )
-        x_dim //= 4
+        self.fc_final = nn.Linear(288, 1)
 
-        self.block2 = nn.Sequential(
-            nn.Conv1d(in_channels=out_channels, out_channels=out_channels * 2, kernel_size=4, stride=4, padding=0),
-            nn.LayerNorm([out_channels * 2, x_dim // 4]),
-            nn.LeakyReLU(inplace=True)
-        )
-        out_channels *= 2
-        x_dim //= 4
-        
-        self.block3 = nn.Sequential(
-            nn.Conv1d(in_channels=out_channels, out_channels=out_channels * 2, kernel_size=4, stride=4, padding=0),
-            nn.LayerNorm([out_channels * 2, x_dim // 4]),
-            nn.LeakyReLU(inplace=True)
-        )
-        out_channels *= 2
-        x_dim //= 4
-        
-        self.block4 = nn.Sequential(
-            nn.Conv1d(in_channels=out_channels, out_channels=out_channels * 2, kernel_size=4, stride=4, padding=0),
-            nn.LayerNorm([out_channels * 2, x_dim // 4]),
-            nn.LeakyReLU(inplace=True)
-        )
-        out_channels *= 2
-        x_dim //= 4
+        self.pool = nn.AvgPool1d(5, 3)
+        self.conv1 = nn.Conv1d(9, 8, 7, padding=3)
+        self.conv2 = nn.Conv1d(8, 32, 3, padding=1)
+        self.conv3 = nn.Conv1d(32, 8, 3, padding=1)
 
-        self.block5 = nn.Conv1d(in_channels=out_channels, out_channels=1, kernel_size=4, stride=4, padding=0)
+        x_dim = config["x_dim"]
+        self.layernorm1 = nn.LayerNorm([8, x_dim])
+        x_dim = (x_dim - 2) // 3
+        self.layernorm2 = nn.LayerNorm([32, x_dim])
+        x_dim = (x_dim - 2) // 3
+        self.layernorm3 = nn.LayerNorm([8, x_dim])
 
-    def forward(self, input):
-        x = self.block1(input)
-        x = self.block2(x)
-        x = self.block3(x)
-        x = self.block4(x)
-        x = self.block5(x)
+    def forward(self, x, debug=False):
+        def _debug():
+            if debug:
+                logger.info(x.shape)
+        # x = x.unsqueeze(1)
+        _debug()
+        x = self.conv1(x)
+        x = F.leaky_relu(self.layernorm1(x))
+        _debug()
+        x = self.pool(x)
+        _debug()
+        x = self.conv2(x)
+        x = F.leaky_relu(self.layernorm2(x))
+        _debug()
+        x = self.pool(x)
+        _debug()
+        x = self.conv3(x)
+        x = F.leaky_relu(self.layernorm3(x))
+        _debug()
+        x = self.pool(x)
+        _debug()
+        x = x.view(x.shape[0], -1)
+
+        x = x.squeeze(1)
+        _debug()
+        x = self.fc_final(x)
+        _debug()
+
         return x

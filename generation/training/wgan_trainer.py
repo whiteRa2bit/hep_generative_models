@@ -47,7 +47,7 @@ class WganTrainer(AbstractTrainer):
                 g_sample = self.generator(z)
                 d_real = self.discriminator(X)
                 
-                d_fake = self.discriminator(torch.grid_sampler)
+                d_fake = self.discriminator(g_sample)
 
                 if self.config['use_gp']:
                     gradient_penalty = self._compute_gp(X, g_sample)
