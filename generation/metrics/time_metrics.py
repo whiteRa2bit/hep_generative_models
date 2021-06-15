@@ -21,12 +21,12 @@ def plot_time_distributions(real_times, fake_times, ax, title, bins):
     """
     :param real_times: [signals_num]
     :param fake_times: [signals_num]
-    """    
+    """
     ax.set_title(title)
     ax.hist(fake_times, alpha=0.6, bins=bins)
     ax.hist(real_times, alpha=0.6, bins=bins)
     ax.legend(['Fake', 'Real'])
-    
+
 
 def get_time_values(signals, to_postprocess=False):
     """
@@ -38,7 +38,7 @@ def get_time_values(signals, to_postprocess=False):
     if to_postprocess:
         with mp.Pool(_PROCESSES_NUM) as pool:
             signals = pool.map(postprocess_signal, signals)
-    
+
     time_values = [get_ref_time_pred(signal) for signal in signals]
     time_values = np.array(time_values)
     return time_values

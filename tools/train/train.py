@@ -26,7 +26,9 @@ def parse_args():
     argparser.add_argument(
         '-m',
         '--model_name',
-        choices=[AMPLITUDES_MODEL_NAME, IMAGES_MODEL_NAME, SHAPES_MODEL_NAME, SIGNALS_MODEL_NAME, SIMPLIFIED_MODEL_NAME],
+        choices=[
+            AMPLITUDES_MODEL_NAME, IMAGES_MODEL_NAME, SHAPES_MODEL_NAME, SIGNALS_MODEL_NAME, SIMPLIFIED_MODEL_NAME
+        ],
         required=True)
     args = argparser.parse_args()
     return args
@@ -72,11 +74,10 @@ def run_train(model_name):
     config["device"] = f"cuda:{get_gpu_id()}"
 
     g_optimizer = torch.optim.Adam(
-            generator.parameters(), lr=config['g_lr'], betas=(config["g_beta1"], config["g_beta2"]))
+        generator.parameters(), lr=config['g_lr'], betas=(config["g_beta1"], config["g_beta2"]))
     d_optimizer = torch.optim.Adam(
         discriminator.parameters(), lr=config['d_lr'], betas=(config["d_beta1"], config["d_beta2"]))
     trainer = trainer_class(generator, discriminator, g_optimizer, d_optimizer, config)
-
 
     trainer.run_train(dataset)
 
