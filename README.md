@@ -61,7 +61,7 @@ Lastly we postprocess our signals
 
 ## Train
 
-To run training modify config file accordingly and run:
+To run training modify config file accordingly and run
 
     cd tools/train
     python train.py -m MODEL_NAME
