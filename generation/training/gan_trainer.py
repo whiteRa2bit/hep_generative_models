@@ -68,11 +68,7 @@ class GanTrainer(AbstractTrainer):
 
             if epoch % self.config['log_each'] == 0:
                 real_fake_fig = self.generator.get_rel_fake_fig(X[0], g_sample[0])
-                metrics_dict = {
-                    "D loss": epoch_d_loss,
-                    "G loss": epoch_g_loss,
-                    "Real vs Fake": real_fake_fig
-                }
+                metrics_dict = {"D loss": epoch_d_loss, "G loss": epoch_g_loss, "Real vs Fake": real_fake_fig}
                 metrics_dict = {**metrics_dict, **self.generator.get_metrics_to_log(X, g_sample)}
                 wandb.log(metrics_dict, step=epoch)
                 plt.close("all")

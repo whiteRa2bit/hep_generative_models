@@ -10,6 +10,7 @@ from generation.metrics.amplitude_metrics import get_space_metrics_dict, get_amp
 from generation.metrics.time_metrics import get_time_values, plot_time_distributions
 from generation.metrics.utils import calculate_1d_distributions_distances, get_correlations
 
+
 class SimplifiedGenerator(AbstractGenerator):
     def __init__(self, config):
         super(SimplifiedGenerator, self).__init__(config)
@@ -27,17 +28,10 @@ class SimplifiedGenerator(AbstractGenerator):
         )
 
         self.amplitude_head = nn.Sequential(
-            nn.Linear(self.x_dim // 2, self.x_dim),
-            nn.LeakyReLU(),
-            nn.Linear(self.x_dim, self.x_dim // 2)
-        )
+            nn.Linear(self.x_dim // 2, self.x_dim), nn.LeakyReLU(), nn.Linear(self.x_dim, self.x_dim // 2))
 
         self.time_head = nn.Sequential(
-            nn.Linear(self.x_dim // 2, self.x_dim),
-            nn.Sigmoid(),
-            nn.Linear(self.x_dim, self.x_dim // 2),
-            nn.Sigmoid()
-        )
+            nn.Linear(self.x_dim // 2, self.x_dim), nn.Sigmoid(), nn.Linear(self.x_dim, self.x_dim // 2), nn.Sigmoid())
 
     def forward(self, x, debug=False):
         out = self.final(x)
@@ -73,17 +67,18 @@ class SimplifiedGenerator(AbstractGenerator):
         real_sample: [batch_size, 2 * detectors_num]
         fake_sample: [batch_size, 2 * detectors_num]
         """
+
         def get_times_amplitudes(items):
             times = np.array([item[:9] for item in items]).T
             amplitudes = np.array([item[9:] for item in items]).T
             return times, amplitudes
-        
+
         real_sample = real_sample.cpu().detach().numpy()
         fake_sample = fake_sample.cpu().detach().numpy()
 
         real_times, real_amplitudes = get_times_amplitudes(real_sample)
         fake_times, fake_amplitudes = get_times_amplitudes(fake_sample)
-        
+
         space_metrics_dict = get_space_metrics_dict(real_amplitudes, fake_amplitudes)
         amplitude_distances = calculate_1d_distributions_distances(real_amplitudes, fake_amplitudes)
         amplitude_fig = get_amplitude_fig(real_amplitudes, fake_amplitudes)
@@ -93,7 +88,8 @@ class SimplifiedGenerator(AbstractGenerator):
         amplitude_corrs_distance = np.mean(np.abs(real_amplitude_corrs - fake_amplitude_corrs))
 
         amplitude_dict = {
-            f"Amplitude distance {detector + 1}": amplitude_distances[detector] for detector in range(len(amplitude_distances))
+            f"Amplitude distance {detector + 1}": amplitude_distances[detector]
+            for detector in range(len(amplitude_distances))
         }
         amplitude_dict["Amplitude correlations distance"] = amplitude_corrs_distance
         amplitude_dict["Amplitudes distributions"] = wandb.Image(amplitude_fig)
@@ -112,12 +108,11 @@ class SimplifiedGenerator(AbstractGenerator):
         time_fig.suptitle("Times distributions", fontsize=16)
         for i in range(9):
             plot_time_distributions(
-                real_times=real_times[i], 
-                fake_times=fake_times[i], 
-                ax=ax[i // 3][i % 3], 
+                real_times=real_times[i],
+                fake_times=fake_times[i],
+                ax=ax[i // 3][i % 3],
                 title=f'Detector {i + 1}',
-                bins=[x for x in np.arange(0, 200, 10)]
-            )
+                bins=[x for x in np.arange(0, 200, 10)])
         time_dict["Time correlations distance"] = time_corrs_distance
         time_dict['Time distribution'] = wandb.Image(time_fig)
 
@@ -130,13 +125,7 @@ class SimplifiedDiscriminator(AbstractDiscriminator):
         self.x_dim = config['x_dim']
 
         self.fc_final = nn.Sequential(
-            nn.Linear(self.x_dim, 64),
-            nn.Tanh(),
-            nn.Linear(64, 128),
-            nn.Tanh(),
-            nn.Linear(128, 1)
-        )
-
+            nn.Linear(self.x_dim, 64), nn.Tanh(), nn.Linear(64, 128), nn.Tanh(), nn.Linear(128, 1))
 
     def forward(self, x, debug=False):
         out = self.fc_final(x)

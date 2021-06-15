@@ -56,7 +56,8 @@ class AmplitudesGenerator(AbstractGenerator):
         amplitude_corrs_distance = np.mean(np.abs(real_amplitude_corrs - fake_amplitude_corrs))
 
         amplitude_dict = {
-            f"Amplitude distance {detector + 1}": amplitude_distances[detector] for detector in range(len(amplitude_distances))
+            f"Amplitude distance {detector + 1}": amplitude_distances[detector]
+            for detector in range(len(amplitude_distances))
         }
         amplitude_dict["Amplitude correlations distance"] = amplitude_corrs_distance
         amplitude_dict["Amplitudes distributions"] = wandb.Image(amplitude_fig)

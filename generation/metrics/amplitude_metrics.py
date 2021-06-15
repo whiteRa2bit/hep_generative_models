@@ -42,7 +42,6 @@ def _calculate_centre_mass(amplitudes):
     return coords.T @ amplitudes
 
 
-
 def _get_space_fig(real_mass_centres, fake_mass_centres):
     """
     Returns a figure with real and fake mass centres distributions

@@ -46,7 +46,8 @@ class SignalsGenerator(AbstractGenerator):
         # Input shape: [batch_size, channels/4, 64]
         assert config["pad_size"] % 2 == 1
         self.block4 = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=out_channels, out_channels=out_channels // 2, kernel_size=4, stride=4, padding=0),
+            nn.ConvTranspose1d(
+                in_channels=out_channels, out_channels=out_channels // 2, kernel_size=4, stride=4, padding=0),
             nn.BatchNorm1d(num_features=out_channels // 2),
             nn.ReLU(inplace=True)
             # nn.AvgPool1d(config["pad_size"], stride=1, padding=config["pad_size"] // 2)
@@ -55,9 +56,7 @@ class SignalsGenerator(AbstractGenerator):
 
         # Input shape: [batch_size, channels/8, 256]
         self.block5 = nn.Sequential(
-            nn.ConvTranspose1d(
-                in_channels=out_channels, out_channels=9, kernel_size=4, stride=4, padding=0),
-        )
+            nn.ConvTranspose1d(in_channels=out_channels, out_channels=9, kernel_size=4, stride=4, padding=0), )
         # Output shape: [batch_size, 9, 1024]
 
     def forward(self, x, debug=False):
@@ -112,15 +111,18 @@ class SignalsGenerator(AbstractGenerator):
         amplitude_corrs_distance = np.mean(np.abs(real_amplitude_corrs - fake_amplitude_corrs))
 
         amplitude_dict = {
-            f"Amplitude distance {detector + 1}": amplitude_distances[detector] for detector in range(len(amplitude_distances))
+            f"Amplitude distance {detector + 1}": amplitude_distances[detector]
+            for detector in range(len(amplitude_distances))
         }
         amplitude_dict["Amplitude correlations distance"] = amplitude_corrs_distance
         amplitude_dict["Amplitudes distributions"] = wandb.Image(amplitude_fig)
         amplitude_dict = {**amplitude_dict, **space_metrics_dict}
 
-        real_times = np.array([get_time_values(detector_sample, to_postprocess=False) for detector_sample in real_sample])
-        fake_times = np.array([get_time_values(detector_sample, to_postprocess=False) for detector_sample in fake_sample])
-        
+        real_times = np.array(
+            [get_time_values(detector_sample, to_postprocess=False) for detector_sample in real_sample])
+        fake_times = np.array(
+            [get_time_values(detector_sample, to_postprocess=False) for detector_sample in fake_sample])
+
         real_times_corrs = get_correlations(real_times)
         fake_times_corrs = get_correlations(fake_times)
         time_corrs_distance = np.mean(np.abs(real_times_corrs - fake_times_corrs))
@@ -134,12 +136,11 @@ class SignalsGenerator(AbstractGenerator):
         time_fig.suptitle("Times distributions", fontsize=16)
         for i in range(9):
             plot_time_distributions(
-                real_times=real_times[i], 
-                fake_times=fake_times[i], 
-                ax=ax[i // 3][i % 3], 
+                real_times=real_times[i],
+                fake_times=fake_times[i],
+                ax=ax[i // 3][i % 3],
                 title=f'Detector {i + 1}',
-                bins=[x for x in np.arange(0, 200, 10)]
-            )
+                bins=[x for x in np.arange(0, 200, 10)])
         time_dict["Time correlations distance"] = time_corrs_distance
         time_dict['Time distribution'] = wandb.Image(time_fig),
 
@@ -155,31 +156,27 @@ class SignalsDiscriminator(AbstractDiscriminator):
         self.block1 = nn.Sequential(
             nn.Conv1d(in_channels=9, out_channels=out_channels, kernel_size=4, stride=4, padding=0),
             nn.LayerNorm([out_channels, x_dim // 4]),
-            nn.LeakyReLU(inplace=True)
-        )
+            nn.LeakyReLU(inplace=True))
         x_dim //= 4
 
         self.block2 = nn.Sequential(
             nn.Conv1d(in_channels=out_channels, out_channels=out_channels * 2, kernel_size=4, stride=4, padding=0),
             nn.LayerNorm([out_channels * 2, x_dim // 4]),
-            nn.LeakyReLU(inplace=True)
-        )
+            nn.LeakyReLU(inplace=True))
         out_channels *= 2
         x_dim //= 4
-        
+
         self.block3 = nn.Sequential(
             nn.Conv1d(in_channels=out_channels, out_channels=out_channels * 2, kernel_size=4, stride=4, padding=0),
             nn.LayerNorm([out_channels * 2, x_dim // 4]),
-            nn.LeakyReLU(inplace=True)
-        )
+            nn.LeakyReLU(inplace=True))
         out_channels *= 2
         x_dim //= 4
-        
+
         self.block4 = nn.Sequential(
             nn.Conv1d(in_channels=out_channels, out_channels=out_channels * 2, kernel_size=4, stride=4, padding=0),
             nn.LayerNorm([out_channels * 2, x_dim // 4]),
-            nn.LeakyReLU(inplace=True)
-        )
+            nn.LeakyReLU(inplace=True))
         out_channels *= 2
         x_dim //= 4
 

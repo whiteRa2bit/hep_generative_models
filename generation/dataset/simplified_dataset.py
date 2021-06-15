@@ -15,7 +15,7 @@ class SimplifiedDataset(Dataset):
         self.signal_dim = signal_dim
         self.freq = freq
 
-        self.signals= self._get_signals()
+        self.signals = self._get_signals()
         self.amplitudes = self._get_amplitudes()
         self.ref_times = self._get_ref_times()
 

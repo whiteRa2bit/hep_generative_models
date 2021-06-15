@@ -18,6 +18,7 @@ def _save_detector_signals(postprocessed_signals, detector):
     postprocessed_data_path = get_detector_postprocessed_signals_path(detector)
     save_h5(postprocessed_signals, H5_DATASET_NAME, postprocessed_data_path)
 
+
 @timer
 def main():
     create_dir(POSTPROCESSED_SIGNALS_DIR)

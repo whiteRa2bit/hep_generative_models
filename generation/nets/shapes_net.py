@@ -82,15 +82,14 @@ class ShapesGenerator(AbstractGenerator):
         real_times = get_time_values(real_sample, to_postprocess=False)
         fake_times = get_time_values(fake_sample, to_postprocess=False)
         time_distance = calculate_1d_distributions_distances(np.array([real_times]), np.array([fake_times]))[0]
- 
+
         time_fig, ax = plt.subplots(1)
         plot_time_distributions(
-            real_times=real_times, 
-            fake_times=fake_times, 
-            ax=ax, 
+            real_times=real_times,
+            fake_times=fake_times,
+            ax=ax,
             title='Time distribution',
-            bins=[x for x in np.arange(0, 200, 10)]
-        )
+            bins=[x for x in np.arange(0, 200, 10)])
 
         time_dict = {
             'Time distance': time_distance,
@@ -98,6 +97,7 @@ class ShapesGenerator(AbstractGenerator):
         }
 
         return time_dict
+
 
 class ShapesDiscriminator(AbstractDiscriminator):
     def __init__(self, config):
@@ -122,6 +122,7 @@ class ShapesDiscriminator(AbstractDiscriminator):
         def _debug():
             if debug:
                 logger.info(x.shape)
+
         x = x.unsqueeze(1)
         _debug()
         x = self.conv1(x)
